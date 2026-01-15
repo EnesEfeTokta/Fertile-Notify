@@ -1,0 +1,6 @@
+@FertileNotify.API_HostAddress = http://localhost:5082
+
+GET {{FertileNotify.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
