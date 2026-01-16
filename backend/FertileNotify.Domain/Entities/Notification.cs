@@ -1,11 +1,21 @@
+using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.ValueObjects;
+
 namespace FertileNotify.Domain.Entities
 {
     public class Notification
     {
-        public int Id { get; set; }
-        public string Message { get; set; }
-        public NotificationStatus Status { get; set; }
-        public NotificationChannel Channel { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public Guid Id { get; private set; }
+        public string Title { get; private set; }
+        public string Message { get; private set; }
+        public DateTime CreateAt { get; private set; }
+
+        public Notification(string title, string message)
+        {
+            Id = Guid.NewGuid();
+            Title = title;
+            Message = message;
+            CreateAt = DateTime.UtcNow;
+        }
     }
 }
