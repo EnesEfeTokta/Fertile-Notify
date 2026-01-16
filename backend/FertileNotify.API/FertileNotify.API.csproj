@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FertileNotify.Application\FertileNotify.Application.csproj" />
+  </ItemGroup>
+
 </Project>
