@@ -1,11 +1,6 @@
 ﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FertileNotify.Application.UseCases.RegisterUser
 {
@@ -43,7 +38,7 @@ namespace FertileNotify.Application.UseCases.RegisterUser
             );
 
             await _userRepository.SaveAsync(user);
-            await _subscriptionRepository.SaveAsync(subscription);
+            await _subscriptionRepository.SaveAsync(user.Id, subscription);
 
             return user.Id;
         }
@@ -60,7 +55,7 @@ namespace FertileNotify.Application.UseCases.RegisterUser
             );
 
             await _userRepository.SaveAsync(user);
-            await _subscriptionRepository.SaveAsync(subscription);
+            await _subscriptionRepository.SaveAsync(user.Id, subscription);
 
             return user.Id;
         }

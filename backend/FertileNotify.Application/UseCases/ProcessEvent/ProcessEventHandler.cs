@@ -19,7 +19,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         public async Task HandleAsync(ProcessEventCommand command)
         {
             var subscription =
-                await _subscriptionRepository.GetByIdAsync(command.UserId)
+                await _subscriptionRepository.GetByUserIdAsync(command.UserId)
                 ?? throw new Exception("Subscription not found");
 
             subscription.EnsureCanSendNotification();
@@ -30,7 +30,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             );
 
             subscription.IncreaseUsage();
-            await _subscriptionRepository.SaveAsync(subscription);
+            await _subscriptionRepository.SaveAsync(command.UserId, subscription);
         }
     }
 }
