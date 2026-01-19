@@ -1,6 +1,7 @@
 ﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Application.UseCases.CreateUserWithSubscription
 {
@@ -15,15 +16,17 @@ namespace FertileNotify.Application.UseCases.CreateUserWithSubscription
             _subscriptionRepository = subscriptionRepository;
         }
 
-        public async Task<Guid> HandleAsync(string email, SubscriptionPlan plan)
+        public async Task<Guid> HandleAsync(CreateUserCommand command)
         {
-            var user = new User(email);
+            EmailAddress emailAddress = EmailAddress.Create(command.Email);
+
+            var user = new User(emailAddress);
             await _userRepository.SaveAsync(user);
 
             var subscription = new Subscription(
                 user.Id,
-                plan,
-                plan == SubscriptionPlan.Free ? 10 : 100,
+                command.Plan,
+                command.Plan == SubscriptionPlan.Free ? 10 : 100,
                 DateTime.UtcNow.AddMonths(1)
             );
             await _subscriptionRepository.SaveAsync(user.Id, subscription);
