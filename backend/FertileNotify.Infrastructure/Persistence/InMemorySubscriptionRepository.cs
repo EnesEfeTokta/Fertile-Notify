@@ -5,17 +5,19 @@ namespace FertileNotify.Infrastructure.Persistence
 {
     public class InMemorySubscriptionRepository : ISubscriptionRepository
     {
-        private readonly Dictionary<Guid, Subscription> _subscriptions = new();
+        private readonly Dictionary<Guid, Subscription> _storage = new();
 
         public Task<Subscription?> GetByIdAsync(Guid userId)
         {
-            _subscriptions.TryGetValue(userId, out var subscription);
+            var subscription = _storage.Values
+                .FirstOrDefault(s => s.UserId == userId);
+
             return Task.FromResult(subscription);
         }
 
         public Task SaveAsync(Subscription subscription)
         {
-            _subscriptions[subscription.Id] = subscription;
+            _storage[subscription.Id] = subscription;
             return Task.CompletedTask;
         }
     }

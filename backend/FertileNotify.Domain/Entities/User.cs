@@ -1,10 +1,16 @@
+using System;
+
 namespace FertileNotify.Domain.Entities
 {
     public class User
     {
-        public int Id { get; set; }
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public Guid Id { get; private set; }
+        public string Email { get; private set; }
+
+        public User(string email)
+        {
+            Id = Guid.NewGuid();
+            Email = email;
+        }
     }
 }
