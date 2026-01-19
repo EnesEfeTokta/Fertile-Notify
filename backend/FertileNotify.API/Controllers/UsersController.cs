@@ -16,12 +16,10 @@ namespace FertileNotify.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateUserRequest request)
+        public async Task<IActionResult> Create(CreateUserCommand command)
         {
-            var userId = await _createUserHandler.HandleAsync(request.Email, request.Plan);
+            var userId = await _createUserHandler.HandleAsync(command);
             return Ok(new { UserId = userId });
         }
     }
-
-    public record CreateUserRequest(string Email, SubscriptionPlan Plan);
 }

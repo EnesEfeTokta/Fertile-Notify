@@ -1,6 +1,7 @@
 ﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Application.UseCases.RegisterUser
 {
@@ -20,7 +21,9 @@ namespace FertileNotify.Application.UseCases.RegisterUser
 
         public async Task<Guid> HandleAsync(RegisterUserCommand command)
         {
-            var user = new User(command.Email);
+            EmailAddress emailAddress = EmailAddress.Create(command.Email);
+
+            var user = new User(emailAddress);
 
             int monthlyLimit = command.Plan switch
             {
@@ -45,7 +48,9 @@ namespace FertileNotify.Application.UseCases.RegisterUser
 
         public async Task<Guid> HandleAsync(string email)
         {
-            var user = new User(email);
+            EmailAddress emailAddress = EmailAddress.Create(email);
+
+            var user = new User(emailAddress);
 
             var subscription = new Subscription(
                 userId: user.Id,

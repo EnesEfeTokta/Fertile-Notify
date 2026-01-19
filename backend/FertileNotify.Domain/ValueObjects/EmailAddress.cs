@@ -1,31 +1,41 @@
+using System.Text.RegularExpressions;
+
 namespace FertileNotify.Domain.ValueObjects
 {
-    public class EmailAddress
+    public sealed class EmailAddress
     {
         public string Value { get; }
 
         public EmailAddress(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Email address cannot be empty.");
-
-            if (!IsValidEmail(value))
-                throw new ArgumentException("Invalid email address format.");
-
             Value = value;
         }
 
-        private bool IsValidEmail(string email)
+        public static EmailAddress Create(string email)
         {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
-            }
+            if (string.IsNullOrWhiteSpace(email)) 
+                throw new ArgumentException("Email cannot be empty.");
+
+            if (!IsValid(email))
+                throw new ArgumentException("Email format is invalid.");
+
+            return new EmailAddress(email.Trim().ToLower());
         }
+
+        private static bool IsValid(string email)
+        {
+            return Regex.IsMatch(
+                email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+                RegexOptions.IgnoreCase
+            );
+        }
+
+        public override string ToString() => Value;
+
+        public override bool Equals(object? obj)
+             => obj is EmailAddress other && Value == other.Value;
+
+        public override int GetHashCode() => Value.GetHashCode();
     }
 }
