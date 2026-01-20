@@ -1,4 +1,5 @@
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.Events;
 
 namespace FertileNotify.Application.UseCases.ProcessEvent
 {
@@ -24,8 +25,11 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
 
             subscription.EnsureCanSendNotification();
 
+            if (!subscription.CanHandle(command.EventType))
+                return;
+
             await _notificationSender.SendAsync(
-                command.EventType,
+                command.EventType.Name,
                 command.Payload
             );
 
