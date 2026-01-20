@@ -1,4 +1,5 @@
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.Events;
 
 namespace FertileNotify.Application.UseCases.ProcessEvent
 {
@@ -18,6 +19,9 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
 
         public async Task HandleAsync(ProcessEventCommand command)
         {
+            if (!EventCatalog.IsSupported(command.EventType))
+                throw new Exception("Unsupported event type.");
+
             var subscription =
                 await _subscriptionRepository.GetByUserIdAsync(command.UserId)
                 ?? throw new Exception("Subscription not found");
@@ -25,7 +29,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             subscription.EnsureCanSendNotification();
 
             await _notificationSender.SendAsync(
-                command.EventType,
+                command.EventType.Name,
                 command.Payload
             );
 
