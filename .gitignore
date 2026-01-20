@@ -57,3 +57,8 @@ secrets.json
 # Docker
 # =========================
 docker-data/
+
+# =========================
+# Docs
+# =========================
+backend/project_docs/
