@@ -1,4 +1,5 @@
 using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Rules;
 
 namespace FertileNotify.Domain.Entities
@@ -17,7 +18,8 @@ namespace FertileNotify.Domain.Entities
             Guid userId, 
             SubscriptionPlan plan, 
             int monthlyLimit, 
-            DateTime expiresAt
+            DateTime expiresAt,
+            IEnumerable<EventType> allowedEvents
         )
         {
             Id = Guid.NewGuid();
@@ -26,6 +28,8 @@ namespace FertileNotify.Domain.Entities
             MonthlyLimit = monthlyLimit;
             UsedThisMonth = 0;
             ExpiresAt = expiresAt;
+
+            _allowedEvents = new HashSet<EventType>(allowedEvents);
         }
 
         public void EnsureCanSendNotification()
@@ -37,6 +41,14 @@ namespace FertileNotify.Domain.Entities
         public void IncreaseUsage()
         {
             UsedThisMonth++;
+        }
+
+        private readonly HashSet<EventType> _allowedEvents;
+        public IReadOnlyCollection<EventType> AllowedEvents => _allowedEvents;
+
+        public bool CanHandle(EventType eventType)
+        {
+            return _allowedEvents.Contains(eventType);
         }
     }
 }

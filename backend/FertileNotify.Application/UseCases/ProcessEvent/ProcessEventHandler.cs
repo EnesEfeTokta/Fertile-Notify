@@ -19,14 +19,14 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
 
         public async Task HandleAsync(ProcessEventCommand command)
         {
-            if (!EventCatalog.IsSupported(command.EventType))
-                throw new Exception("Unsupported event type.");
-
             var subscription =
                 await _subscriptionRepository.GetByUserIdAsync(command.UserId)
                 ?? throw new Exception("Subscription not found");
 
             subscription.EnsureCanSendNotification();
+
+            if (!subscription.CanHandle(command.EventType))
+                return;
 
             await _notificationSender.SendAsync(
                 command.EventType.Name,

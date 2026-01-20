@@ -10,7 +10,7 @@
 
         public static bool IsSupported(EventType eventType)
         {
-            return _events.Any(e => e.Name == eventType.Name);
+            return _events.Contains(eventType);
         }
 
         public static IReadOnlyCollection<EventType> All => _events;
