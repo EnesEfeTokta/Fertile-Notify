@@ -1,5 +1,4 @@
-﻿using FertileNotify.Application.UseCases.CreateUserWithSubscription;
-using FertileNotify.Domain.Enums;
+﻿using FertileNotify.Application.UseCases.RegisterUser;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FertileNotify.API.Controllers
@@ -8,18 +7,18 @@ namespace FertileNotify.API.Controllers
     [Route("api/users")]
     public class UsersController : ControllerBase
     {
-        private readonly CreateUserHandler _createUserHandler;
+        private readonly RegisterUserHandler _registerUserHandler;
 
-        public UsersController(CreateUserHandler createUserHandler)
+        public UsersController(RegisterUserHandler registerUserHandler)
         {
-            _createUserHandler = createUserHandler;
+            _registerUserHandler = registerUserHandler;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateUserCommand command)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterUserCommand command)
         {
-            var userId = await _createUserHandler.HandleAsync(command);
-            return Ok(new { UserId = userId });
+            var userId = await _registerUserHandler.HandleAsync(command);
+            return CreatedAtAction(nameof(Register), new { id = userId }, new { UserId = userId });
         }
     }
 }

@@ -7,7 +7,10 @@ namespace FertileNotify.Domain.Entities
         public Guid Id { get; private set; }
         public EmailAddress Email { get; private set; }
 
-        private User() { }
+        private User()
+        {
+            Email = default!;
+        }
 
         public User(EmailAddress email)
         {

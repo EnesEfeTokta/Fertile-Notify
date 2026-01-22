@@ -8,16 +8,17 @@ namespace FertileNotify.Domain.Entities
     {
         public Guid Id { get; private set; }
         public Guid UserId { get; private set; }
-
         public SubscriptionPlan Plan { get; private set; }
         public int MonthlyLimit { get; private set; }
         public int UsedThisMonth { get; private set; }
         public DateTime ExpiresAt { get; private set; }
+        private readonly HashSet<EventType> _allowedEvents;
+        public IReadOnlyCollection<EventType> AllowedEvents => _allowedEvents;
 
-        public Subscription(
-            Guid userId, 
-            SubscriptionPlan plan, 
-            int monthlyLimit, 
+        private Subscription(
+            Guid userId,
+            SubscriptionPlan plan,
+            int monthlyLimit,
             DateTime expiresAt,
             IEnumerable<EventType> allowedEvents
         )
@@ -28,8 +29,23 @@ namespace FertileNotify.Domain.Entities
             MonthlyLimit = monthlyLimit;
             UsedThisMonth = 0;
             ExpiresAt = expiresAt;
-
             _allowedEvents = new HashSet<EventType>(allowedEvents);
+        }
+
+        public static Subscription Create(Guid userId, SubscriptionPlan plan)
+        {
+            int limit = plan switch
+            {
+                SubscriptionPlan.Free => 10,
+                SubscriptionPlan.Pro => 100,
+                SubscriptionPlan.Enterprise => 1000,
+                _ => 0
+            };
+
+            var allowedEvents = SubscriptionEventPolicy.GetAllowedEvents(plan);
+            var expiresAt = DateTime.UtcNow.AddMonths(1);
+
+            return new Subscription(userId, plan, limit, expiresAt, allowedEvents);
         }
 
         public void EnsureCanSendNotification()
@@ -38,17 +54,8 @@ namespace FertileNotify.Domain.Entities
             SubscriptionRule.EnsureCanSendNotification(MonthlyLimit, UsedThisMonth);
         }
 
-        public void IncreaseUsage()
-        {
-            UsedThisMonth++;
-        }
+        public void IncreaseUsage() => UsedThisMonth++;
 
-        private readonly HashSet<EventType> _allowedEvents;
-        public IReadOnlyCollection<EventType> AllowedEvents => _allowedEvents;
-
-        public bool CanHandle(EventType eventType)
-        {
-            return _allowedEvents.Contains(eventType);
-        }
+        public bool CanHandle(EventType eventType) => _allowedEvents.Contains(eventType);
     }
 }
