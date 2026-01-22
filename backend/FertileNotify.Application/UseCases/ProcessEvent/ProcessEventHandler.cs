@@ -29,18 +29,15 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
                 await _subscriptionRepository.GetByUserIdAsync(command.UserId)
                 ?? throw new Exception("Subscription not found");
 
-            if (!subscription.CanHandle(command.EventType))
-                return;
+            if (!subscription.CanHandle(command.EventType)) return;
 
             subscription.EnsureCanSendNotification();
 
             foreach (var channel in user.ActiveChannels)
             {
-                var sender = _senders.FirstOrDefault(s => s.Equals(channel));
-
+                var sender = _senders.FirstOrDefault(s => s.Channel.Equals(channel));
                 if (sender == null) continue;
-
-                await sender.SendAsync(command.EventType.Name, command.Payload);
+                await sender.SendAsync(user, command.EventType.Name, command.Payload);
             }
 
             subscription.IncreaseUsage();

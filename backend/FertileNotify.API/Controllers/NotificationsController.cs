@@ -19,9 +19,6 @@ namespace FertileNotify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
-            if (request == null) 
-                return BadRequest("Send Notification Request cannot be sent empty.");
-
             EventType eventType;
             try
             {

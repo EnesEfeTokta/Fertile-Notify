@@ -9,8 +9,8 @@ namespace FertileNotify.Domain.Entities
         public EmailAddress Email { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
 
-        private readonly HashSet<NotificationChannel> _activeChannel = new();
-        public IReadOnlyCollection<NotificationChannel> ActiveChannels => _activeChannel;
+        private readonly HashSet<NotificationChannel> _activeChannels = new();
+        public IReadOnlyCollection<NotificationChannel> ActiveChannels => _activeChannels;
 
         private User()
         {
@@ -23,27 +23,27 @@ namespace FertileNotify.Domain.Entities
             Email = email;
             PhoneNumber = phoneNumber;
 
-            _activeChannel.Add(NotificationChannel.Console);
+            _activeChannels.Add(NotificationChannel.Console);
         }
 
         public void EnableChannel(NotificationChannel channel)
         {
-            if (!_activeChannel.Contains(channel)) return;
+            if (!_activeChannels.Contains(channel)) return;
 
-            if (!ChannelPreferenceRule.CanAddChannel(_activeChannel.Count))
+            if (!ChannelPreferenceRule.CanAddChannel(_activeChannels.Count))
                 throw new InvalidOperationException("Cannot add more notification channels.");
 
             if (channel == NotificationChannel.SMS && PhoneNumber == null)
                 throw new InvalidOperationException("Phone number is required to enable SMS channel.");
 
-            _activeChannel.Add(channel);
+            _activeChannels.Add(channel);
         }
 
         public void DisableChannel(NotificationChannel channel)
         {
-            if (_activeChannel.Contains(channel))
+            if (_activeChannels.Contains(channel))
             {
-                _activeChannel.Remove(channel);
+                _activeChannels.Remove(channel);
             }
         }
     }

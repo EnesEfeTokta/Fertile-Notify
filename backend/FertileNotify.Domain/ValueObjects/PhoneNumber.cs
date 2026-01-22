@@ -1,4 +1,6 @@
-﻿namespace FertileNotify.Domain.ValueObjects
+﻿using System.Text.RegularExpressions;
+
+namespace FertileNotify.Domain.ValueObjects
 {
     public sealed class PhoneNumber
     {
@@ -14,16 +16,15 @@
             if (string.IsNullOrWhiteSpace(phoneNumber))
                 throw new ArgumentException("Phone number cannot be empty.");
 
-            var cleanedNumber = phoneNumber.Trim();
-            if (!IsValid(cleanedNumber))
+            if (!IsValid(phoneNumber))
                 throw new ArgumentException("Phone number format is invalid.");
 
-            return new PhoneNumber(cleanedNumber);
+            return new PhoneNumber(phoneNumber.Trim());
         }
 
         private static bool IsValid(string phoneNumber)
         {
-            return System.Text.RegularExpressions.Regex.IsMatch(
+            return Regex.IsMatch(
                 phoneNumber,
                 @"^[\d\s\-\+\(\)]+$"
             );
