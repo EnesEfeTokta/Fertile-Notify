@@ -24,7 +24,12 @@ namespace FertileNotify.Domain.ValueObjects
             };
         }
 
-        public bool Equals(NotificationChannel? other) => Equals(other as NotificationChannel);
+        public bool Equals(NotificationChannel? other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Name == other.Name;
+        }
 
         public override bool Equals(object? obj) => Equals(obj as NotificationChannel);
 

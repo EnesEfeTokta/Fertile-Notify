@@ -3,13 +3,13 @@ using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Infrastructure.Notifications
 {
-    public class ConsoleNotificationSender : INotificationSender
+    public class SMSNotificationSender : INotificationSender
     {
-        public NotificationChannel Channel => NotificationChannel.Console;
+        public NotificationChannel Channel => NotificationChannel.SMS;
 
         public Task SendAsync(string eventType, string payload)
         {
-            Console.WriteLine($"[CONSOLE] To: [EVENT: {eventType}] {payload}");
+            Console.WriteLine($"[SMS] To: [EVENT: {eventType}] {payload}");
             return Task.CompletedTask;
         }
     }

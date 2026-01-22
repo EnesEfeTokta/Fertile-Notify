@@ -22,7 +22,7 @@ namespace FertileNotify.Application.UseCases.RegisterUser
         {
             EmailAddress emailAddress = EmailAddress.Create(command.Email);
 
-            var user = new User(emailAddress);
+            var user = new User(emailAddress, new PhoneNumber("000-000-00-00"));
 
             var subscription = Subscription.Create(user.Id, command.Plan);
 

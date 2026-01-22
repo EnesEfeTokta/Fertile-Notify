@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FertileNotify.Application.Interfaces;
+﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 
 namespace FertileNotify.Infrastructure.Persistence
