@@ -1,6 +1,3 @@
-using FertileNotify.Domain.Enums;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Domain.Entities
 {
     public class Notification

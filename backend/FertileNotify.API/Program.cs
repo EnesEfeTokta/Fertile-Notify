@@ -1,5 +1,6 @@
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.ProcessEvent;
+using FertileNotify.Application.UseCases.RegisterUser;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using System.Text.Json.Serialization;
@@ -12,11 +13,15 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-builder.Services.AddScoped<IUserRepository, InMemoryUserRepository>();
-builder.Services.AddScoped<ISubscriptionRepository, InMemorySubscriptionRepository>();
+builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddSingleton<ISubscriptionRepository, InMemorySubscriptionRepository>();
+
 builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
+builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
+builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
+builder.Services.AddScoped<RegisterUserHandler>();
 
 var app = builder.Build();
 
