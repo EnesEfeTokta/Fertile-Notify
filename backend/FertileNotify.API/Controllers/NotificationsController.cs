@@ -19,21 +19,18 @@ namespace FertileNotify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
+            if (request == null)
+                return BadRequest(new { error = "Request body is required." });
+
             EventType eventType;
-            try
-            {
-                eventType = EventType.From(request.EventType);
-            }
-            catch
-            {
-                return BadRequest(new { error = $"Invalid event type: {request.EventType}" });
-            }
+            try { eventType = EventType.From(request.EventType); }
+            catch { return BadRequest(new { error = $"Invalid event type: {request.EventType}" }); }
 
             var command = new ProcessEventCommand
             {
                 UserId = request.UserId,
                 EventType = eventType,
-                Payload = request.Payload,
+                Parameters = request.Parameters
             };
 
             try

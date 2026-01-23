@@ -6,6 +6,6 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
     {
         public Guid UserId { get; init; }
         public EventType EventType { get; set; } = default!;
-        public string Payload { get; set; } = string.Empty;
+        public Dictionary<string, string> Parameters { get; set; } = new();
     }
 }
