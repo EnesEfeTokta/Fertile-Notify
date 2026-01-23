@@ -14,18 +14,18 @@
 
 ## 📋 Table of Contents
 
-- [About](#-about)
-- [Key Features](#-key-features)
-- [Architecture](#-architecture)
-- [Tech Stack](#️-tech-stack)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Event Flow](#-event-flow)
-- [API Usage](#-api-usage)
-- [Configuration](#️-configuration)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
+- [About](#about)
+- [Key Features](#key-features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Event Flow](#event-flow)
+- [API Usage](#api-usage)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
 ---
 
