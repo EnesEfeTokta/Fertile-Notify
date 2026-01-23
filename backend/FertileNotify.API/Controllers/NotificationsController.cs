@@ -2,6 +2,7 @@
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.API.Models;
 using FertileNotify.Domain.Events;
+using FertileNotify.Application.Interfaces;
 
 namespace FertileNotify.API.Controllers
 {
@@ -9,11 +10,11 @@ namespace FertileNotify.API.Controllers
     [Route("api/notifications")]
     public class NotificationsController : ControllerBase
     {
-        private readonly ProcessEventHandler _handler;
+        private readonly INotificationQueue _queue;
 
-        public NotificationsController(ProcessEventHandler handler)
+        public NotificationsController(INotificationQueue queue)
         {
-            _handler = handler;
+            _queue = queue;
         }
 
         [HttpPost]
@@ -33,15 +34,9 @@ namespace FertileNotify.API.Controllers
                 Parameters = request.Parameters
             };
 
-            try
-            {
-                await _handler.HandleAsync(command);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await _queue.QueueBackgroundWorkItemAsync(command);
+
+            return Accepted((new { status = "Queued", message = "The notification has been added to the queue." }));
         }
     }
 }
