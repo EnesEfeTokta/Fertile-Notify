@@ -1,4 +1,4 @@
-# 📢 Fertile Notify
+# Fertile Notify
 
 <div align="center">
 
@@ -12,7 +12,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#about)
 - [Key Features](#key-features)
@@ -29,7 +29,7 @@
 
 ---
 
-## 🎯 About
+## About
 
 **Fertile Notify** is a robust, scalable notification platform designed to handle event-driven notifications across multiple communication channels. Built with modern software architecture principles, it provides a centralized solution for managing and delivering notifications to users.
 
@@ -46,48 +46,48 @@ The system receives events from external applications, processes notification ru
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 ### Core Capabilities
 
-- ✅ **Event-Based Notification Ingestion**
+- **Event-Based Notification Ingestion**
   - RESTful API for receiving events from external systems
   - Support for multiple event types (e.g., user registration, order confirmation, etc.)
   - Event validation and processing
 
-- ⚡ **Asynchronous Background Processing**
+- **Asynchronous Background Processing**
   - Non-blocking notification delivery
   - Queue-based message processing
   - Hosted services for continuous background job execution
 
-- 📨 **Multi-Channel Notification Delivery**
+- **Multi-Channel Notification Delivery**
   - **Email**: SMTP-based email notifications
   - **SMS**: SMS gateway integration
   - **In-App**: Console/database notifications for in-app messaging
 
-- 🔄 **Retry & Failure Handling**
+- **Retry & Failure Handling**
   - Automatic retry mechanism for failed deliveries
   - Configurable retry limits
   - Comprehensive failure tracking and logging
 
-- 👥 **Subscription Management**
+- **Subscription Management**
   - Multiple subscription plans (Free, Basic, Premium)
   - Usage limits based on subscription tier
   - Subscription validation before notification delivery
 
-- 📝 **Template Engine**
+- **Template Engine**
   - Dynamic notification templates
   - Support for placeholders and variable substitution
   - Template management per event type
 
-- 📊 **Monitoring & Tracking**
+- **Monitoring & Tracking**
   - Notification status tracking
   - Delivery statistics
   - Admin dashboard for monitoring (planned)
 
 ---
 
-## 🧠 Architecture
+## Architecture
 
 Fertile Notify follows **Clean Architecture** principles with a clear separation of concerns:
 
@@ -130,7 +130,7 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Framework**: ASP.NET Core 8.0
@@ -161,7 +161,7 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Fertile-Notify/
@@ -197,7 +197,7 @@ Fertile-Notify/
 
 ---
 
-## 🚦 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -247,7 +247,7 @@ Configuration is managed through `appsettings.json` in the FertileNotify.API pro
 
 ---
 
-## 🔄 Event Flow
+## Event Flow
 
 The notification delivery process follows these steps:
 
@@ -282,7 +282,7 @@ The notification delivery process follows these steps:
 
 ---
 
-## 📚 API Usage
+## API Usage
 
 ### Send a Notification
 
@@ -332,7 +332,7 @@ The notification delivery process follows these steps:
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Notification Templates
 
@@ -354,7 +354,7 @@ Templates are defined per event type and can include placeholders:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! This project is under active development.
 
@@ -369,21 +369,21 @@ Contributions are welcome! This project is under active development.
 ### Development Focus
 
 Current development priorities:
-- ✅ Core event processing and notification delivery
-- 🔄 JWT authentication implementation
-- 📝 SQL Server database integration
-- 🎨 React-based admin dashboard
-- 📊 Analytics and reporting features
+- Core event processing and notification delivery (Completed)
+- JWT authentication implementation (In Progress)
+- SQL Server database integration (Planned)
+- React-based admin dashboard (Planned)
+- Analytics and reporting features (Planned)
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📧 Contact
+## Contact
 
 **Project Maintainer**: Enes Efe Tokta
 
@@ -394,8 +394,8 @@ This project is licensed under the **GNU General Public License v3.0** - see the
 
 <div align="center">
 
-**⭐ If you find this project useful, please consider giving it a star! ⭐**
+**If you find this project useful, please consider giving it a star!**
 
-Made with ❤️ by the Fertile Notify team
+Made with care by the Fertile Notify team
 
 </div>
