@@ -4,8 +4,9 @@
     {
         public string Render(string template, Dictionary<string, string> parameters)
         {
-            if (string.IsNullOrWhiteSpace(template))
-                throw new ArgumentException("Template cannot be null or empty.", nameof(template));
+            if (string.IsNullOrEmpty(template))
+                return string.Empty;
+
             if (parameters == null || parameters.Count == 0) return template;
 
             string rendered = template;

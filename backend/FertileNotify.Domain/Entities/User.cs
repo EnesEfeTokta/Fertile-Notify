@@ -23,7 +23,7 @@ namespace FertileNotify.Domain.Entities
             Email = email;
             PhoneNumber = phoneNumber;
 
-            _activeChannels.Add(NotificationChannel.Console);
+            _activeChannels.Add(NotificationChannel.Email);
         }
 
         public void EnableChannel(NotificationChannel channel)
