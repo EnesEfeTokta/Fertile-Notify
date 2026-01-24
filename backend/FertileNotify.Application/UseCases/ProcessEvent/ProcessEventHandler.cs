@@ -65,7 +65,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
                 handled = true;
             }
 
-            if (!handled)
+            if (handled)
             {
                 subscription.IncreaseUsage();
                 await _subscriptionRepository.SaveAsync(command.UserId, subscription);
