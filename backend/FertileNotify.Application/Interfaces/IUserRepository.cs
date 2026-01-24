@@ -6,5 +6,6 @@ namespace FertileNotify.Application.Interfaces
     {
         Task SaveAsync(User user);
         Task<User?> GetByIdAsync(Guid id);
+        Task<bool> ExistsAsync(Guid id);
     }
 }

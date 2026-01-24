@@ -18,5 +18,10 @@ namespace FertileNotify.Infrastructure.Persistence
             _users.TryGetValue(id, out var user);
             return Task.FromResult(user);
         }
+
+        public Task<bool> ExistsAsync(Guid id)
+        {
+            return Task.FromResult(_users.ContainsKey(id));
+        }
     }
 }
