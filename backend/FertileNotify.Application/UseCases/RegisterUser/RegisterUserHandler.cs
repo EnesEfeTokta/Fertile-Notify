@@ -20,8 +20,8 @@ namespace FertileNotify.Application.UseCases.RegisterUser
 
         public async Task<Guid> HandleAsync(RegisterUserCommand command)
         {
-            EmailAddress emailAddress = EmailAddress.Create(command.Email);
-
+            EmailAddress emailAddress = EmailAddress.Create(command.Email.Value);
+            
             var user = new User(emailAddress, new PhoneNumber("000-000-00-00"));
 
             var subscription = Subscription.Create(user.Id, command.Plan);

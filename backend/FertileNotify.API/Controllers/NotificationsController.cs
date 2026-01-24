@@ -11,31 +11,28 @@ namespace FertileNotify.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationQueue _queue;
+        private readonly IUserRepository _userRepository;
 
-        public NotificationsController(INotificationQueue queue)
+        public NotificationsController(INotificationQueue queue, IUserRepository userRepository)
         {
             _queue = queue;
+            _userRepository = userRepository;
         }
 
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
-            if (request == null)
-                return BadRequest(new { error = "Request body is required." });
-
-            EventType eventType;
-            try { eventType = EventType.From(request.EventType); }
-            catch { return BadRequest(new { error = $"Invalid event type: {request.EventType}" }); }
+            if (!await _userRepository.ExistsAsync(request.UserId)) 
+                return NotFound(new {satus = "User not found.", message = "No user was found for the given GUID." });
 
             var command = new ProcessEventCommand
             {
                 UserId = request.UserId,
-                EventType = eventType,
+                EventType = EventType.From(request.EventType),
                 Parameters = request.Parameters
             };
 
             await _queue.QueueBackgroundWorkItemAsync(command);
-
             return Accepted((new { status = "Queued", message = "The notification has been added to the queue." }));
         }
     }

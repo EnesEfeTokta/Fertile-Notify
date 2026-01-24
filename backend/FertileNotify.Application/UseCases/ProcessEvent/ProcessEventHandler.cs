@@ -43,6 +43,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             var template = 
                 await _templateRepository.GetByEventTypeAsync(command.EventType) 
                 ?? throw new Exception("Notification template not found");
+
             string subject = command.EventType.Name;
             string body = "No template available." ?? string.Empty;
 
