@@ -18,4 +18,8 @@
     <ProjectReference Include="..\FertileNotify.Infrastructure\FertileNotify.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middlewares\" />
+  </ItemGroup>
+
 </Project>
