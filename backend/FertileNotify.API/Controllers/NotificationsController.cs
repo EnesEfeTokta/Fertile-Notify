@@ -4,9 +4,11 @@ using FertileNotify.API.Models;
 using FertileNotify.Domain.Events;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FertileNotify.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/notifications")]
     public class NotificationsController : ControllerBase
