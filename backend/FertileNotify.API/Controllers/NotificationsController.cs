@@ -3,6 +3,7 @@ using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.API.Models;
 using FertileNotify.Domain.Events;
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.Exceptions;
 
 namespace FertileNotify.API.Controllers
 {
@@ -23,7 +24,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
             if (!await _userRepository.ExistsAsync(request.UserId)) 
-                return NotFound(new {satus = "User not found.", message = "No user was found for the given GUID." });
+                throw new NotFoundException("User not found");
 
             var command = new ProcessEventCommand
             {

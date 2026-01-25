@@ -2,10 +2,13 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
+using FertileNotify.API.Middlewares;
+
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Application.UseCases.RegisterUser;
 using FertileNotify.Application.Services;
+
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using FertileNotify.Infrastructure.BackgroundJobs;
@@ -39,6 +42,8 @@ builder.Services.AddScoped<TemplateEngine>();
 builder.Services.AddHostedService<NotificationWorker>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 app.Run();

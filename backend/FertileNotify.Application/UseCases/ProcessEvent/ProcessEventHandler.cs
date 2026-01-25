@@ -1,5 +1,6 @@
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Services;
+using FertileNotify.Domain.Exceptions;
 
 namespace FertileNotify.Application.UseCases.ProcessEvent
 {
@@ -30,11 +31,11 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         {
             var user = 
                 await _userRepository.GetByIdAsync(command.UserId) 
-                ?? throw new Exception("User not found");
+                ?? throw new NotFoundException("User not found");
 
             var subscription =
                 await _subscriptionRepository.GetByUserIdAsync(command.UserId)
-                ?? throw new Exception("Subscription not found");
+                ?? throw new NotFoundException("Subscription not found");
 
             if (!subscription.CanHandle(command.EventType)) return;
 
