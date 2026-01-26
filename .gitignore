@@ -17,10 +17,6 @@ yarn-error.log*
 pnpm-debug.log*
 dist/
 build/
-.env
-.env.local
-.env.development
-.env.production
 
 # =========================
 # .NET / Visual Studio
@@ -62,3 +58,12 @@ docker-data/
 # Docs
 # =========================
 backend/project_docs/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.local
+.env.development
+.env.production
+!.env.example

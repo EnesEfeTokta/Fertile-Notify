@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: fertile-notify-api
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${API_PORT}:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+      - JwtSettings__SecretKey=${JWT_SECRET}
+    networks:
+      - fertile-network
+
+  db:
+    container_name: fertile-notify-db
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fertile-network
+
+networks:
+  fertile-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
