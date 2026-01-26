@@ -5,7 +5,9 @@
 **An event-driven notification platform for centralized multi-channel notification management**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](https://github.com/EnesEfeTokta/Fertile-Notify)
 
 </div>
@@ -133,15 +135,18 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 ## Tech Stack
 
 ### Backend
-- **Framework**: ASP.NET Core 8.0
-- **Language**: C# 12
+- **Framework**: ASP.NET Core 9.0
+- **Language**: C# 13
 - **Architecture**: Clean Architecture / Onion Architecture
 - **API**: RESTful API with JSON serialization
+- **Validation**: FluentValidation
 
 ### Infrastructure
-- **Database**: SQL Server (planned) / In-Memory (current)
+- **Database**: PostgreSQL 15 with Entity Framework Core 9.0
+- **ORM**: Entity Framework Core with Migrations
 - **Background Jobs**: .NET Hosted Services
 - **Messaging Queue**: In-Memory Queue (extensible to RabbitMQ/Azure Service Bus)
+- **Containerization**: Docker & Docker Compose
 
 ### Notification Channels
 - **Email**: SMTP Integration
@@ -152,10 +157,11 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 - **IDE**: Visual Studio / Rider / VS Code
 - **Version Control**: Git & GitHub
 - **Build System**: .NET CLI / MSBuild
+- **Testing**: xUnit, FluentAssertions, Moq
+- **Containerization**: Docker & Docker Compose
 
 ### Planned Integrations
 - **Frontend**: React (planned)
-- **Authentication**: JWT (in development)
 - **Caching**: Redis (planned)
 - **Message Broker**: RabbitMQ or Azure Service Bus (planned)
 
@@ -168,7 +174,9 @@ Fertile-Notify/
 ├── backend/
 │   ├── FertileNotify.API/              # API Layer - Controllers & Endpoints
 │   │   ├── Controllers/                # API Controllers
+│   │   ├── Middlewares/                # Custom middlewares
 │   │   ├── Models/                     # Request/Response DTOs
+│   │   ├── Validators/                 # FluentValidation validators
 │   │   └── Program.cs                  # Application entry point
 │   │
 │   ├── FertileNotify.Application/      # Application Layer - Use Cases
@@ -180,17 +188,27 @@ Fertile-Notify/
 │   │   ├── Entities/                   # Domain entities
 │   │   ├── Enums/                      # Enumerations
 │   │   ├── Events/                     # Domain events
+│   │   ├── Exceptions/                 # Domain exceptions
 │   │   ├── Rules/                      # Business rules
 │   │   └── ValueObjects/               # Value objects
 │   │
-│   └── FertileNotify.Infrastructure/   # Infrastructure Layer
-│       ├── BackgroundJobs/             # Background workers
-│       ├── Notifications/              # Notification senders
-│       └── Persistence/                # Data repositories
+│   ├── FertileNotify.Infrastructure/   # Infrastructure Layer
+│   │   ├── Authentication/             # JWT token service
+│   │   ├── BackgroundJobs/             # Background workers
+│   │   ├── Migrations/                 # EF Core migrations
+│   │   ├── Notifications/              # Notification senders
+│   │   └── Persistence/                # EF Core DbContext & repositories
+│   │
+│   ├── FertileNotify.Tests/            # Unit & Integration Tests
+│   │
+│   ├── Dockerfile                      # Docker configuration
+│   └── FertileNotify.sln               # Solution file
 │
 ├── docs/                               # Documentation
 │   └── architecture.md                 # Architecture documentation
 │
+├── docker-compose.yml                  # Docker Compose configuration
+├── .env.example                        # Environment variables template
 ├── LICENSE                             # GPL-3.0 License
 └── README.md                           # This file
 ```
@@ -201,11 +219,15 @@ Fertile-Notify/
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or higher
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) or higher
+- [PostgreSQL 15](https://www.postgresql.org/download/) or higher (optional if using Docker)
+- [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) (optional, recommended)
 - IDE: Visual Studio 2022, Rider, or VS Code
 - Git
 
 ### Installation
+
+#### Option 1: Using Docker (Recommended)
 
 1. **Clone the repository**
    ```bash
@@ -213,37 +235,94 @@ Fertile-Notify/
    cd Fertile-Notify
    ```
 
-2. **Navigate to the backend directory**
+2. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env file with your preferred settings
+   ```
+
+3. **Start the application with Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
+
+The API will be available at `http://localhost:5080` (or the port specified in your `.env` file).
+The PostgreSQL database will be automatically set up and seeded with initial data.
+
+#### Option 2: Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/EnesEfeTokta/Fertile-Notify.git
+   cd Fertile-Notify
+   ```
+
+2. **Set up PostgreSQL**
+   - Install PostgreSQL 15 or higher
+   - Create a database named `FertileNotifyDb`
+   - Update connection string in `appsettings.json`
+
+3. **Navigate to the backend directory**
    ```bash
    cd backend
    ```
 
-3. **Restore dependencies**
+4. **Restore dependencies**
    ```bash
    dotnet restore
    ```
 
-4. **Build the solution**
+5. **Apply database migrations**
+   ```bash
+   cd FertileNotify.API
+   dotnet ef database update
+   ```
+
+6. **Build the solution**
    ```bash
    dotnet build
    ```
 
-5. **Run the API**
+7. **Run the API**
    ```bash
-   cd FertileNotify.API
    dotnet run
    ```
 
 The API will start at `http://localhost:5000` (or `https://localhost:5001` for HTTPS).
 
+### Running Tests
+
+```bash
+cd backend
+dotnet test
+```
+
 ### Configuration
 
-Configuration is managed through `appsettings.json` in the FertileNotify.API project. You can customize:
+#### Docker Environment Variables (.env file)
 
-- API settings
-- Notification provider settings
-- Database connection strings (when implemented)
-- Logging configuration
+When using Docker Compose, configure the following variables in your `.env` file:
+
+```env
+# Database Settings
+POSTGRES_USER=your_db_user
+POSTGRES_PASSWORD=your_db_password
+POSTGRES_DB=FertileNotifyDb
+DB_PORT=5432
+
+# API Settings
+API_PORT=5080
+JWT_SECRET=your_min_30_character_jwt_secret_key
+```
+
+#### Application Configuration (appsettings.json)
+
+For local development, configure settings in `FertileNotify.API/appsettings.json`:
+
+- **Connection Strings**: PostgreSQL database connection
+- **JWT Settings**: Secret key, issuer, audience, expiry time
+- **Notification Providers**: SMTP settings for email, SMS gateway credentials
+- **Logging**: Log levels and output configuration
 
 ---
 
@@ -284,6 +363,52 @@ The notification delivery process follows these steps:
 
 ## API Usage
 
+### Authentication
+
+Before using other endpoints, you need to authenticate and obtain a JWT token.
+
+**Endpoint**: `POST /api/auth/login`
+
+**Request Body**:
+```json
+{
+  "userId": "user-guid-here"
+}
+```
+
+**Response**:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Use the token in subsequent requests:
+```
+Authorization: Bearer {token}
+```
+
+### Register a User
+
+**Endpoint**: `POST /api/users/register`
+
+**Request Body**:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "subscriptionPlan": "Premium"
+}
+```
+
+**Response**:
+```json
+{
+  "userId": "user-123",
+  "message": "User registered successfully"
+}
+```
+
 ### Send a Notification
 
 **Endpoint**: `POST /api/notifications`
@@ -308,31 +433,6 @@ The notification delivery process follows these steps:
   "eventId": "evt-456"
 }
 ```
-
-### Register a User
-
-**Endpoint**: `POST /api/users/register`
-
-**Request Body**:
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "subscriptionPlan": "Premium"
-}
-```
-
-**Response**:
-```json
-{
-  "userId": "user-123",
-  "message": "User registered successfully"
-}
-```
-
----
-
-## Configuration
 
 ### Notification Templates
 
@@ -369,11 +469,13 @@ Contributions are welcome! This project is under active development.
 ### Development Focus
 
 Current development priorities:
-- Core event processing and notification delivery (Completed)
-- JWT authentication implementation (In Progress)
-- SQL Server database integration (Planned)
+- Core event processing and notification delivery ✅ (Completed)
+- JWT authentication implementation ✅ (Completed)
+- PostgreSQL database integration with EF Core ✅ (Completed)
+- Unit and integration tests ✅ (In Progress)
 - React-based admin dashboard (Planned)
 - Analytics and reporting features (Planned)
+- Advanced notification scheduling (Planned)
 
 ---
 
