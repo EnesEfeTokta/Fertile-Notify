@@ -9,6 +9,8 @@ namespace FertileNotify.Domain.Entities
         public string SubjectTemplate { get; private set; } = string.Empty;
         public string BodyTemplate { get; private set; } = string.Empty;
 
+        private NotificationTemplate() { }
+
         private NotificationTemplate(EventType eventType, string subject, string body) 
         {
             Id = Guid.NewGuid();

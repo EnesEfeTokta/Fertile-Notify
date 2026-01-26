@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 using FertileNotify.API.Middlewares;
 
@@ -25,12 +27,15 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-builder.Services.AddSingleton<ISubscriptionRepository, InMemorySubscriptionRepository>();
-builder.Services.AddSingleton<ITemplateRepository, InMemoryTemplateRepository>();
+builder.Services.AddScoped<IUserRepository, EfUserRepository>();
+builder.Services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
+builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 
 builder.Services.AddSingleton<INotificationQueue, InMemoryNotificationQueue>();
 
