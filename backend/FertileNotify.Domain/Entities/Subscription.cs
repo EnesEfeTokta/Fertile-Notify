@@ -15,6 +15,11 @@ namespace FertileNotify.Domain.Entities
         private readonly HashSet<EventType> _allowedEvents;
         public IReadOnlyCollection<EventType> AllowedEvents => _allowedEvents;
 
+        private Subscription() 
+        {
+            _allowedEvents = new HashSet<EventType>();
+        }
+
         private Subscription(
             Guid userId,
             SubscriptionPlan plan,
