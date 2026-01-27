@@ -55,9 +55,9 @@ Defines service contracts for:
 The TemplateEngine supports dynamic content replacement:
 
 ```csharp
-Template: "Hello {{userName}}, your order {{orderId}} is confirmed!"
-Payload: { "userName": "John", "orderId": "12345" }
-Result: "Hello John, your order 12345 is confirmed!"
+Template: "Hello {{userName}}, your appointment on {{appointmentDate}} is confirmed!"
+Payload: { "userName": "Sarah", "appointmentDate": "2024-02-15" }
+Result: "Hello Sarah, your appointment on 2024-02-15 is confirmed!"
 ```
 
 ## Dependencies

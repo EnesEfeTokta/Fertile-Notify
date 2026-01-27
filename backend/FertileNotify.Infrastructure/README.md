@@ -31,7 +31,12 @@ This project contains the technical implementations that support the application
 #### InMemoryNotificationQueue
 - Thread-safe in-memory queue for notification messages
 - Supports enqueue/dequeue operations
-- Can be replaced with distributed queue (RabbitMQ, Azure Service Bus) for scalability
+- Suitable for single-instance deployments and development environments
+- Should be replaced with distributed queue (RabbitMQ, Azure Service Bus) when:
+  - Scaling to multiple API instances (load balancing)
+  - Processing more than ~1000 notifications/minute
+  - Requiring guaranteed message delivery and persistence
+  - Deploying in production for high-availability scenarios
 
 ### Notifications
 

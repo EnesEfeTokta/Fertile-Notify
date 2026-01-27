@@ -48,7 +48,10 @@ Enumerations defining domain states and types:
 
 Domain events that represent significant occurrences:
 
-- Business events triggered when important domain state changes occur
+- **UserRegistered**: Triggered when a new user joins the platform
+- **NotificationSent**: Fired when a notification is successfully delivered
+- **SubscriptionExpired**: Raised when a user's subscription plan expires
+- **NotificationFailed**: Emitted when a notification delivery fails after max retries
 - Enable event-driven architecture and loose coupling
 - Allow reaction to domain changes without direct dependencies
 
