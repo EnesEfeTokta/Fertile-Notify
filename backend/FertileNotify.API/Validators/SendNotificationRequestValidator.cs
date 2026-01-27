@@ -8,10 +8,6 @@ namespace FertileNotify.API.Validators
     {
         public SendNotificationRequestValidator()
         {
-            RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("UserId is required.")
-                .Must(GuidValid).WithMessage("The ID is not in the correct format.");
-
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")
                 .Must(EventTypeValid).WithMessage("Invalid EventType.");

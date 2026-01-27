@@ -1,6 +1,7 @@
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Services;
 using FertileNotify.Domain.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.UseCases.ProcessEvent
 {
@@ -12,12 +13,15 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         private readonly ITemplateRepository _templateRepository;
         private readonly TemplateEngine templateEngine;
 
+        private readonly ILogger<ProcessEventHandler> _logger;
+
         public ProcessEventHandler(
             ISubscriptionRepository subscriptionRepository,
             IUserRepository userRepository,
             IEnumerable<INotificationSender> senders,
             ITemplateRepository templateRepository,
-            TemplateEngine templateEngine
+            TemplateEngine templateEngine,
+            ILogger<ProcessEventHandler> logger
         )
         {
             _subscriptionRepository = subscriptionRepository;
@@ -25,10 +29,18 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             _senders = senders;
             _templateRepository = templateRepository;
             this.templateEngine = templateEngine;
+            _logger = logger;
         }
 
         public async Task HandleAsync(ProcessEventCommand command)
         {
+            _logger.LogInformation(
+                "Processing event {EventType} for User: {UserId} with parameters: {Parameters}", 
+                command.EventType.Name, 
+                command.UserId, 
+                string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}={kv.Value}"))
+            );
+
             var user = 
                 await _userRepository.GetByIdAsync(command.UserId) 
                 ?? throw new NotFoundException("User not found");
@@ -37,7 +49,15 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
                 await _subscriptionRepository.GetByUserIdAsync(command.UserId)
                 ?? throw new NotFoundException("Subscription not found");
 
-            if (!subscription.CanHandle(command.EventType)) return;
+            if (!subscription.CanHandle(command.EventType))
+            {
+                _logger.LogWarning(
+                    "Subscription plan does not support event {EventType} for User: {UserId}", 
+                    command.EventType.Name, 
+                    command.UserId
+                );
+                throw new Exception("Subscription plan does not support this event type");
+            }
 
             subscription.EnsureCanSendNotification();
 
@@ -63,6 +83,11 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             {
                 var sender = _senders.FirstOrDefault(s => s.Channel.Equals(channel));
                 if (sender == null) continue;
+                _logger.LogInformation(
+                    "Sending notification via {Channel} to User: {UserId}", 
+                    channel, 
+                    command.UserId
+                );
                 await sender.SendAsync(user, subject, body);
                 handled = true;
             }
@@ -71,6 +96,12 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             {
                 subscription.IncreaseUsage();
                 await _subscriptionRepository.SaveAsync(command.UserId, subscription);
+                _logger.LogInformation(
+                    "Notification sent successfully for event {EventType} to User: {UserId} - Used: {Used}", 
+                    command.EventType.Name, 
+                    command.UserId,
+                    subscription.UsedThisMonth
+                );
             }
         }
     }

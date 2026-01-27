@@ -2,6 +2,7 @@
 using FertileNotify.Application.UseCases.ProcessEvent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Infrastructure.BackgroundJobs
 {
@@ -10,15 +11,21 @@ namespace FertileNotify.Infrastructure.BackgroundJobs
         private readonly INotificationQueue _queue;
         private readonly IServiceProvider _serviceProvider;
 
-        public NotificationWorker(INotificationQueue queue, IServiceProvider serviceProvider)
+        private readonly ILogger<NotificationWorker> _logger;
+
+        public NotificationWorker(
+            INotificationQueue queue, 
+            IServiceProvider serviceProvider,
+            ILogger<NotificationWorker> logger)
         {
             _queue = queue;
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("[WORKER] Background service has started...");
+            _logger.LogInformation("[WORKER] Background service has started...");
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -26,7 +33,11 @@ namespace FertileNotify.Infrastructure.BackgroundJobs
                 {
                     var command = await _queue.DequeueAsync(stoppingToken);
 
-                    Console.WriteLine($"[WORKER] New job received: {command.EventType.Name} -> {command.UserId}");
+                    _logger.LogInformation(
+                        "[WORKER] New job received: {EventType} -> {UserId}", 
+                        command.EventType.Name, 
+                        command.UserId
+                    );
 
                     using (var scope = _serviceProvider.CreateScope())
                     {
@@ -36,7 +47,7 @@ namespace FertileNotify.Infrastructure.BackgroundJobs
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[WORKER ERROR] An error occurred while processing: {ex.Message}");
+                    _logger.LogError(ex, "[WORKER ERROR] An error occurred while processing a job.");
                 }
             }
         }
