@@ -49,6 +49,11 @@ namespace FertileNotify.API.Middlewares
                     message = ex.Message;
                     break;
 
+                case UnauthorizedException:
+                    status = HttpStatusCode.Unauthorized;
+                    message = ex.Message;
+                    break;
+
                 default:
                     _logger.LogError(ex, "Unexpected error: {Message}", ex.Message);
                     break;

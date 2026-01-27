@@ -1,5 +1,6 @@
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace FertileNotify.Infrastructure.Persistence
@@ -28,13 +29,12 @@ namespace FertileNotify.Infrastructure.Persistence
         }
 
         public async Task<User?> GetByIdAsync(Guid id)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        }
+            => await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+        public async Task<User?> GetByEmailAsync(EmailAddress email)
+            => await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
         public async Task<bool> ExistsAsync(Guid id)
-        {
-            return await _context.Users.AnyAsync(u => u.Id == id);
-        }
+            => await _context.Users.AnyAsync(u => u.Id == id);
     }
 }

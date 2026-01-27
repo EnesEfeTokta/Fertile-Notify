@@ -5,6 +5,7 @@ using FertileNotify.Domain.Events;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace FertileNotify.API.Controllers
 {
@@ -25,12 +26,12 @@ namespace FertileNotify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
-            if (!await _userRepository.ExistsAsync(request.UserId)) 
-                throw new NotFoundException("User not found");
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
+                ?? throw new UnauthorizedException("User ID claim not found.");
 
             var command = new ProcessEventCommand
             {
-                UserId = request.UserId,
+                UserId = Guid.Parse(userIdClaim.Value),
                 EventType = EventType.From(request.EventType),
                 Parameters = request.Parameters
             };
