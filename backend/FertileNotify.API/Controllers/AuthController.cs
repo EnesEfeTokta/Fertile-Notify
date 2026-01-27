@@ -1,6 +1,8 @@
 using System;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Exceptions;
+using FertileNotify.Domain.ValueObjects;
+using FertileNotify.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FertileNotify.API.Controllers
@@ -21,18 +23,13 @@ namespace FertileNotify.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = 
-                await _userRepository.GetByIdAsync(request.UserId)
+            var user =
+                await _userRepository.GetByEmailAsync(EmailAddress.Create(request.Email))
                 ?? throw new NotFoundException("User not found");
 
             var token = _tokenService.GenerateToken(user);
 
             return Ok( new { Token = token } );
         }
-    }
-
-    public class LoginRequest
-    {
-        public Guid UserId { get; set; } // ! Kullanıcılar bellekte tutuluyor. Bu yüzden şimdilik Guid ile kullanıcı bulunsun.
     }
 }
