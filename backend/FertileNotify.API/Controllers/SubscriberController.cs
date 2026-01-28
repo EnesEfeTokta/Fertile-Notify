@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace FertileNotify.API.Controllers
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("api/subscribers")]
     public class SubscriberController : ControllerBase
     {
-        private readonly RegisterSubscriberHandler _registerUserHandler;
+        private readonly RegisterSubscriberHandler _registerSubscriberHandler;
 
-        public SubscriberController(RegisterSubscriberHandler registerUserHandler)
+        public SubscriberController(RegisterSubscriberHandler registerSubscriberHandler)
         {
-            _registerUserHandler = registerUserHandler;
+            _registerSubscriberHandler = registerSubscriberHandler;
         }
 
         [HttpPost("register")]
@@ -29,8 +29,8 @@ namespace FertileNotify.API.Controllers
                                 : PhoneNumber.Create(request.PhoneNumber),
                 Plan = plan,
             };
-            var userId = await _registerUserHandler.HandleAsync(command);
-            return CreatedAtAction(nameof(Register), new { id = userId }, new { UserId = userId });
+            await _registerSubscriberHandler.HandleAsync(command);
+            return CreatedAtAction(nameof(Register), new { message = "Registration successful, log in." });
         }
     }
 }

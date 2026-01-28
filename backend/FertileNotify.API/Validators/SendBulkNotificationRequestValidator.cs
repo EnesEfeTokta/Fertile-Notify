@@ -1,17 +1,21 @@
 ﻿using FertileNotify.API.Models;
 using FertileNotify.Domain.Events;
+using FertileNotify.Domain.ValueObjects;
 using FluentValidation;
 
 namespace FertileNotify.API.Validators
 {
-    public class BulkNotificationRequestValidator : AbstractValidator<BulkNotificationRequest>
+    public class SendBulkNotificationRequestValidator : AbstractValidator<SendBulkNotificationRequest>
     {
-        public BulkNotificationRequestValidator()
+        public SendBulkNotificationRequestValidator()
         {
+            RuleFor(x => x.Channel)
+                .NotEmpty().WithMessage("Channel is required.")
+                .Must(ChannelValid).WithMessage("Invalid channel.");
+
             RuleFor(x => x.Recipients)
                 .NotEmpty().WithMessage("Recipient list cannot be empty.")
-                .Must(list => list.Count <= 1000).WithMessage("Max 1000 recipients allowed.")
-                .Must(list => list.All(email => email.Contains("@"))).WithMessage("Invalid email format in list.");
+                .Must(list => list.Count <= 1000).WithMessage("Max 1000 recipients allowed.");
 
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")
@@ -25,6 +29,12 @@ namespace FertileNotify.API.Validators
         private bool EventTypeValid(string eventType)
         {
             try { EventType.From(eventType); return true; }
+            catch { return false; }
+        }
+
+        private bool ChannelValid(string channel)
+        {
+            try { NotificationChannel.From(channel); return true; }
             catch { return false; }
         }
 

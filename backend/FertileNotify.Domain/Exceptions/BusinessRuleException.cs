@@ -1,7 +1,7 @@
 namespace FertileNotify.Domain.Exceptions
 {
-    public class BusinessRuleException : Exception
+    public class BusinessRuleException : DomainException
     {
-        protected BusinessRuleException (string message) : base(message) { }
+        public BusinessRuleException (string message) : base(message) { }
     }
 }

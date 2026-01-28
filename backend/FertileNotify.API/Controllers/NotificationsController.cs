@@ -1,9 +1,9 @@
 ﻿using FertileNotify.API.Models;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.ProcessEvent;
-using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -25,12 +25,13 @@ namespace FertileNotify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
+            var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
                 ?? throw new UnauthorizedException("User ID claim not found.");
 
             var command = new ProcessEventCommand
             {
-                SubscriberId = Guid.Parse(userIdClaim.Value),
+                SubscriberId = Guid.Parse(subscriberIdClaim.Value),
+                Channel = NotificationChannel.From(request.Channel),
                 Recipient = request.Recipient,
                 EventType = EventType.From(request.EventType),
                 Parameters = request.Parameters
@@ -41,22 +42,19 @@ namespace FertileNotify.API.Controllers
         }
 
         [HttpPost("bulk")]
-        public async Task<IActionResult> BulkSend([FromBody] BulkNotificationRequest request)
+        public async Task<IActionResult> BulkSend([FromBody] SendBulkNotificationRequest request)
         {
             var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
                 ?? throw new UnauthorizedException("Subscriber ID claim not found.");
-
-            var subscriberId = Guid.Parse(subscriberIdClaim.Value);
-
-            var eventType = EventType.From(request.EventType);
 
             foreach (var recipient in request.Recipients)
             {
                 var command = new ProcessEventCommand
                 {
-                    SubscriberId = subscriberId,
+                    SubscriberId = Guid.Parse(subscriberIdClaim.Value),
+                    Channel = NotificationChannel.From(request.Channel),
                     Recipient = recipient,
-                    EventType = eventType,
+                    EventType = EventType.From(request.EventType),
                     Parameters = request.Parameters
                 };
 
