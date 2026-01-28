@@ -39,5 +39,34 @@ namespace FertileNotify.API.Controllers
             await _queue.QueueBackgroundWorkItemAsync(command);
             return Accepted((new { status = "Queued", message = "The notification has been added to the queue." }));
         }
+
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkSend([FromBody] BulkNotificationRequest request)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
+                ?? throw new UnauthorizedException("User ID claim not found.");
+
+            var existingIds = await _userRepository.GetExistingIdsAsync(request.UserIds)
+                ?? throw new UnauthorizedException("None of the provided IDs are registered in the system.");
+
+            foreach (var userId in existingIds)
+            {
+                var command = new ProcessEventCommand
+                {
+                    UserId = userId,
+                    EventType = EventType.From(request.EventType),
+                    Parameters = request.Parameters
+                };
+                await _queue.QueueBackgroundWorkItemAsync(command);
+            }
+
+            return Accepted(new 
+            { 
+                status = "Queued",
+                totalRequested = request.UserIds.Count,
+                queuedCount = existingIds.Count,
+                message = "The bulk notifications have been added to the queue." 
+            }); 
+        }
     }
 }

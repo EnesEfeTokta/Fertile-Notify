@@ -31,6 +31,9 @@ namespace FertileNotify.Infrastructure.Persistence
         public async Task<User?> GetByIdAsync(Guid id)
             => await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
+        public async Task<List<Guid>> GetExistingIdsAsync(List<Guid> ids)
+            => await _context.Users.Where(u => ids.Contains(u.Id)).Select(u => u.Id).ToListAsync();
+
         public async Task<User?> GetByEmailAsync(EmailAddress email)
             => await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
