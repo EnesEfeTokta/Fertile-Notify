@@ -12,7 +12,6 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         private readonly IEnumerable<INotificationSender> _senders;
         private readonly ITemplateRepository _templateRepository;
         private readonly TemplateEngine templateEngine;
-
         private readonly ILogger<ProcessEventHandler> _logger;
 
         public ProcessEventHandler(
@@ -35,38 +34,31 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         public async Task HandleAsync(ProcessEventCommand command)
         {
             _logger.LogInformation(
-                "Processing event {EventType} for Subscriber: {SubscriberId} with parameters: {Parameters}", 
-                command.EventType.Name, 
-                command.SubscriberId, 
-                string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}={kv.Value}"))
+                "Processing event {EventType} for Subscriber: {SubscriberId}. Channel: {Channel}",
+                command.EventType.Name,
+                command.SubscriberId,
+                command.Channel
             );
 
-            var subscriber = 
-                await _subscriberRepository.GetByIdAsync(command.SubscriberId) 
+            var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found");
 
-            var subscription =
-                await _subscriptionRepository.GetBySubscriberIdAsync(command.SubscriberId)
+            var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscription not found");
 
             if (!subscription.CanHandle(command.EventType))
-            {
-                _logger.LogWarning(
-                    "Subscription plan does not support event {EventType} for Subscriber: {SubscriberId}", 
-                    command.EventType.Name, 
-                    command.SubscriberId
-                );
-                throw new Exception("Subscription plan does not support this event type");
-            }
+                throw new BusinessRuleException($"Subscription plan does not support event type: {command.EventType.Name}");
+
+            if (!subscriber.ActiveChannels.Contains(command.Channel))
+                throw new BusinessRuleException($"Subscriber is not enabled for channel: {command.Channel}");
 
             subscription.EnsureCanSendNotification();
 
-            var template = 
-                await _templateRepository.GetByEventTypeAsync(command.EventType) 
-                ?? throw new Exception("Notification template not found");
+            var template = await _templateRepository.GetByEventTypeAsync(command.EventType)
+                ?? throw new NotFoundException("Notification template not found");
 
             string subject = command.EventType.Name;
-            string body = "No template available." ?? string.Empty;
+            string body = string.Empty;
 
             if (template != null)
             {
@@ -75,34 +67,33 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             }
             else
             {
-                body = string.Join(Environment.NewLine, command.Parameters.Select(kv => $"{kv.Key}: {kv.Value}"));
+                body = string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}={kv.Value}"));
             }
 
-            bool handled = false;
-            foreach (var channel in subscriber.ActiveChannels)
+            var sender = _senders.FirstOrDefault(s => s.Channel.Equals(command.Channel));
+
+            if (sender == null)
             {
-                var sender = _senders.FirstOrDefault(s => s.Channel.Equals(channel));
-                if (sender == null) continue;
-                _logger.LogInformation(
-                    "Sending notification via {Channel} to Subscriber: {SubscriberId}", 
-                    channel, 
-                    command.SubscriberId
-                );
-                await sender.SendAsync(command.Recipient, subject, body);
-                handled = true;
+                _logger.LogError("No implementation found for channel: {Channel}", command.Channel);
+                throw new Exception($"System configuration error: No sender found for {command.Channel}");
             }
 
-            if (handled)
-            {
-                subscription.IncreaseUsage();
-                await _subscriptionRepository.SaveAsync(command.SubscriberId, subscription);
-                _logger.LogInformation(
-                    "Notification sent successfully for event {EventType} to Subscriber: {SubscriberId} - Used: {Used}", 
-                    command.EventType.Name, 
-                    command.SubscriberId,
-                    subscription.UsedThisMonth
-                );
-            }
+            _logger.LogInformation(
+                "Sending notification via {Channel} to Recipient: {Recipient}",
+                command.Channel,
+                command.Recipient
+            );
+
+            await sender.SendAsync(command.Recipient, subject, body);
+
+            subscription.IncreaseUsage();
+            await _subscriptionRepository.SaveAsync(command.SubscriberId, subscription);
+
+            _logger.LogInformation(
+                "Notification sent successfully. Used: {Used}/{Limit}",
+                subscription.UsedThisMonth,
+                subscription.MonthlyLimit
+            );
         }
     }
 }

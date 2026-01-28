@@ -9,17 +9,17 @@ namespace FertileNotify.Domain.ValueObjects
             Name = name;
         }
 
-        public static readonly NotificationChannel Console = new("Console");
-        public static readonly NotificationChannel SMS = new("SMS");
-        public static readonly NotificationChannel Email = new("Email");
+        public static readonly NotificationChannel Console = new("console");
+        public static readonly NotificationChannel SMS = new("sms");
+        public static readonly NotificationChannel Email = new("email");
 
         public static NotificationChannel From(string value)
         {
             return value switch
             {
-                "Console" => Console,
-                "SMS" => SMS,
-                "Email" => Email,
+                "console" => Console,
+                "sms" => SMS,
+                "email" => Email,
                 _ => throw new ArgumentException($"Unknown notification channel: {value}")
             };
         }

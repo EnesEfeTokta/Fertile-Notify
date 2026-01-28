@@ -8,6 +8,9 @@ namespace FertileNotify.API.Validators
     {
         public SendNotificationRequestValidator()
         {
+            RuleFor(x => x.Recipient)
+                .NotEmpty().WithMessage("Recipient is required.");
+
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")
                 .Must(EventTypeValid).WithMessage("Invalid EventType.");

@@ -4,6 +4,7 @@ using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Events;
+using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -51,6 +52,7 @@ namespace FertileNotify.Tests
             var command = new ProcessEventCommand
             {
                 SubscriberId = subscriberId,
+                Channel = NotificationChannel.Email,
                 Recipient = "customer@example.com",
                 EventType = EventType.SubscriberRegistered,
                 Parameters = new Dictionary<string, string> { { "Name", "TestUser" } }
@@ -94,6 +96,7 @@ namespace FertileNotify.Tests
             var command = new ProcessEventCommand
             {
                 SubscriberId = subscriberId,
+                Channel = NotificationChannel.Email,
                 Recipient = "customer@example.com",
                 EventType = EventType.OrderCreated
             };
@@ -104,7 +107,7 @@ namespace FertileNotify.Tests
             var subscription = Subscription.Create(subscriberId, SubscriptionPlan.Free);
             _mockSubRepo.Setup(x => x.GetBySubscriberIdAsync(subscriberId)).ReturnsAsync(subscription);
 
-            await Assert.ThrowsAsync<Exception>(() => _handler.HandleAsync(command));
+            await Assert.ThrowsAsync<BusinessRuleException>(() => _handler.HandleAsync(command));
 
             _mockEmailSender.Verify(
                 x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
