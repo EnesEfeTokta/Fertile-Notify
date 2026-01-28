@@ -1,13 +1,19 @@
 ﻿using FertileNotify.API.Models;
-using FluentValidation;
 using FertileNotify.Domain.Events;
+using FluentValidation;
 
 namespace FertileNotify.API.Validators
 {
-    public class SendNotificationRequestValidator : AbstractValidator<SendNotificationRequest>
+    public class BulkNotificationRequestValidator : AbstractValidator<BulkNotificationRequest>
     {
-        public SendNotificationRequestValidator()
+        public BulkNotificationRequestValidator()
         {
+            RuleFor(x => x.UserIds)
+                .NotEmpty().WithMessage("UserIds cannot be empty.")
+                .Must(ids => ids.All(id => id != Guid.Empty)).WithMessage("UserIds must contain valid GUIDs.")
+                .Must(ids => ids.Distinct().Count() == ids.Count).WithMessage("UserIds must be unique.")
+                .Must(ids => ids.Count <= 1000).WithMessage("UserIds cannot contain more than 1000 IDs.");
+
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")
                 .Must(EventTypeValid).WithMessage("Invalid EventType.");
