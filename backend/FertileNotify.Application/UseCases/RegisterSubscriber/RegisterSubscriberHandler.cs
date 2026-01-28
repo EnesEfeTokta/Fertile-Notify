@@ -3,19 +3,19 @@ using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
-namespace FertileNotify.Application.UseCases.RegisterUser
+namespace FertileNotify.Application.UseCases.RegisterSubscriber
 {
-    public class RegisterUserHandler
+    public class RegisterSubscriberHandler
     {
-        private readonly IUserRepository _userRepository;
+        private readonly ISubscriberRepository _userRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
 
-        private readonly ILogger<RegisterUserHandler> _logger;
+        private readonly ILogger<RegisterSubscriberHandler> _logger;
 
-        public RegisterUserHandler(
-            IUserRepository userRepository,
+        public RegisterSubscriberHandler(
+            ISubscriberRepository userRepository,
             ISubscriptionRepository subscriptionRepository,
-            ILogger<RegisterUserHandler> logger
+            ILogger<RegisterSubscriberHandler> logger
         )
         {
             _userRepository = userRepository;
@@ -23,19 +23,16 @@ namespace FertileNotify.Application.UseCases.RegisterUser
             _logger = logger;
         }
 
-        public async Task<Guid> HandleAsync(RegisterUserCommand command)
+        public async Task<Guid> HandleAsync(RegisterSubscriberCommand command)
         {
             _logger.LogInformation(
-                "User registration is underway. User: {Email} & {PhoneNumber}, Plan: {Plan}", 
+                "Subscriber registration is underway. Subscriber: {Email} & {PhoneNumber}, Plan: {Plan}", 
                 command.Email, 
                 string.IsNullOrEmpty(command.PhoneNumber?.Value) ? command.PhoneNumber?.Value : "[No Phone Number]", 
                 command.Email.Value
             );
 
-            var user = new User(
-                EmailAddress.Create(command.Email.Value), 
-                PhoneNumber.Create(command.PhoneNumber?.Value ?? string.Empty)
-            );
+            var user = new Subscriber(command.Email, command.PhoneNumber);
 
             var subscription = Subscription.Create(user.Id, command.Plan);
 

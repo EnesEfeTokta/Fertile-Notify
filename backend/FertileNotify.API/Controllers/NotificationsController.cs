@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using FertileNotify.Application.UseCases.ProcessEvent;
-using FertileNotify.API.Models;
-using FertileNotify.Domain.Events;
+﻿using FertileNotify.API.Models;
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.UseCases.ProcessEvent;
+using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace FertileNotify.API.Controllers
@@ -15,12 +16,10 @@ namespace FertileNotify.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationQueue _queue;
-        private readonly IUserRepository _userRepository;
 
-        public NotificationsController(INotificationQueue queue, IUserRepository userRepository)
+        public NotificationsController(INotificationQueue queue)
         {
             _queue = queue;
-            _userRepository = userRepository;
         }
 
         [HttpPost]
@@ -31,7 +30,8 @@ namespace FertileNotify.API.Controllers
 
             var command = new ProcessEventCommand
             {
-                UserId = Guid.Parse(userIdClaim.Value),
+                SubscriberId = Guid.Parse(userIdClaim.Value),
+                Recipient = request.Recipient,
                 EventType = EventType.From(request.EventType),
                 Parameters = request.Parameters
             };
@@ -43,30 +43,32 @@ namespace FertileNotify.API.Controllers
         [HttpPost("bulk")]
         public async Task<IActionResult> BulkSend([FromBody] BulkNotificationRequest request)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
-                ?? throw new UnauthorizedException("User ID claim not found.");
+            var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedException("Subscriber ID claim not found.");
 
-            var existingIds = await _userRepository.GetExistingIdsAsync(request.UserIds)
-                ?? throw new UnauthorizedException("None of the provided IDs are registered in the system.");
+            var subscriberId = Guid.Parse(subscriberIdClaim.Value);
 
-            foreach (var userId in existingIds)
+            var eventType = EventType.From(request.EventType);
+
+            foreach (var recipient in request.Recipients)
             {
                 var command = new ProcessEventCommand
                 {
-                    UserId = userId,
-                    EventType = EventType.From(request.EventType),
+                    SubscriberId = subscriberId,
+                    Recipient = recipient,
+                    EventType = eventType,
                     Parameters = request.Parameters
                 };
+
                 await _queue.QueueBackgroundWorkItemAsync(command);
             }
 
-            return Accepted(new 
-            { 
+            return Accepted(new
+            {
                 status = "Queued",
-                totalRequested = request.UserIds.Count,
-                queuedCount = existingIds.Count,
-                message = "The bulk notifications have been added to the queue." 
-            }); 
+                totalRequested = request.Recipients.Count,
+                message = $"{request.Recipients.Count} notifications have been added to the queue."
+            });
         }
     }
 }

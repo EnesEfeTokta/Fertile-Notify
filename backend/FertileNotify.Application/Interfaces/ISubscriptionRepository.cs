@@ -4,7 +4,7 @@ namespace FertileNotify.Application.Interfaces
 {
     public interface ISubscriptionRepository
     {
-        Task SaveAsync(Guid userId, Subscription subscription);
-        Task<Subscription?> GetByUserIdAsync(Guid userId);
+        Task SaveAsync(Guid subscriberId, Subscription subscription);
+        Task<Subscription?> GetBySubscriberIdAsync(Guid subscriberId);
     }
 }

@@ -10,14 +10,14 @@
         }
 
         public static readonly EventType OrderCreated = new("OrderCreated");
-        public static readonly EventType UserRegistered = new("UserRegistered");
+        public static readonly EventType SubscriberRegistered = new("SubscriberRegistered");
 
         public static EventType From(string name)
         {
             return name switch
             {
                 "OrderCreated" => OrderCreated,
-                "UserRegistered" => UserRegistered,
+                "SubscriberRegistered" => SubscriberRegistered,
                 _ => throw new Exception("Unknown event type")
             };
         }

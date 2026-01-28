@@ -2,7 +2,8 @@
 {
     public class BulkNotificationRequest
     {
-        public List<Guid> UserIds { get; set; } = new();
+        public List<string> Recipients { get; set; } = new();
+
         public string EventType { get; set; } = string.Empty;
         public Dictionary<string, string> Parameters { get; set; } = new();
     }

@@ -4,6 +4,6 @@ namespace FertileNotify.Application.Interfaces
 {
     public interface ITokenService
     {
-        string GenerateToken(User user);
+        string GenerateToken(Subscriber user);
     }
 }

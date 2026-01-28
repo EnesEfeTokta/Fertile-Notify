@@ -24,9 +24,9 @@ namespace FertileNotify.Infrastructure.Persistence
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Subscription?> GetByUserIdAsync(Guid userId)
+        public async Task<Subscription?> GetBySubscriberIdAsync(Guid subscriberId)
         {
-            return await _context.Subscriptions.FirstOrDefaultAsync(s => s.UserId == userId);
+            return await _context.Subscriptions.FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
         }
     }
 }

@@ -26,11 +26,25 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Subscribers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    ActiveChannels = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subscribers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Subscriptions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
                     Plan = table.Column<int>(type: "integer", nullable: false),
                     MonthlyLimit = table.Column<int>(type: "integer", nullable: false),
                     UsedThisMonth = table.Column<int>(type: "integer", nullable: false),
@@ -41,20 +55,6 @@ namespace FertileNotify.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Subscriptions", x => x.Id);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Email = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    ActiveChannels = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
         }
 
         /// <inheritdoc />
@@ -64,10 +64,10 @@ namespace FertileNotify.Infrastructure.Migrations
                 name: "NotificationTemplates");
 
             migrationBuilder.DropTable(
-                name: "Subscriptions");
+                name: "Subscribers");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Subscriptions");
         }
     }
 }

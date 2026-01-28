@@ -5,7 +5,7 @@
         private static readonly IReadOnlyCollection<EventType> _events =
         [
             EventType.OrderCreated,
-            EventType.UserRegistered
+            EventType.SubscriberRegistered
         ];
 
         public static bool IsSupported(EventType eventType)
