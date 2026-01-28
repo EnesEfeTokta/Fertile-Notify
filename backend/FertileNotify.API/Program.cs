@@ -9,7 +9,7 @@ using Serilog;
 
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.ProcessEvent;
-using FertileNotify.Application.UseCases.RegisterUser;
+using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Application.Services;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
@@ -41,7 +41,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // --- 3. Repositories ---
-builder.Services.AddScoped<IUserRepository, EfUserRepository>();
+builder.Services.AddScoped<ISubscriberRepository, EfSubscriberRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
 builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 
@@ -82,7 +82,7 @@ builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
-builder.Services.AddScoped<RegisterUserHandler>();
+builder.Services.AddScoped<RegisterSubscriberHandler>();
 builder.Services.AddScoped<TemplateEngine>();
 
 

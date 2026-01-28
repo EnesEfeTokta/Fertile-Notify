@@ -21,7 +21,7 @@ namespace FertileNotify.Infrastructure.Persistence
                     var templates = new List<NotificationTemplate>
                     {
                         NotificationTemplate.Create(
-                            EventType.UserRegistered,
+                            EventType.SubscriberRegistered,
                             "Welcome {Name}!",
                             "Hello {Name}, thank you for joining the FertileNotify family. Your email address is: {Email}"
                         ),

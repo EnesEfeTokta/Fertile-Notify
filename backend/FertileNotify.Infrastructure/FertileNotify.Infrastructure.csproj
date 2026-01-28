@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Authentication\" />
-    <Folder Include="Persistence\Configurations\" />
   </ItemGroup>
 
   <PropertyGroup>

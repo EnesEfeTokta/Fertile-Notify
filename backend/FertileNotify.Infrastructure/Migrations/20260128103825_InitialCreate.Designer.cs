@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FertileNotify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260126111228_InitialCreate")]
+    [Migration("20260128103825_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -50,37 +50,7 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.ToTable("NotificationTemplates");
                 });
 
-            modelBuilder.Entity("FertileNotify.Domain.Entities.Subscription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AllowedEvents")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("MonthlyLimit")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Plan")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsedThisMonth")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Subscriptions");
-                });
-
-            modelBuilder.Entity("FertileNotify.Domain.Entities.User", b =>
+            modelBuilder.Entity("FertileNotify.Domain.Entities.Subscriber", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,7 +71,37 @@ namespace FertileNotify.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Subscribers");
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.Subscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AllowedEvents")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MonthlyLimit")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Plan")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SubscriberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("UsedThisMonth")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Subscriptions");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,7 +3,7 @@ using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Domain.Entities
 {
-    public class User
+    public class Subscriber
     {
         public Guid Id { get; private set; }
         public EmailAddress Email { get; private set; }
@@ -12,12 +12,12 @@ namespace FertileNotify.Domain.Entities
         private readonly HashSet<NotificationChannel> _activeChannels = new();
         public IReadOnlyCollection<NotificationChannel> ActiveChannels => _activeChannels;
 
-        private User()
+        private Subscriber()
         {
             Email = default!;
         }
 
-        public User(EmailAddress email, PhoneNumber? phoneNumber)
+        public Subscriber(EmailAddress email, PhoneNumber? phoneNumber)
         {
             Id = Guid.NewGuid();
             Email = email;
@@ -28,7 +28,7 @@ namespace FertileNotify.Domain.Entities
 
         public void EnableChannel(NotificationChannel channel)
         {
-            if (!_activeChannels.Contains(channel)) return;
+            if (_activeChannels.Contains(channel)) return;
 
             if (!ChannelPreferenceRule.CanAddChannel(_activeChannels.Count))
                 throw new InvalidOperationException("Cannot add more notification channels.");

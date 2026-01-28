@@ -11,12 +11,12 @@ namespace FertileNotify.Domain.Rules
             {
                 SubscriptionPlan.Free =>
                 [
-                    EventType.UserRegistered
+                    EventType.SubscriberRegistered
                 ],
 
                 SubscriptionPlan.Pro =>
                 [
-                    EventType.UserRegistered,
+                    EventType.SubscriberRegistered,
                     EventType.OrderCreated
                 ],
 

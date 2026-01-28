@@ -17,7 +17,7 @@ namespace FertileNotify.Infrastructure.Authentication
             _configuration = configuration;
         }
 
-        public string GenerateToken(User user)
+        public string GenerateToken(Subscriber user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);

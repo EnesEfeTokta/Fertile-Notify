@@ -4,9 +4,9 @@ using FluentValidation;
 
 namespace FertileNotify.API.Validators
 {
-    public class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
+    public class RegisterSubscriberRequestValidator : AbstractValidator<RegisterSubscriberRequest>
     {
-        public RegisterUserRequestValidator() 
+        public RegisterSubscriberRequestValidator() 
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is a required field.")
@@ -21,8 +21,6 @@ namespace FertileNotify.API.Validators
         }
 
         private bool SubscriptionPlanValid(string plan)
-        {
-            return Enum.TryParse<SubscriptionPlan>(plan, ignoreCase: true, out _);
-        }
+            => Enum.TryParse<SubscriptionPlan>(plan, ignoreCase: true, out _);
     }
 }

@@ -7,7 +7,7 @@ namespace FertileNotify.Domain.Entities
     public class Subscription
     {
         public Guid Id { get; private set; }
-        public Guid UserId { get; private set; }
+        public Guid SubscriberId { get; private set; }
         public SubscriptionPlan Plan { get; private set; }
         public int MonthlyLimit { get; private set; }
         public int UsedThisMonth { get; private set; }
@@ -21,7 +21,7 @@ namespace FertileNotify.Domain.Entities
         }
 
         private Subscription(
-            Guid userId,
+            Guid subscriberId,
             SubscriptionPlan plan,
             int monthlyLimit,
             DateTime expiresAt,
@@ -29,7 +29,7 @@ namespace FertileNotify.Domain.Entities
         )
         {
             Id = Guid.NewGuid();
-            UserId = userId;
+            SubscriberId = subscriberId;
             Plan = plan;
             MonthlyLimit = monthlyLimit;
             UsedThisMonth = 0;

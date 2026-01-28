@@ -1,5 +1,4 @@
 ﻿using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -16,13 +15,13 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Console;
 
-        public Task SendAsync(User user, string eventType, string payload)
+        public Task SendAsync(string recipient, string subject, string body)
         {
             _logger.LogInformation(
-                "[CONSOLE] To: [USER: {User}] [EVENT: {EventType}] [PAYLOAD: {Payload}]",
-                user,
-                eventType,
-                payload
+                "[CONSOLE] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
+                recipient,
+                subject,
+                body
             );
             return Task.CompletedTask;
         }

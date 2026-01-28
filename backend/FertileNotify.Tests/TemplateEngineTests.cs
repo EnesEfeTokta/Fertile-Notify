@@ -9,7 +9,9 @@ namespace FertileNotify.Tests
         public void Render_Should_Replace_Placeholders_With_Values()
         {
             var engine = new TemplateEngine();
+
             string template = "Hello {Name}, order no: {OrderId}";
+
             var parameters = new Dictionary<string, string>
             {
                 { "Name", "Enes" },
@@ -18,7 +20,7 @@ namespace FertileNotify.Tests
 
             var result = engine.Render(template, parameters);
 
-            result.Should().Be("Merhaba Enes, order no: 12345");
+            result.Should().Be("Hello Enes, order no: 12345");
         }
 
         [Fact]

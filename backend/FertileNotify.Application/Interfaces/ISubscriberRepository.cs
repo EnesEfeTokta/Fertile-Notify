@@ -3,12 +3,12 @@ using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Application.Interfaces
 {
-    public interface IUserRepository
+    public interface ISubscriberRepository
     {
-        Task SaveAsync(User user);
-        Task<User?> GetByIdAsync(Guid id);
+        Task SaveAsync(Subscriber subscriber);
+        Task<Subscriber?> GetByIdAsync(Guid id);
         Task<List<Guid>> GetExistingIdsAsync(List<Guid> ids);
-        Task<User?> GetByEmailAsync(EmailAddress email);
+        Task<Subscriber?> GetByEmailAsync(EmailAddress email);
         Task<bool> ExistsAsync(Guid id);
     }
 }

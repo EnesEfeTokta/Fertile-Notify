@@ -11,10 +11,10 @@ namespace FertileNotify.API.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly ISubscriberRepository _userRepository;
         private readonly ITokenService _tokenService;
 
-        public AuthController(IUserRepository userRepository, ITokenService tokenService)
+        public AuthController(ISubscriberRepository userRepository, ITokenService tokenService)
         {
             _userRepository = userRepository;
             _tokenService = tokenService;

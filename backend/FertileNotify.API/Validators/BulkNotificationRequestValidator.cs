@@ -8,11 +8,10 @@ namespace FertileNotify.API.Validators
     {
         public BulkNotificationRequestValidator()
         {
-            RuleFor(x => x.UserIds)
-                .NotEmpty().WithMessage("UserIds cannot be empty.")
-                .Must(ids => ids.All(id => id != Guid.Empty)).WithMessage("UserIds must contain valid GUIDs.")
-                .Must(ids => ids.Distinct().Count() == ids.Count).WithMessage("UserIds must be unique.")
-                .Must(ids => ids.Count <= 1000).WithMessage("UserIds cannot contain more than 1000 IDs.");
+            RuleFor(x => x.Recipients)
+                .NotEmpty().WithMessage("Recipient list cannot be empty.")
+                .Must(list => list.Count <= 1000).WithMessage("Max 1000 recipients allowed.")
+                .Must(list => list.All(email => email.Contains("@"))).WithMessage("Invalid email format in list.");
 
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")

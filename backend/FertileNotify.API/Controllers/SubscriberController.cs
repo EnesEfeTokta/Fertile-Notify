@@ -1,30 +1,27 @@
 ﻿using FertileNotify.API.Models;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Application.UseCases.RegisterUser;
+using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.ValueObjects;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using System.Numerics;
 
 namespace FertileNotify.API.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    public class UsersController : ControllerBase
+    public class SubscriberController : ControllerBase
     {
-        private readonly RegisterUserHandler _registerUserHandler;
+        private readonly RegisterSubscriberHandler _registerUserHandler;
 
-        public UsersController(RegisterUserHandler registerUserHandler)
+        public SubscriberController(RegisterSubscriberHandler registerUserHandler)
         {
             _registerUserHandler = registerUserHandler;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterSubscriberRequest request)
         {
             Enum.TryParse<SubscriptionPlan>(request.Plan, ignoreCase: true, out var plan);
-            var command = new RegisterUserCommand
+            var command = new RegisterSubscriberCommand
             {
                 Email = EmailAddress.Create(request.Email),
                 PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber)

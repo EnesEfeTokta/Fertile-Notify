@@ -34,9 +34,9 @@ namespace FertileNotify.Infrastructure.BackgroundJobs
                     var command = await _queue.DequeueAsync(stoppingToken);
 
                     _logger.LogInformation(
-                        "[WORKER] New job received: {EventType} -> {UserId}", 
+                        "[WORKER] New job received: {EventType} -> {SubscriberId}", 
                         command.EventType.Name, 
-                        command.UserId
+                        command.SubscriberId
                     );
 
                     using (var scope = _serviceProvider.CreateScope())
