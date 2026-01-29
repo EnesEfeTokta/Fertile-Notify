@@ -2,6 +2,7 @@
 {
     public class UnauthorizedException : DomainException
     {
-        public UnauthorizedException(string message) : base(message) { }
+        public UnauthorizedException(string message, string errorCode = "UNAUTHORIZED")
+            : base(message, errorCode, 401) { }
     }
 }
