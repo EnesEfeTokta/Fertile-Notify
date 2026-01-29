@@ -1,4 +1,3 @@
-using System;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;

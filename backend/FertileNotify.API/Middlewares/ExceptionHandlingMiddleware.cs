@@ -17,55 +17,46 @@ namespace FertileNotify.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                await HandleExceptionAsync(context, ex);
-            }
+            try { await _next(context); }
+            catch (Exception ex) { await HandleExceptionAsync(context, ex); }
         }
 
         private Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            HttpStatusCode status = HttpStatusCode.InternalServerError;
-            string message = "A server error occurred. Please try again.";
+            _logger.LogError(ex, "Exception caught in middleware.");
 
-            switch (ex)
+            int status = (int)HttpStatusCode.InternalServerError;
+            string errorCode = "INTERNAL_SERVER_ERROR";
+            string message = "An unexpected error occurred.";
+            object? details = null;
+
+            if (ex is DomainException domainException)
             {
-                case NotFoundException:
-                    status = HttpStatusCode.NotFound;
-                    message = ex.Message;
-                    break;
-
-                case BusinessRuleException:
-                    status = HttpStatusCode.BadRequest;
-                    message = ex.Message;
-                    break;
-
-                case ArgumentException:
-                    status = HttpStatusCode.BadRequest;
-                    message = ex.Message;
-                    break;
-
-                case UnauthorizedException:
-                    status = HttpStatusCode.Unauthorized;
-                    message = ex.Message;
-                    break;
-
-                default:
-                    _logger.LogError(ex, "Unexpected error: {Message}", ex.Message);
-                    break;
+                status = domainException.StatusCode;
+                errorCode = domainException.ErrorCode;
+                message = domainException.Message;
+                details = domainException.Details;
+            }
+            else
+            {
+                _logger.LogError(ex, "Unhandled exception occurred.");
             }
 
-            var response = new { error = message };
-            var jsonResponse = JsonSerializer.Serialize(response);
+            var errorResponse = new
+            {
+                Error = new
+                {
+                    Code = errorCode,
+                    Message = message,
+                    Details = details,
+                    traceId = context.TraceIdentifier
+                }
+            };
 
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)status;
+            context.Response.StatusCode = status;
 
-            return context.Response.WriteAsync(jsonResponse);
+            return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
         }
     }
 }
