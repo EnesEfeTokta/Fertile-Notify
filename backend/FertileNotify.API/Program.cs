@@ -15,6 +15,9 @@ using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using FertileNotify.Infrastructure.BackgroundJobs;
 using FertileNotify.Infrastructure.Authentication;
+using FertileNotify.API.Middlewares;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +31,19 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter(policyName: "fixed", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 50;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // --- 1. Controller ve JSON Settings ---
 builder.Services.AddControllers()
@@ -91,7 +107,9 @@ var app = builder.Build();
 // --- 8. Database Seed ---
 await DbSeeder.SeedAsync(app);
 
-app.UseMiddleware<FertileNotify.API.Middlewares.ExceptionHandlingMiddleware>();
+app.UseRateLimiter();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
