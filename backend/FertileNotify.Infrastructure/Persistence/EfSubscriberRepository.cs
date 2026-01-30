@@ -14,15 +14,15 @@ namespace FertileNotify.Infrastructure.Persistence
             _context = context;
         }
 
-        public async Task SaveAsync(Subscriber user)
+        public async Task SaveAsync(Subscriber subscriber)
         {
-            if (!_context.Subscribers.Local.Any(u => u.Id == user.Id))
+            if (!_context.Subscribers.Local.Any(u => u.Id == subscriber.Id || u.CompanyName == subscriber.CompanyName))
             {
-                var exists = await _context.Subscribers.AnyAsync(u => u.Id == user.Id);
+                var exists = await _context.Subscribers.AnyAsync(u => u.Id == subscriber.Id);
                 if (!exists)
-                    await _context.Subscribers.AddAsync(user);
+                    await _context.Subscribers.AddAsync(subscriber);
                 else
-                    _context.Subscribers.Update(user);
+                    _context.Subscribers.Update(subscriber);
             }
             
             await _context.SaveChangesAsync();

@@ -23,13 +23,7 @@ namespace FertileNotify.Domain.ValueObjects
         }
 
         private static bool IsValid(string email)
-        {
-            return Regex.IsMatch(
-                email,
-                @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-                RegexOptions.IgnoreCase
-            );
-        }
+            => Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
 
         public override string ToString() => Value;
 

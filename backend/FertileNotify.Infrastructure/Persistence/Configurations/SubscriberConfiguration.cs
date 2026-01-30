@@ -12,6 +12,14 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
         {
             builder.HasKey(u => u.Id);
 
+            builder.Property(u => u.CompanyName)
+                .HasConversion(
+                    companyName => companyName.Name,
+                    name => new CompanyName(name)
+                )
+                .HasMaxLength(100)
+                .IsRequired();
+
             builder.Property(u => u.Email)
                 .HasConversion(
                     email => email.Value,
@@ -32,12 +40,14 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
                     v => string.Join(',', v.Select(c => c.Name)),
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(NotificationChannel.From)
-                        .ToHashSet())
+                        .ToHashSet()
+                )
                 .Metadata.SetValueComparer(
                     new ValueComparer<IReadOnlyCollection<NotificationChannel>>(
                         (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
                         c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                        c => c.ToHashSet()));
+                        c => c.ToHashSet())
+                    );
         }
     }
 }
