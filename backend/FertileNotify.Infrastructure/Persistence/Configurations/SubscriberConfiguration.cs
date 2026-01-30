@@ -30,7 +30,7 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
             builder.Property(u => u.ActiveChannels)
                 .HasConversion(
                     v => string.Join(',', v.Select(c => c.Name)),
-                    v => v.Split('s', StringSplitOptions.RemoveEmptyEntries)
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(NotificationChannel.From)
                         .ToHashSet())
                 .Metadata.SetValueComparer(

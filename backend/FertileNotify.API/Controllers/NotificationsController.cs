@@ -27,14 +27,11 @@ namespace FertileNotify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
-            var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
-                ?? throw new UnauthorizedException("User ID claim not found.");
-
             var command = new ProcessEventCommand
             {
-                SubscriberId = Guid.Parse(subscriberIdClaim.Value),
-                Channel = NotificationChannel.From(request.Channel),
-                Recipient = request.Recipient,
+                SubscriberId = GetSubscriberIdFromClaims(),
+                Channel = NotificationChannel.From(request.Channel.Trim().ToLower()),
+                Recipient = request.Recipient.Trim().ToLower(),
                 EventType = EventType.From(request.EventType),
                 Parameters = request.Parameters
             };
@@ -46,14 +43,13 @@ namespace FertileNotify.API.Controllers
         [HttpPost("bulk")]
         public async Task<IActionResult> BulkSend([FromBody] SendBulkNotificationRequest request)
         {
-            var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
-                ?? throw new UnauthorizedException("Subscriber ID claim not found.");
+            Guid id = GetSubscriberIdFromClaims();
 
             foreach (var recipient in request.Recipients)
             {
                 var command = new ProcessEventCommand
                 {
-                    SubscriberId = Guid.Parse(subscriberIdClaim.Value),
+                    SubscriberId = id,
                     Channel = NotificationChannel.From(request.Channel),
                     Recipient = recipient,
                     EventType = EventType.From(request.EventType),
@@ -69,6 +65,13 @@ namespace FertileNotify.API.Controllers
                 totalRequested = request.Recipients.Count,
                 message = $"{request.Recipients.Count} notifications have been added to the queue."
             });
+        }
+
+        private Guid GetSubscriberIdFromClaims()
+        {
+            var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedException("Subscriber ID claim not found.");
+            return Guid.Parse(subscriberIdClaim.Value);
         }
     }
 }
