@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FertileNotify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260128103825_InitialCreate")]
+    [Migration("20260130062507_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

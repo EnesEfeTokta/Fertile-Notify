@@ -26,6 +26,15 @@ namespace FertileNotify.Domain.Entities
             _activeChannels.Add(NotificationChannel.Email);
         }
 
+        public void UpdateContactInfo(EmailAddress email, PhoneNumber? phoneNumber)
+        {
+            if (phoneNumber == null && _activeChannels.Contains(NotificationChannel.SMS))
+                throw new InvalidOperationException("Cannot remove phone number while SMS channel is active.");
+
+            Email = email;
+            PhoneNumber = phoneNumber;
+        }
+
         public void EnableChannel(NotificationChannel channel)
         {
             if (_activeChannels.Contains(channel)) return;
