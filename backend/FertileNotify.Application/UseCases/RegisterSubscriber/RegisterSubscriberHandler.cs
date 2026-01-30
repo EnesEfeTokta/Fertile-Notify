@@ -1,6 +1,5 @@
 ﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.UseCases.RegisterSubscriber
@@ -26,13 +25,14 @@ namespace FertileNotify.Application.UseCases.RegisterSubscriber
         public async Task<Guid> HandleAsync(RegisterSubscriberCommand command)
         {
             _logger.LogInformation(
-                "Subscriber registration is underway. Subscriber: {Email} & {PhoneNumber}, Plan: {Plan}", 
+                "Subscriber registration is underway. Subscriber Name: {CompanyName}, Contact: {Email} & {PhoneNumber}, Plan: {Plan}",
+                command.CompanyName,
                 command.Email, 
                 string.IsNullOrEmpty(command.PhoneNumber?.Value) ? command.PhoneNumber?.Value : "[No Phone Number]", 
                 command.Email.Value
             );
 
-            var user = new Subscriber(command.Email, command.PhoneNumber);
+            var user = new Subscriber(command.CompanyName, command.Email, command.PhoneNumber);
 
             var subscription = Subscription.Create(user.Id, command.Plan);
 

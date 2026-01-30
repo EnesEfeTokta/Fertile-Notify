@@ -58,7 +58,10 @@ namespace FertileNotify.Tests
                 Parameters = new Dictionary<string, string> { { "Name", "TestUser" } }
             };
 
-            var subscriber = new Subscriber(EmailAddress.Create("company@test.com"), null);
+            var subscriber = new Subscriber(
+                CompanyName.Create("Company Test"),
+                EmailAddress.Create("company@test.com"), 
+                null);
             _mockSubscriberRepo.Setup(x => x.GetByIdAsync(subscriberId)).ReturnsAsync(subscriber);
 
             var subscription = Subscription.Create(subscriberId, SubscriptionPlan.Free);
@@ -101,7 +104,10 @@ namespace FertileNotify.Tests
                 EventType = EventType.OrderCreated
             };
 
-            var subscriber = new Subscriber(EmailAddress.Create("company@test.com"), null);
+            var subscriber = new Subscriber(
+                CompanyName.Create("Company Test"),
+                EmailAddress.Create("company@test.com"),
+                null);
             _mockSubscriberRepo.Setup(x => x.GetByIdAsync(subscriberId)).ReturnsAsync(subscriber);
 
             var subscription = Subscription.Create(subscriberId, SubscriptionPlan.Free);
