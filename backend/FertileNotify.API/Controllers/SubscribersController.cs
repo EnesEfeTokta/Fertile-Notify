@@ -101,6 +101,21 @@ namespace FertileNotify.API.Controllers
             return Ok(new { activeChannels = subscriber.ActiveChannels.Select(c => c.Name) });
         }
 
+        [Authorize]
+        [HttpPut("password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
+        {
+            var subscriber = await GetSubscriberAsync();
+
+            if (!subscriber.Password.Verify(request.CurrentPassword))
+                throw new UnauthorizedException("Current password is incorrect.");
+
+            subscriber.UpdatePassword(Password.Create(request.NewPassword));
+
+            await _subscriberRepository.SaveAsync(subscriber);
+            return Ok();
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterSubscriberRequest request)
         {
@@ -108,6 +123,7 @@ namespace FertileNotify.API.Controllers
             var command = new RegisterSubscriberCommand
             {
                 CompanyName = CompanyName.Create(request.CompanyName),
+                Password = Password.Create(request.Password),
                 Email = EmailAddress.Create(request.Email),
                 PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber)
                                 ? null

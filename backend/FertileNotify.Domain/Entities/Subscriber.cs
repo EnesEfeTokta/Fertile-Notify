@@ -7,6 +7,7 @@ namespace FertileNotify.Domain.Entities
     {
         public Guid Id { get; private set; }
         public CompanyName CompanyName { get; private set; }
+        public Password Password { get; private set; }
         public EmailAddress Email { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
 
@@ -16,21 +17,29 @@ namespace FertileNotify.Domain.Entities
         private Subscriber()
         {
             CompanyName = default!;
+            Password = default!;
             Email = default!;
         }
 
-        public Subscriber(CompanyName companyName, EmailAddress email, PhoneNumber? phoneNumber)
+        public Subscriber(
+            CompanyName companyName, 
+            Password password, 
+            EmailAddress email, 
+            PhoneNumber? phoneNumber
+        )
         {
             Id = Guid.NewGuid();
             CompanyName = companyName;
+            Password = password;
             Email = email;
             PhoneNumber = phoneNumber;
 
             _activeChannels.Add(NotificationChannel.Email);
         }
 
-        public void UpdateCompanyName(CompanyName companyName)
-            => CompanyName = companyName;
+        public void UpdateCompanyName(CompanyName companyName) => CompanyName = companyName;
+
+        public void UpdatePassword(Password password) => Password = password;
 
         public void UpdateContactInfo(EmailAddress email, PhoneNumber? phoneNumber)
         {
@@ -57,9 +66,7 @@ namespace FertileNotify.Domain.Entities
         public void DisableChannel(NotificationChannel channel)
         {
             if (_activeChannels.Contains(channel))
-            {
                 _activeChannels.Remove(channel);
-            }
         }
     }
 }

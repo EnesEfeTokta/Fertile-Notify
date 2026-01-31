@@ -26,6 +26,9 @@ namespace FertileNotify.API.Controllers
                 await _userRepository.GetByEmailAsync(EmailAddress.Create(request.Email))
                 ?? throw new NotFoundException("User not found");
 
+            if (!user.Password.Verify(request.Password))
+                throw new UnauthorizedException("Invalid credentials");
+
             var token = _tokenService.GenerateToken(user);
 
             return Ok( new { Token = token } );

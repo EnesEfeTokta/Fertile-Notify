@@ -12,6 +12,10 @@ namespace FertileNotify.API.Validators
             RuleFor(x => x.CompanyName)
                 .NotEmpty().WithMessage("Company name is a required field.");
 
+            RuleFor(x => x.Password)
+                .NotEmpty().WithMessage("Password is a required field.")
+                .MinimumLength(8).WithMessage("Password must be at least 8 characters long.");
+
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is a required field.")
                 .EmailAddress().WithMessage("Please enter your email address in the correct format.");

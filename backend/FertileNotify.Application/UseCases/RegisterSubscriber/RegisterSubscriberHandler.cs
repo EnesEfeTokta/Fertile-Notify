@@ -1,5 +1,6 @@
 ﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Rules;
 using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.UseCases.RegisterSubscriber
@@ -32,7 +33,9 @@ namespace FertileNotify.Application.UseCases.RegisterSubscriber
                 command.Email.Value
             );
 
-            var user = new Subscriber(command.CompanyName, command.Email, command.PhoneNumber);
+            //PasswordRule.EnsureIsStrong(command.Password.Hash); // Mimari bir sorun nedeniyle şimdilik yorum satırına alındı.
+
+            var user = new Subscriber(command.CompanyName, command.Password, command.Email, command.PhoneNumber);
 
             var subscription = Subscription.Create(user.Id, command.Plan);
 
