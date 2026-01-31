@@ -1,5 +1,5 @@
 ﻿using FertileNotify.Domain.Exceptions;
-
+using FertileNotify.Domain.Rules;
 namespace FertileNotify.Domain.ValueObjects
 {
     public sealed class Password : IEquatable<Password>
@@ -19,6 +19,7 @@ namespace FertileNotify.Domain.ValueObjects
             if (string.IsNullOrWhiteSpace(plainTextPassword) || plainTextPassword.Length < 8)
                 throw new BusinessRuleException("Password must be at least 8 characters long.");
 
+            PasswordRule.EnsureIsStrong(plainTextPassword);
             return new Password(BCrypt.Net.BCrypt.HashPassword(plainTextPassword));
         }
 

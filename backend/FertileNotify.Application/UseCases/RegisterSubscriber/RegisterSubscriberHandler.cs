@@ -33,8 +33,6 @@ namespace FertileNotify.Application.UseCases.RegisterSubscriber
                 command.Email.Value
             );
 
-            //PasswordRule.EnsureIsStrong(command.Password.Hash); // Mimari bir sorun nedeniyle şimdilik yorum satırına alındı.
-
             var user = new Subscriber(command.CompanyName, command.Password, command.Email, command.PhoneNumber);
 
             var subscription = Subscription.Create(user.Id, command.Plan);
