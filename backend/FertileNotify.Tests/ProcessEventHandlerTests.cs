@@ -60,6 +60,7 @@ namespace FertileNotify.Tests
 
             var subscriber = new Subscriber(
                 CompanyName.Create("Company Test"),
+                Password.Create("StrongP@ssw0rd"),
                 EmailAddress.Create("company@test.com"), 
                 null);
             _mockSubscriberRepo.Setup(x => x.GetByIdAsync(subscriberId)).ReturnsAsync(subscriber);
@@ -106,6 +107,7 @@ namespace FertileNotify.Tests
 
             var subscriber = new Subscriber(
                 CompanyName.Create("Company Test"),
+                Password.Create("StrongP@ssw0rd"),
                 EmailAddress.Create("company@test.com"),
                 null);
             _mockSubscriberRepo.Setup(x => x.GetByIdAsync(subscriberId)).ReturnsAsync(subscriber);

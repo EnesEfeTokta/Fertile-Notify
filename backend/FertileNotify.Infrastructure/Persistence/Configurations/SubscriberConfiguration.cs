@@ -20,6 +20,14 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
                 .HasMaxLength(100)
                 .IsRequired();
 
+            builder.Property(u => u.Password)
+                .HasConversion(
+                    password => password.Hash,
+                    hash => Password.FromHash(hash)
+                )
+                .HasMaxLength(256)
+                .IsRequired();
+
             builder.Property(u => u.Email)
                 .HasConversion(
                     email => email.Value,
