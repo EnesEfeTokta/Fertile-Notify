@@ -4,6 +4,8 @@ using FluentValidation.AspNetCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using System.Text;
 using Serilog;
 
@@ -16,8 +18,6 @@ using FertileNotify.Infrastructure.Persistence;
 using FertileNotify.Infrastructure.BackgroundJobs;
 using FertileNotify.Infrastructure.Authentication;
 using FertileNotify.API.Middlewares;
-using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +55,9 @@ builder.Services.AddControllers()
 // --- 2. Database ve EF Core ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
 // --- 3. Repositories ---
 builder.Services.AddScoped<ISubscriberRepository, EfSubscriberRepository>();
@@ -117,4 +120,7 @@ app.UseAuthorization();
 app.UseSerilogRequestLogging();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
+
 app.Run();
