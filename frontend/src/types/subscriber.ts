@@ -13,3 +13,22 @@ export interface Subscription {
     usedThisMonth: number;
     expiresAt: string;
 }
+
+export interface UpdateCompanyName {
+    companyName: string;
+}
+
+export interface UpdateContactInfo {
+    email?: string;
+    phoneNumber?: string;
+}
+
+export interface UpdateChannel {
+    channel: string;
+    enable: boolean;
+}
+
+export interface UpdatePassword {
+    currentPassword: string;
+    newPassword: string;
+}
