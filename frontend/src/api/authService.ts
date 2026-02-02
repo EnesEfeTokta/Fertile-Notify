@@ -1,5 +1,5 @@
 import axiosClient from "./axiosClient";
-import { type LoginRequest, type LoginResponse, type RegisterRequest } from "../types/auth";
+import type { LoginRequest, LoginResponse, RegisterRequest } from "../types/auth";
 
 export const authService = {
     login: async (data: LoginRequest): Promise<LoginResponse> => {
