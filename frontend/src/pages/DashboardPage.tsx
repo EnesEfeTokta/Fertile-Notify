@@ -106,146 +106,241 @@ export default function DashboardPage() {
         }
     }
 
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
+    };
+
     React.useEffect(() => {
         fetchProfile();
     }, []);
 
     return (
-        <div className="p-10">
-            <h1 className="text-3xl mb-6">Hoş Geldiniz</h1>
-
-            {loading && <p className="text-blue-500">Yükleniyor...</p>}
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <p className="font-bold">Hata:</p>
-                    <p>{error}</p>
-                </div>
-            )}
-
-            {!loading && !error && profile && (
-                <div className="space-y-4">
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Firma Adı:</label>
-                        <div>
-                            <input
-                                type="text"
-                                className="border p-1 mr-2"
-                                onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
-                                value={profile.companyName}
-                            />
-                            <button
-                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                onClick={() => updateCompanyName(profile.companyName)}
-                                disabled={updating}>
-                                {updating ? 'Güncelleniyor...' : 'Güncelle'}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Firma E-Postası:</label>
-                        <div>
-                            <input
-                                type="text"
-                                className="border p-1 mr-2"
-                                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                value={profile.email}
-                            />
-                            <button
-                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
-                                disabled={updating}>
-                                {updating ? 'Güncelleniyor...' : 'Güncelle'}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Firma Telefonu:</label>
-                        <div>
-                            <input
-                                type="text"
-                                className="border p-1 mr-2"
-                                onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-                                value={profile.phoneNumber}
-                            />
-                            <button
-                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
-                                disabled={updating}>
-                                {updating ? 'Güncelleniyor...' : 'Güncelle'}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Aktif Kanallar:</label>
-                        <div className="space-x-2">
-                            {['Email', 'SMS', 'Console'].map((channel) => (
-                                <button
-                                    key={channel}
-                                    className={`px-3 py-1 rounded ${profile.activeChannels.includes(channel)
-                                        ? 'bg-green-500 text-white hover:bg-green-600'
-                                        : 'bg-gray-300 text-black hover:bg-gray-400'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                                    onClick={() => updateChannel(channel, !profile.activeChannels.includes(channel))}
-                                    disabled={updating}>
-                                    {profile.activeChannels.includes(channel) ? `Devre Dışı Bırak ${channel}` : `Etkinleştir ${channel}`}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <h2 className="text-2xl mt-6 mb-4 font-bold">Abonelik Bilgileri</h2>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Abonelik Planı:</label>
-                        <span>{profile.subscription?.plan || 'N/A'}</span>
-                    </div>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Aylık Limit:</label>
-                        <span>{profile.subscription?.monthlyLimit ?? 'N/A'}</span>
-                    </div>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Aylık Kullanım:</label>
-                        <span>{profile.subscription?.usedThisMonth ?? 'N/A'}</span>
-                    </div>
-                    <div className="border-b pb-2">
-                        <label className="font-bold mr-2">Bitiş:</label>
-                        <span>
-                            {profile.subscription?.expiresAt ? new Date(profile.subscription.expiresAt).toLocaleDateString('tr-TR') : 'N/A'}
-                        </span>
-                    </div>
-
-                    <h2 className="text-2xl mt-6 mb-4 font-bold">Şifre Güncelleme</h2>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+            {/* Header */}
+            <header className="bg-gray-900/80 backdrop-blur-md border-b-2 border-purple-500/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <div>
-                        <input
-                            type="password"
-                            placeholder="Mevcut Şifre"
-                            id="currentPassword"
-                            className="border p-1 mr-2 mb-2"
-                        />
-                        <br />
-                        <input
-                            type="password"
-                            placeholder="Yeni Şifre"
-                            id="newPassword"
-                            className="border p-1 mr-2 mb-2"
-                        />
-                        <br />
-                        <button
-                            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            onClick={() => {
-                                const currentPasswordInput = document.getElementById('currentPassword') as HTMLInputElement;
-                                const newPasswordInput = document.getElementById('newPassword') as HTMLInputElement;
-                                updatePassword(currentPasswordInput.value, newPasswordInput.value);
-                            }}
-                            disabled={updating}>
-                            {updating ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
-                        </button>
+                        <h1 className="text-3xl font-display font-bold gradient-text uppercase tracking-wider">Dashboard</h1>
+                        <p className="text-gray-400 mt-1 uppercase text-sm tracking-wide">Hoş Geldiniz</p>
                     </div>
+                    <button
+                        onClick={handleLogout}
+                        className="px-6 py-2 bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-300 clip-sharp-sm border-2 border-red-500 uppercase text-sm tracking-wide"
+                    >
+                        Çıkış Yap
+                    </button>
                 </div>
-            )}
+            </header>
 
-            {!loading && !error && !profile && (
-                <p className="text-gray-500">Profil bilgisi bulunamadı.</p>
-            )}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex justify-center items-center py-12">
+                        <div className="spinner"></div>
+                        <span className="ml-3 text-purple-400 font-semibold uppercase tracking-wide">Yükleniyor...</span>
+                    </div>
+                )}
+
+                {/* Error State */}
+                {error && (
+                    <div className="card p-6 bg-red-900/30 border-l-4 border-red-500 mb-6 animate-slide-up">
+                        <p className="font-bold text-red-300 uppercase">Hata:</p>
+                        <p className="text-red-400">{error}</p>
+                    </div>
+                )}
+
+                {/* Profile Content */}
+                {!loading && !error && profile && (
+                    <div className="space-y-6 animate-fade-in">
+                        {/* Profile Information Card */}
+                        <div className="card p-6">
+                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                                Profil Bilgileri
+                            </h2>
+
+                            <div className="space-y-4">
+                                {/* Company Name */}
+                                <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-purple-500">
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Firma Adı</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            className="input-modern flex-1"
+                                            onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
+                                            value={profile.companyName}
+                                        />
+                                        <button
+                                            className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                                            onClick={() => updateCompanyName(profile.companyName)}
+                                            disabled={updating}
+                                        >
+                                            {updating ? '...' : 'Güncelle'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Email */}
+                                <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-cyan-500">
+                                    <label className="block text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Firma E-Postası</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="email"
+                                            className="input-modern flex-1"
+                                            onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                                            value={profile.email}
+                                        />
+                                        <button
+                                            className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                                            onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
+                                            disabled={updating}
+                                        >
+                                            {updating ? '...' : 'Güncelle'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Phone */}
+                                <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-pink-500">
+                                    <label className="block text-sm font-semibold text-pink-300 mb-2 uppercase tracking-wide">Firma Telefonu</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="tel"
+                                            className="input-modern flex-1"
+                                            onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
+                                            value={profile.phoneNumber}
+                                        />
+                                        <button
+                                            className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                                            onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
+                                            disabled={updating}
+                                        >
+                                            {updating ? '...' : 'Güncelle'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Notification Channels Card */}
+                        <div className="card p-6">
+                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                                Bildirim Kanalları
+                            </h2>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {['email', 'sms', 'console'].map((channel) => {
+                                    const isActive = profile.activeChannels.includes(channel);
+                                    return (
+                                        <button
+                                            key={channel}
+                                            className={`p-4 font-semibold transition-all duration-300 clip-sharp border-2 uppercase tracking-wide ${isActive
+                                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-500'
+                                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border-gray-700'
+                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            onClick={() => updateChannel(channel, !isActive)}
+                                            disabled={updating}
+                                        >
+                                            <div className="text-2xl mb-2">
+                                                {channel === 'email' }
+                                                {channel === 'sms' }
+                                                {channel === 'console' }
+                                            </div>
+                                            <div>{channel}</div>
+                                            <div className="text-sm mt-1">
+                                                {isActive ? 'Kullanımda' : 'Kullanımda değil'}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Subscription Information Card */}
+                        <div className="card p-6">
+                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                                Abonelik Bilgileri
+                            </h2>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {/* Plan */}
+                                <div className="p-4 bg-gradient-to-br from-purple-900/50 to-purple-700/30 clip-sharp border-2 border-purple-500">
+                                    <p className="text-sm text-purple-300 font-semibold mb-1 uppercase tracking-wide">Plan</p>
+                                    <p className="text-2xl font-bold text-white">{profile.subscription?.plan || 'N/A'}</p>
+                                </div>
+
+                                {/* Monthly Limit */}
+                                <div className="p-4 bg-gradient-to-br from-blue-900/50 to-blue-700/30 clip-sharp border-2 border-blue-500">
+                                    <p className="text-sm text-blue-300 font-semibold mb-1 uppercase tracking-wide">Limit</p>
+                                    <p className="text-2xl font-bold text-white">{profile.subscription?.monthlyLimit ?? 'N/A'}</p>
+                                </div>
+
+                                {/* Used This Month */}
+                                <div className="p-4 bg-gradient-to-br from-cyan-900/50 to-cyan-700/30 clip-sharp border-2 border-cyan-500">
+                                    <p className="text-sm text-cyan-300 font-semibold mb-1 uppercase tracking-wide">Kullanım</p>
+                                    <p className="text-2xl font-bold text-white">{profile.subscription?.usedThisMonth ?? 'N/A'}</p>
+                                </div>
+
+                                {/* Expiry Date */}
+                                <div className="p-4 bg-gradient-to-br from-pink-900/50 to-pink-700/30 clip-sharp border-2 border-pink-500">
+                                    <p className="text-sm text-pink-300 font-semibold mb-1 uppercase tracking-wide">Bitiş</p>
+                                    <p className="text-lg font-bold text-white">
+                                        {profile.subscription?.expiresAt
+                                            ? new Date(profile.subscription.expiresAt).toLocaleDateString('tr-TR')
+                                            : 'N/A'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Password Update Card */}
+                        <div className="card p-6">
+                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                                Şifre Güncelleme
+                            </h2>
+
+                            <div className="max-w-md space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Mevcut Şifre</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        id="currentPassword"
+                                        className="input-modern"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Yeni Şifre</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        id="newPassword"
+                                        className="input-modern"
+                                    />
+                                </div>
+                                <button
+                                    className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+                                    onClick={() => {
+                                        const currentPasswordInput = document.getElementById('currentPassword') as HTMLInputElement;
+                                        const newPasswordInput = document.getElementById('newPassword') as HTMLInputElement;
+                                        updatePassword(currentPasswordInput.value, newPasswordInput.value);
+                                    }}
+                                    disabled={updating}
+                                >
+                                    {updating ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* No Profile State */}
+                {!loading && !error && !profile && (
+                    <div className="card p-12 text-center">
+                        <p className="text-xl text-gray-400 uppercase tracking-wide">Profil bilgisi bulunamadı.</p>
+                    </div>
+                )}
+            </main>
         </div>
     );
 }
