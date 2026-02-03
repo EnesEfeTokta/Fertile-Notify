@@ -102,7 +102,7 @@ namespace FertileNotify.Tests
                 SubscriberId = subscriberId,
                 Channel = NotificationChannel.Email,
                 Recipient = "customer@example.com",
-                EventType = EventType.OrderCreated
+                EventType = EventType.TestForDevelop,
             };
 
             var subscriber = new Subscriber(

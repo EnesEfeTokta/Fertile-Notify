@@ -4,8 +4,8 @@
     {
         private static readonly IReadOnlyCollection<EventType> _events =
         [
-            EventType.OrderCreated,
-            EventType.SubscriberRegistered
+            EventType.SubscriberRegistered,
+            EventType.TestForDevelop // for testing purposes
         ];
 
         public static bool IsSupported(EventType eventType)

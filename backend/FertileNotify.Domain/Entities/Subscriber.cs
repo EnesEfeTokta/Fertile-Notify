@@ -1,5 +1,8 @@
+using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.Rules;
 using FertileNotify.Domain.ValueObjects;
+using System.Numerics;
 
 namespace FertileNotify.Domain.Entities
 {
@@ -44,21 +47,24 @@ namespace FertileNotify.Domain.Entities
         public void UpdateContactInfo(EmailAddress email, PhoneNumber? phoneNumber)
         {
             if (phoneNumber == null && _activeChannels.Contains(NotificationChannel.SMS))
-                throw new InvalidOperationException("Cannot remove phone number while SMS channel is active.");
+                throw new BusinessRuleException("Cannot remove phone number while SMS channel is active.", "CHN_1306");
 
             Email = email;
             PhoneNumber = phoneNumber;
         }
 
-        public void EnableChannel(NotificationChannel channel)
+        public void EnableChannel(NotificationChannel channel, SubscriptionPlan plan)
         {
             if (_activeChannels.Contains(channel)) return;
 
+            if (!SubscriptionChannelPolicy.CanUseChannel(plan, channel))
+                throw new BusinessRuleException($"Your plan ({plan}) does not support the {channel.Name} channel.", "CMP_1507");
+
             if (!ChannelPreferenceRule.CanAddChannel(_activeChannels.Count))
-                throw new InvalidOperationException("Cannot add more notification channels.");
+                throw new BusinessRuleException("Cannot add more notification channels.", "CMP_1506");
 
             if (channel == NotificationChannel.SMS && PhoneNumber == null)
-                throw new InvalidOperationException("Phone number is required to enable SMS channel.");
+                throw new BusinessRuleException("Phone number is required to enable SMS channel.", "USR_1103");
 
             _activeChannels.Add(channel);
         }

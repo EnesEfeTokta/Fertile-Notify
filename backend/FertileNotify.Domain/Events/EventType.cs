@@ -9,15 +9,15 @@
             Name = name;
         }
 
-        public static readonly EventType OrderCreated = new("OrderCreated");
         public static readonly EventType SubscriberRegistered = new("SubscriberRegistered");
+        public static readonly EventType TestForDevelop = new("TestForDevelop");
 
         public static EventType From(string name)
         {
             return name switch
             {
-                "OrderCreated" => OrderCreated,
                 "SubscriberRegistered" => SubscriberRegistered,
+                "TestForDevelop" => TestForDevelop, // for testing purposes
                 _ => throw new Exception("Unknown event type")
             };
         }
