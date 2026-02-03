@@ -23,73 +23,104 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Kayıt Ol</h2>
+        <div className="min-h-screen bg-animated-gradient flex items-center justify-center px-4 py-8 animate-fade-in">
+            <div className="glass p-8 md:p-10 w-full max-w-md animate-slide-up clip-sharp border-t-4 border-pink-500">
+                {/* Logo/Title */}
+                <div className="text-center mb-8">
+                    <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Kayıt Ol</h2>
+                    <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mb-3"></div>
+                    <p className="text-gray-400 uppercase text-sm tracking-wide">Yeni hesap oluşturun</p>
+                </div>
 
-                {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
+                {/* Error Message */}
+                {error && (
+                    <div className="bg-red-900/30 border-l-4 border-red-500 text-red-300 p-4 mb-6 clip-sharp-sm animate-slide-up">
+                        <p className="font-medium uppercase text-sm">{error}</p>
+                    </div>
+                )}
 
-                <form onSubmit={handleRegister} className="space-y-4">
+                {/* Register Form */}
+                <form onSubmit={handleRegister} className="space-y-5">
                     <div>
-                        <label className="block text-gray-700 mb-1">Firma Adı</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma Adı</label>
                         <input
                             type="text"
-                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-modern"
                             value={companyName}
                             onChange={(e) => setCompanyName(e.target.value)}
                             placeholder="Firma Adı"
                             required
                         />
                     </div>
+
                     <div>
-                        <label className="block text-gray-700 mb-1">Firma E-Postası</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma E-Postası</label>
                         <input
                             type="email"
-                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-modern"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="firma@ornek.com"
                             required
                         />
                     </div>
+
                     <div>
-                        <label className="block text-gray-700 mb-1">Firma Telefon Numarası</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma Telefon Numarası</label>
                         <input
                             type="tel"
-                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-modern"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="Firma Telefon Numarası (opsiyonel)"
+                            placeholder="(Opsiyonel)"
                         />
                     </div>
+
                     <div>
-                        <label className="block text-gray-700 mb-1">Seçilen Plan</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Seçilen Plan</label>
                         <select
-                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-modern cursor-pointer"
                             value={plan}
-                            onChange={(e) => setPlan(e.target.value as "Free" | "Pro" | "Enterprise")}>
-                            <option value="Free">Free</option>
-                            <option value="Pro">Pro</option>
-                            <option value="Enterprise">Enterprise</option>
+                            onChange={(e) => setPlan(e.target.value as "Free" | "Pro" | "Enterprise")}
+                        >
+                            <option value="Free">Free - Ücretsiz</option>
+                            <option value="Pro">Pro - Profesyonel</option>
+                            <option value="Enterprise">Enterprise - Kurumsal</option>
                         </select>
                     </div>
+
                     <div>
-                        <label className="block text-gray-700 mb-1">Şifre</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Şifre</label>
                         <input
                             type="password"
-                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="input-modern"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Şifrenizi girin"
+                            placeholder="••••••••"
                             required
                         />
                     </div>
+
                     <button
                         type="submit"
-                        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+                        className="btn-gradient w-full text-lg uppercase tracking-wider"
+                    >
                         Kayıt Ol
                     </button>
                 </form>
+
+                {/* Login Link */}
+                <div className="mt-6 text-center">
+                    <p className="text-gray-400">
+                        Zaten hesabınız var mı?{" "}
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="text-pink-400 font-semibold hover:text-purple-400 transition-colors uppercase text-sm"
+                        >
+                            Giriş Yap
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );
