@@ -36,9 +36,10 @@ export default function DashboardPage() {
             await subscriberService.setCompanyName({ companyName: newName });
             await fetchProfile();
             alert("Company name updated successfully.");
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Error updating company name:", err);
-            alert("Company name update failed.");
+            const errorMessage = (err as { response?: { data?: { Error?: { Message?: string } } } })?.response?.data?.Error?.Message || "Company name update failed.";
+            alert(errorMessage);
         } finally {
             setUpdating(false);
         }
@@ -59,9 +60,10 @@ export default function DashboardPage() {
             await subscriberService.setContactInfo(updates);
             await fetchProfile();
             alert("Contact information updated successfully.");
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Error updating contact information:", err);
-            alert("Contact information update failed.");
+            const errorMessage = (err as { response?: { data?: { Error?: { Message?: string } } } })?.response?.data?.Error?.Message || "Contact information update failed.";
+            alert(errorMessage);
         } finally {
             setUpdating(false);
         }
@@ -78,9 +80,10 @@ export default function DashboardPage() {
             await subscriberService.setChannel({ channel, enable });
             await fetchProfile();
             alert("Channel updated successfully.");
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Error updating channel:", err);
-            alert("Channel update failed.");
+            const errorMessage = (err as { response?: { data?: { Error?: { Message?: string } } } })?.response?.data?.Error?.Message || "Channel update failed.";
+            alert(errorMessage);
         } finally {
             setUpdating(false);
         }
@@ -98,9 +101,10 @@ export default function DashboardPage() {
             alert("Password updated successfully. Please log in again.");
             localStorage.removeItem('token');
             navigate('/login');
-        } catch (err) {
+        } catch (err: unknown) {
             console.error("Error updating password:", err);
-            alert("Password update failed.");
+            const errorMessage = (err as { response?: { data?: { Error?: { Message?: string } } } })?.response?.data?.Error?.Message || "Password update failed.";
+            alert(errorMessage);
         } finally {
             setUpdating(false);
         }
