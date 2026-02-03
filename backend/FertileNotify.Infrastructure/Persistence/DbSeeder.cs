@@ -24,11 +24,6 @@ namespace FertileNotify.Infrastructure.Persistence
                             EventType.SubscriberRegistered,
                             "Welcome {Name}!",
                             "Hello {Name}, thank you for joining the FertileNotify family. Your email address is: {Email}"
-                        ),
-                        NotificationTemplate.Create(
-                            EventType.OrderCreated,
-                            "Your order has been received #{OrderId}",
-                            "Dear {CustomerName}, your order for {Amount} has been processed."
                         )
                     };
 

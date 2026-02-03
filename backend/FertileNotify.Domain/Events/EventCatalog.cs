@@ -4,7 +4,6 @@
     {
         private static readonly IReadOnlyCollection<EventType> _events =
         [
-            EventType.OrderCreated,
             EventType.SubscriberRegistered
         ];
 

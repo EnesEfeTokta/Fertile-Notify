@@ -16,8 +16,7 @@ namespace FertileNotify.Domain.Rules
 
                 SubscriptionPlan.Pro =>
                 [
-                    EventType.SubscriberRegistered,
-                    EventType.OrderCreated
+                    EventType.SubscriberRegistered
                 ],
 
                 SubscriptionPlan.Enterprise =>

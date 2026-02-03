@@ -90,10 +90,11 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> UpdateChannels([FromBody] ManageChannelRequest request)
         {
             var subscriber = await GetSubscriberAsync();
+            var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriber.Id);
 
             var channel = NotificationChannel.From(request.Channel.Trim().ToLower());
             if (request.Enable)
-                subscriber.EnableChannel(channel);
+                subscriber.EnableChannel(channel, subscription!.Plan);
             else
                 subscriber.DisableChannel(channel);
 
