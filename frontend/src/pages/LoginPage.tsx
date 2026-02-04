@@ -25,9 +25,9 @@ export default function LoginPage() {
             <div className="glass p-8 md:p-10 w-full max-w-md animate-slide-up clip-sharp border-t-4 border-purple-500">
                 {/* Logo/Title */}
                 <div className="text-center mb-8">
-                    <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Giriş Yap</h2>
+                    <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Login</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-3"></div>
-                    <p className="text-gray-400 uppercase text-sm tracking-wide">Hesabınıza erişim sağlayın</p>
+                    <p className="text-gray-400 uppercase text-sm tracking-wide">Access Your Account</p>
                 </div>
 
                 {/* Error Message */}
@@ -40,19 +40,19 @@ export default function LoginPage() {
                 {/* Login Form */}
                 <form onSubmit={handleLogin} className="space-y-5">
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma E-Postası</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Email</label>
                         <input
                             type="email"
                             className="input-modern"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="firma@ornek.com"
+                            placeholder="company@example.com"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Şifre</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Password</label>
                         <input
                             type="password"
                             className="input-modern"
@@ -67,19 +67,19 @@ export default function LoginPage() {
                         type="submit"
                         className="btn-gradient w-full text-lg uppercase tracking-wider mt-6"
                     >
-                        Giriş Yap
+                        Login
                     </button>
                 </form>
 
                 {/* Register Link */}
                 <div className="mt-6 text-center">
                     <p className="text-gray-400">
-                        Hesabınız yok mu?{" "}
+                        Don't have an account?{" "}
                         <button
                             onClick={() => navigate("/register")}
                             className="text-purple-400 font-semibold hover:text-pink-400 transition-colors uppercase text-sm"
                         >
-                            Kayıt Ol
+                            Sign Up
                         </button>
                     </p>
                 </div>

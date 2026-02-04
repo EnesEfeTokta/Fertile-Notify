@@ -31,7 +31,7 @@ export default function DashboardPage() {
     const updateCompanyName = async (newName: string) => {
         try {
             if (!newName.trim()) {
-                alert("Firma adı boş olamaz.");
+                alert("Company name cannot be empty.");
                 return;
             }
             setUpdating(true);
@@ -202,25 +202,25 @@ export default function DashboardPage() {
                         <div className="text-center mb-6">
                             <div className="text-6xl mb-4">🔑</div>
                             <h2 className="text-3xl font-display font-bold gradient-text uppercase tracking-wider mb-2">
-                                API Anahtarınız Oluşturuldu!
+                                Your API Key Created!
                             </h2>
                             <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto"></div>
                         </div>
 
                         {/* Warning Message */}
                         <div className="bg-red-900/40 border-l-4 border-red-500 p-4 mb-6 clip-sharp-sm">
-                            <p className="text-red-300 font-bold uppercase text-sm mb-2">⚠️ ÖNEMLİ UYARI</p>
+                            <p className="text-red-300 font-bold uppercase text-sm mb-2">⚠️ IMPORTANT WARNING</p>
                             <p className="text-red-200 text-sm">
-                                Bu API anahtarı sadece TEK BİR KERELİĞİNE gösterilmektedir. 
-                                Lütfen anahtarı güvenli bir yere kaydedin. Bu pencereyi kapattıktan sonra 
-                                anahtarı tekrar görüntüleyemezsiniz!
+                                This API key is shown ONLY ONCE. 
+                                Please save the key in a secure location. You will not be able to view 
+                                the key again after closing this window!
                             </p>
                         </div>
 
                         {/* API Key Display */}
                         <div className="bg-gray-900/60 border-2 border-purple-500/50 p-4 clip-sharp-sm mb-6">
                             <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">
-                                API Anahtarınız:
+                                Your API Key:
                             </label>
                             <div className="bg-black/40 p-4 border border-cyan-500/30 clip-sharp-sm">
                                 <p className="text-cyan-300 font-mono text-sm break-all select-all">
@@ -238,12 +238,12 @@ export default function DashboardPage() {
                                 {copied ? (
                                     <>
                                         <span>✓</span>
-                                        <span>Kopyalandı!</span>
+                                        <span>Copied!</span>
                                     </>
                                 ) : (
                                     <>
                                         <span>📋</span>
-                                        <span>Anahtarı Kopyala</span>
+                                        <span>Copy Key</span>
                                     </>
                                 )}
                             </button>
@@ -251,13 +251,13 @@ export default function DashboardPage() {
                                 onClick={closeApiKeyModal}
                                 className="flex-1 px-8 py-3 font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-all duration-300 clip-sharp-sm border-2 border-gray-600 uppercase tracking-wider"
                             >
-                                Kapat
+                                Close
                             </button>
                         </div>
 
                         {/* Additional Info */}
                         <p className="text-center text-gray-400 text-xs mt-4 uppercase tracking-wide">
-                            Anahtarı güvenli bir şifre yöneticisinde saklayın
+                            Store the key in a secure password manager
                         </p>
                     </div>
                 </div>
@@ -268,13 +268,13 @@ export default function DashboardPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <div>
                         <h1 className="text-3xl font-display font-bold gradient-text uppercase tracking-wider">Dashboard</h1>
-                        <p className="text-gray-400 mt-1 uppercase text-sm tracking-wide">Hoş Geldiniz</p>
+                        <p className="text-gray-400 mt-1 uppercase text-sm tracking-wide">Welcome</p>
                     </div>
                     <button
                         onClick={handleLogout}
                         className="px-6 py-2 bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-300 clip-sharp-sm border-2 border-red-500 uppercase text-sm tracking-wide"
                     >
-                        Çıkış Yap
+                        Logout
                     </button>
                 </div>
             </header>
@@ -284,14 +284,14 @@ export default function DashboardPage() {
                 {loading && (
                     <div className="flex justify-center items-center py-12">
                         <div className="spinner"></div>
-                        <span className="ml-3 text-purple-400 font-semibold uppercase tracking-wide">Yükleniyor...</span>
+                        <span className="ml-3 text-purple-400 font-semibold uppercase tracking-wide">Loading...</span>
                     </div>
                 )}
 
                 {/* Error State */}
                 {error && (
                     <div className="card p-6 bg-red-900/30 border-l-4 border-red-500 mb-6 animate-slide-up">
-                        <p className="font-bold text-red-300 uppercase">Hata:</p>
+                        <p className="font-bold text-red-300 uppercase">Error:</p>
                         <p className="text-red-400">{error}</p>
                     </div>
                 )}
@@ -302,13 +302,13 @@ export default function DashboardPage() {
                         {/* Profile Information Card */}
                         <div className="card p-6">
                             <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
-                                Profil Bilgileri
+                                Profile Information
                             </h2>
 
                             <div className="space-y-4">
                                 {/* Company Name */}
                                 <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-purple-500">
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Firma Adı</label>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Company Name</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
@@ -321,14 +321,14 @@ export default function DashboardPage() {
                                             onClick={() => updateCompanyName(profile.companyName)}
                                             disabled={updating}
                                         >
-                                            {updating ? '...' : 'Güncelle'}
+                                            {updating ? '...' : 'Update'}
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Email */}
                                 <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-cyan-500">
-                                    <label className="block text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Firma E-Postası</label>
+                                    <label className="block text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Company Email</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="email"
@@ -341,14 +341,14 @@ export default function DashboardPage() {
                                             onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
                                             disabled={updating}
                                         >
-                                            {updating ? '...' : 'Güncelle'}
+                                            {updating ? '...' : 'Update'}
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Phone */}
                                 <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-pink-500">
-                                    <label className="block text-sm font-semibold text-pink-300 mb-2 uppercase tracking-wide">Firma Telefonu</label>
+                                    <label className="block text-sm font-semibold text-pink-300 mb-2 uppercase tracking-wide">Company Phone</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="tel"
@@ -361,7 +361,7 @@ export default function DashboardPage() {
                                             onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
                                             disabled={updating}
                                         >
-                                            {updating ? '...' : 'Güncelle'}
+                                            {updating ? '...' : 'Update'}
                                         </button>
                                     </div>
                                 </div>
@@ -371,7 +371,7 @@ export default function DashboardPage() {
                         {/* Notification Channels Card */}
                         <div className="card p-6">
                             <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
-                                Bildirim Kanalları
+                                Notification Channels
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -394,7 +394,7 @@ export default function DashboardPage() {
                                             </div>
                                             <div>{channel}</div>
                                             <div className="text-sm mt-1">
-                                                {isActive ? 'Kullanımda' : 'Kullanımda değil'}
+                                                {isActive ? 'Active' : 'Inactive'}
                                             </div>
                                         </button>
                                     );
@@ -405,7 +405,7 @@ export default function DashboardPage() {
                         {/* Subscription Information Card */}
                         <div className="card p-6">
                             <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
-                                Abonelik Bilgileri
+                                Subscription Information
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -423,16 +423,16 @@ export default function DashboardPage() {
 
                                 {/* Used This Month */}
                                 <div className="p-4 bg-gradient-to-br from-cyan-900/50 to-cyan-700/30 clip-sharp border-2 border-cyan-500">
-                                    <p className="text-sm text-cyan-300 font-semibold mb-1 uppercase tracking-wide">Kullanım</p>
+                                    <p className="text-sm text-cyan-300 font-semibold mb-1 uppercase tracking-wide">Usage</p>
                                     <p className="text-2xl font-bold text-white">{profile.subscription?.usedThisMonth ?? 'N/A'}</p>
                                 </div>
 
                                 {/* Expiry Date */}
                                 <div className="p-4 bg-gradient-to-br from-pink-900/50 to-pink-700/30 clip-sharp border-2 border-pink-500">
-                                    <p className="text-sm text-pink-300 font-semibold mb-1 uppercase tracking-wide">Bitiş</p>
+                                    <p className="text-sm text-pink-300 font-semibold mb-1 uppercase tracking-wide">Expires</p>
                                     <p className="text-lg font-bold text-white">
                                         {profile.subscription?.expiresAt
-                                            ? new Date(profile.subscription.expiresAt).toLocaleDateString('tr-TR')
+                                            ? new Date(profile.subscription.expiresAt).toLocaleDateString('en-US')
                                             : 'N/A'}
                                     </p>
                                 </div>
@@ -442,14 +442,14 @@ export default function DashboardPage() {
                         {/* API Keys Card */}
                         <div className="card p-6">
                             <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
-                                API Anahtarları
+                                API Keys
                             </h2>
                             <div className="max-w-md space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">API Anahtarı Adı</label>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">API Key Name</label>
                                     <input
                                         type="text"
-                                        placeholder="Anahtar Adı"
+                                        placeholder="Key Name"
                                         id="apiKeyName"
                                         className="input-modern"
                                     />
@@ -465,7 +465,7 @@ export default function DashboardPage() {
                                     }}
                                     disabled={updating}
                                 >
-                                    {updating ? 'Oluşturuluyor...' : 'API Anahtarı Oluştur'}
+                                    {updating ? 'Creating...' : 'Create API Key'}
                                 </button>
                             </div>
                             <div className="mt-6 space-y-2">
@@ -474,7 +474,7 @@ export default function DashboardPage() {
                                         <div className="flex-1">
                                             <p className="text-sm text-purple-300 font-semibold mb-1">{apiKey.name}</p>
                                             <p className="text-xs text-gray-400 font-mono">{apiKey.prefix}...</p>
-                                            <p className="text-xs text-gray-500 mt-1">Oluşturuldu: {new Date(apiKey.createdAt).toLocaleDateString('tr-TR')}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Created: {new Date(apiKey.createdAt).toLocaleDateString('en-US')}</p>
                                         </div>
                                         <button
                                             onClick={async () => {
@@ -496,12 +496,12 @@ export default function DashboardPage() {
                         {/* Password Update Card */}
                         <div className="card p-6">
                             <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
-                                Şifre Güncelleme
+                                Password Update
                             </h2>
 
                             <div className="max-w-md space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Mevcut Şifre</label>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Current Password</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
@@ -510,7 +510,7 @@ export default function DashboardPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Yeni Şifre</label>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">New Password</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
