@@ -1,24 +1,24 @@
-using Microsoft.EntityFrameworkCore;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.OpenApi.Models;
-using System.Threading.RateLimiting;
-using System.Text;
-using Serilog;
-
+using FertileNotify.API.Authentication;
+using FertileNotify.API.Middlewares;
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Services;
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
-using FertileNotify.Application.Services;
+using FertileNotify.Infrastructure.Authentication;
+using FertileNotify.Infrastructure.BackgroundJobs;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
-using FertileNotify.Infrastructure.BackgroundJobs;
-using FertileNotify.Infrastructure.Authentication;
-using FertileNotify.API.Middlewares;
+
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +104,7 @@ builder.Services.AddHealthChecks()
 builder.Services.AddScoped<ISubscriberRepository, EfSubscriberRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
 builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
+builder.Services.AddScoped<IApiKeyRepository, EfApiKeyRepository>();
 
 // --- 4. Queue ve Worker ---
 builder.Services.AddSingleton<INotificationQueue, InMemoryNotificationQueue>();
@@ -115,13 +116,14 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // --- 6. Auth & Token ---
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<ApiKeyService>();
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = "JWT_OR_APIKEY";
+    options.DefaultChallengeScheme = "JWT_OR_APIKEY";
 })
-.AddJwtBearer(options =>
+.AddJwtBearer("Bearer", options =>
 {
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
     options.TokenValidationParameters = new TokenValidationParameters
@@ -133,6 +135,16 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
+    };
+})
+.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("ApiKey", null)
+.AddPolicyScheme("JWT_OR_APIKEY", "JWT_OR_APIKEY", options =>
+{
+    options.ForwardDefaultSelector = context =>
+    {
+        if (context.Request.Headers.ContainsKey("X-Api-Key"))
+            return "ApiKey";
+        return "Bearer";
     };
 });
 
