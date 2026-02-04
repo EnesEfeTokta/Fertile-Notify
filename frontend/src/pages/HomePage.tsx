@@ -14,12 +14,12 @@ export default function HomePage() {
                 {/* Subtitle */}
                 <div className="inline-block mb-4 px-6 py-2 border-neon clip-sharp-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
                     <p className="text-xl md:text-2xl text-purple-300 font-semibold">
-                        Modern Bildirim Servisi
+                        Modern Notification Service
                     </p>
                 </div>
 
                 <p className="text-lg text-gray-300 mb-12 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                    İşletmeniz için güçlü ve esnek bildirim yönetimi. Email, SMS ve daha fazlası ile kullanıcılarınıza ulaşın.
+                    Powerful and flexible notification management for your business. Reach your users with Email, SMS, and more.
                 </p>
 
                 {/* CTA Buttons */}
@@ -28,13 +28,13 @@ export default function HomePage() {
                         className="btn-gradient text-lg min-w-[200px] uppercase tracking-wider"
                         onClick={() => navigate("/register")}
                     >
-                        Hemen Başla
+                        Get Started
                     </button>
                     <button
                         className="px-8 py-3 font-semibold text-white border-2 border-purple-500 hover:border-pink-500 transition-all duration-300 min-w-[200px] clip-sharp-sm hover:shadow-neon uppercase tracking-wider"
                         onClick={() => navigate("/login")}
                     >
-                        Giriş Yap
+                        Login
                     </button>
                 </div>
 
@@ -42,18 +42,18 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up" style={{ animationDelay: '0.4s' }}>
                     <div className="glass p-6 clip-sharp border-l-4 border-purple-500 hover:border-pink-500 transition-all">
                         <div className="text-4xl mb-3">📧</div>
-                        <h3 className="text-xl font-bold text-purple-300 mb-2 uppercase tracking-wide">Email Bildirimleri</h3>
-                        <p className="text-gray-400">Profesyonel email bildirimleri ile kullanıcılarınızla iletişimde kalın.</p>
+                        <h3 className="text-xl font-bold text-purple-300 mb-2 uppercase tracking-wide">Email Notifications</h3>
+                        <p className="text-gray-400">Stay in touch with your users through professional email notifications.</p>
                     </div>
                     <div className="glass p-6 clip-sharp border-l-4 border-cyan-500 hover:border-pink-500 transition-all">
                         <div className="text-4xl mb-3">💬</div>
-                        <h3 className="text-xl font-bold text-cyan-300 mb-2 uppercase tracking-wide">SMS Desteği</h3>
-                        <p className="text-gray-400">Anında ulaşım için SMS bildirim kanalını kullanın.</p>
+                        <h3 className="text-xl font-bold text-cyan-300 mb-2 uppercase tracking-wide">SMS Support</h3>
+                        <p className="text-gray-400">Use SMS notification channel for instant reach.</p>
                     </div>
                     <div className="glass p-6 clip-sharp border-l-4 border-pink-500 hover:border-purple-500 transition-all">
                         <div className="text-4xl mb-3">⚡</div>
-                        <h3 className="text-xl font-bold text-pink-300 mb-2 uppercase tracking-wide">Hızlı & Güvenilir</h3>
-                        <p className="text-gray-400">Modern altyapı ile hızlı ve güvenilir bildirim gönderimi.</p>
+                        <h3 className="text-xl font-bold text-pink-300 mb-2 uppercase tracking-wide">Fast & Reliable</h3>
+                        <p className="text-gray-400">Fast and reliable notification delivery with modern infrastructure.</p>
                     </div>
                 </div>
             </div>

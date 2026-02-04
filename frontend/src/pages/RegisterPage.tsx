@@ -27,9 +27,9 @@ export default function RegisterPage() {
             <div className="glass p-8 md:p-10 w-full max-w-md animate-slide-up clip-sharp border-t-4 border-pink-500">
                 {/* Logo/Title */}
                 <div className="text-center mb-8">
-                    <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Kayıt Ol</h2>
+                    <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Sign Up</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mb-3"></div>
-                    <p className="text-gray-400 uppercase text-sm tracking-wide">Yeni hesap oluşturun</p>
+                    <p className="text-gray-400 uppercase text-sm tracking-wide">Create New Account</p>
                 </div>
 
                 {/* Error Message */}
@@ -42,55 +42,55 @@ export default function RegisterPage() {
                 {/* Register Form */}
                 <form onSubmit={handleRegister} className="space-y-5">
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma Adı</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Name</label>
                         <input
                             type="text"
                             className="input-modern"
                             value={companyName}
                             onChange={(e) => setCompanyName(e.target.value)}
-                            placeholder="Firma Adı"
+                            placeholder="Company Name"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma E-Postası</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Email</label>
                         <input
                             type="email"
                             className="input-modern"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="firma@ornek.com"
+                            placeholder="company@example.com"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Firma Telefon Numarası</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Phone Number</label>
                         <input
                             type="tel"
                             className="input-modern"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="(Opsiyonel)"
+                            placeholder="(Optional)"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Seçilen Plan</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Select Plan</label>
                         <select
                             className="input-modern cursor-pointer"
                             value={plan}
                             onChange={(e) => setPlan(e.target.value as "Free" | "Pro" | "Enterprise")}
                         >
-                            <option value="Free">Free - Ücretsiz</option>
-                            <option value="Pro">Pro - Profesyonel</option>
-                            <option value="Enterprise">Enterprise - Kurumsal</option>
+                            <option value="Free">Free - Basic</option>
+                            <option value="Pro">Pro - Professional</option>
+                            <option value="Enterprise">Enterprise - Business</option>
                         </select>
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Şifre</label>
+                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Password</label>
                         <input
                             type="password"
                             className="input-modern"
@@ -105,19 +105,19 @@ export default function RegisterPage() {
                         type="submit"
                         className="btn-gradient w-full text-lg uppercase tracking-wider"
                     >
-                        Kayıt Ol
+                        Sign Up
                     </button>
                 </form>
 
                 {/* Login Link */}
                 <div className="mt-6 text-center">
                     <p className="text-gray-400">
-                        Zaten hesabınız var mı?{" "}
+                        Already have an account?{" "}
                         <button
                             onClick={() => navigate("/login")}
                             className="text-pink-400 font-semibold hover:text-purple-400 transition-colors uppercase text-sm"
                         >
-                            Giriş Yap
+                            Login
                         </button>
                     </p>
                 </div>
