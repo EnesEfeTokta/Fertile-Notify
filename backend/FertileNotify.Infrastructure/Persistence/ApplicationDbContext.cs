@@ -10,6 +10,7 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public DbSet<Subscriber> Subscribers { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<ApiKey> ApiKeys { get; set; }
         public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,5 +1,6 @@
 ﻿using FertileNotify.API.Models;
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Services;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
@@ -18,15 +19,21 @@ namespace FertileNotify.API.Controllers
         private readonly RegisterSubscriberHandler _registerSubscriberHandler;
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IApiKeyRepository _apiKeyRepository;
+        private readonly ApiKeyService _apiKeyService;
 
         public SubscriberController(
             RegisterSubscriberHandler registerSubscriberHandler,
             ISubscriptionRepository subscriptionRepository,
-            ISubscriberRepository subscriberRepository)
+            ISubscriberRepository subscriberRepository,
+            IApiKeyRepository apiKeyRepository,
+            ApiKeyService apiKeyService)
         {
             _registerSubscriberHandler = registerSubscriberHandler;
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
+            _apiKeyRepository = apiKeyRepository;
+            _apiKeyService = apiKeyService;
         }
 
         [Authorize]
@@ -133,6 +140,42 @@ namespace FertileNotify.API.Controllers
             };
             await _registerSubscriberHandler.HandleAsync(command);
             return CreatedAtAction(nameof(Register), new { message = "Registration successful, log in." });
+        }
+
+        [HttpPost("create-api-key")]
+        public async Task<IActionResult> Create([FromBody] CreateApiKeyRequest request)
+        {
+            var rawApiKey = await _apiKeyService.CreateApiKeyAsync(GetSubscriberIdFromClaims(), request.Name);
+            return Ok(new { ApiKey = rawApiKey, Message = "Please save this key securely. You won't be able to see it again." });
+        }
+
+        [HttpGet("api-keys")]
+        public async Task<IActionResult> GetApiKeys()
+        {
+            var apiKeys = await _apiKeyRepository.GetBySubscriberIdAsync(GetSubscriberIdFromClaims());
+            var response = apiKeys.Select(k => new ApiKeyDto
+            {
+                Id = k.Id,
+                Name = k.Name,
+                Prefix = k.Prefix,
+                IsActive = k.IsActive,
+                CreatedAt = k.CreatedAt,
+            });
+            return Ok(response);
+        }
+
+        [HttpDelete("api-keys/{apiKeyId}")]
+        public async Task<IActionResult> RevokeApiKey(Guid apiKeyId)
+        {
+            var apiKey = await _apiKeyRepository.GetBySubscriberIdAsync(GetSubscriberIdFromClaims());
+
+            var keyToRevoke = apiKey.FirstOrDefault(k => k.Id == apiKeyId)
+                ?? throw new NotFoundException("API Key not found.");
+
+            keyToRevoke.Revoke();
+            await _apiKeyRepository.SaveAsync(keyToRevoke);
+
+            return Ok();
         }
 
         private Guid GetSubscriberIdFromClaims()
