@@ -32,3 +32,20 @@ export interface UpdatePassword {
     currentPassword: string;
     newPassword: string;
 }
+
+export interface CreateApiKey {
+    name: string;
+}
+
+export interface ApiKeyResponse {
+    apiKey: string;
+    message: string;
+}
+
+export interface ApiKey {
+    id: string;
+    prefix: string;
+    name: string;
+    isActive: boolean;
+    createdAt: string;
+}

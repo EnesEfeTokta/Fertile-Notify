@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscriberService } from '../api/subscriberService';
-import type { SubscriberProfile } from '../types/subscriber';
+import type { SubscriberProfile, ApiKey } from '../types/subscriber';
 
 export default function DashboardPage() {
     const [profile, setProfile] = useState<SubscriberProfile | null>(null);
@@ -9,8 +9,11 @@ export default function DashboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [updating, setUpdating] = useState<boolean>(false);
+    const [apiKeysList, setApiKeysList] = useState<ApiKey[]>([]);
+    const [newApiKey, setNewApiKey] = useState<string | null>(null);
+    const [copied, setCopied] = useState<boolean>(false);
 
-    const fetchProfile = async () => {
+    const fetchProfile = React.useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -19,11 +22,11 @@ export default function DashboardPage() {
             setProfile(data);
         } catch (err) {
             console.error("Error fetching profile:", err);
-            setError("Internal server error while fetching profile.");
+            setError("Error fetching profile data. Please try again later.");
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     const updateCompanyName = async (newName: string) => {
         try {
@@ -115,12 +118,151 @@ export default function DashboardPage() {
         navigate('/login');
     };
 
+    const createApiKey = async (name: string) => {
+        try {
+            if (!name.trim()) {
+                alert("API key name cannot be empty.");
+                return;
+            }
+            setUpdating(true);
+            console.log("Creating API key with name:", name);
+            const response = await subscriberService.setApikey({ name });
+            setNewApiKey(response.apiKey);
+            await loadApiKeys();
+        } catch (err: unknown) {
+            console.error("Error creating API key:", err);
+            const errorMessage = (err as { response?: { data?: { Error?: { Message?: string } } } })?.response?.data?.Error?.Message || "API key creation failed.";
+            alert(errorMessage);
+        } finally {
+            setUpdating(false);
+        }
+    }
+
+    const apiKeys = React.useCallback(async () => {
+        try {
+            console.log("Fetching API keys");
+            const keys = await subscriberService.getApiKeys();
+            console.log("API keys fetched:", keys);
+            return keys;
+        } catch (err: unknown) {
+            console.error("Error fetching API keys:", err);
+            return [];
+        }
+    }, []);
+
+    const deleteApiKey = async (key: string) => {
+        try {
+            if (!key.trim()) {
+                alert("API key cannot be empty.");
+                return;
+            }
+            setUpdating(true);
+            console.log("Deleting API key:", key);
+            await subscriberService.deleteApiKey(key);
+            await fetchProfile();
+            alert("API key deleted successfully.");
+        } catch (err: unknown) {
+            console.error("Error deleting API key:", err);
+            const errorMessage = (err as { response?: { data?: { Error?: { Message?: string } } } })?.response?.data?.Error?.Message || "API key deletion failed.";
+            alert(errorMessage);
+        } finally {
+            setUpdating(false);
+        }
+    }
+
+    const loadApiKeys = React.useCallback(async () => {
+        const keys = await apiKeys();
+        setApiKeysList(keys);
+    }, [apiKeys]);
+
     React.useEffect(() => {
         fetchProfile();
-    }, []);
+        loadApiKeys();
+    }, [fetchProfile, loadApiKeys]);
+
+    const handleCopyApiKey = () => {
+        if (newApiKey) {
+            navigator.clipboard.writeText(newApiKey);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    const closeApiKeyModal = () => {
+        setNewApiKey(null);
+        setCopied(false);
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+            {/* API Key Modal */}
+            {newApiKey && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 px-4 animate-fade-in">
+                    <div className="bg-gradient-to-br from-gray-900 to-purple-900 border-4 border-purple-500 clip-sharp max-w-2xl w-full p-8 animate-slide-up shadow-neon">
+                        <div className="text-center mb-6">
+                            <div className="text-6xl mb-4">🔑</div>
+                            <h2 className="text-3xl font-display font-bold gradient-text uppercase tracking-wider mb-2">
+                                API Anahtarınız Oluşturuldu!
+                            </h2>
+                            <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto"></div>
+                        </div>
+
+                        {/* Warning Message */}
+                        <div className="bg-red-900/40 border-l-4 border-red-500 p-4 mb-6 clip-sharp-sm">
+                            <p className="text-red-300 font-bold uppercase text-sm mb-2">⚠️ ÖNEMLİ UYARI</p>
+                            <p className="text-red-200 text-sm">
+                                Bu API anahtarı sadece TEK BİR KERELİĞİNE gösterilmektedir. 
+                                Lütfen anahtarı güvenli bir yere kaydedin. Bu pencereyi kapattıktan sonra 
+                                anahtarı tekrar görüntüleyemezsiniz!
+                            </p>
+                        </div>
+
+                        {/* API Key Display */}
+                        <div className="bg-gray-900/60 border-2 border-purple-500/50 p-4 clip-sharp-sm mb-6">
+                            <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">
+                                API Anahtarınız:
+                            </label>
+                            <div className="bg-black/40 p-4 border border-cyan-500/30 clip-sharp-sm">
+                                <p className="text-cyan-300 font-mono text-sm break-all select-all">
+                                    {newApiKey}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleCopyApiKey}
+                                className="flex-1 btn-gradient uppercase tracking-wider flex items-center justify-center gap-2"
+                            >
+                                {copied ? (
+                                    <>
+                                        <span>✓</span>
+                                        <span>Kopyalandı!</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>📋</span>
+                                        <span>Anahtarı Kopyala</span>
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                onClick={closeApiKeyModal}
+                                className="flex-1 px-8 py-3 font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-all duration-300 clip-sharp-sm border-2 border-gray-600 uppercase tracking-wider"
+                            >
+                                Kapat
+                            </button>
+                        </div>
+
+                        {/* Additional Info */}
+                        <p className="text-center text-gray-400 text-xs mt-4 uppercase tracking-wide">
+                            Anahtarı güvenli bir şifre yöneticisinde saklayın
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <header className="bg-gray-900/80 backdrop-blur-md border-b-2 border-purple-500/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -246,9 +388,9 @@ export default function DashboardPage() {
                                             disabled={updating}
                                         >
                                             <div className="text-2xl mb-2">
-                                                {channel === 'email' }
-                                                {channel === 'sms' }
-                                                {channel === 'console' }
+                                                {channel === 'email'}
+                                                {channel === 'sms'}
+                                                {channel === 'console'}
                                             </div>
                                             <div>{channel}</div>
                                             <div className="text-sm mt-1">
@@ -297,6 +439,60 @@ export default function DashboardPage() {
                             </div>
                         </div>
 
+                        {/* API Keys Card */}
+                        <div className="card p-6">
+                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                                API Anahtarları
+                            </h2>
+                            <div className="max-w-md space-y-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">API Anahtarı Adı</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Anahtar Adı"
+                                        id="apiKeyName"
+                                        className="input-modern"
+                                    />
+                                </div>
+                                <button
+                                    className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+                                    onClick={async () => {
+                                        const apiKeyNameInput = document.getElementById('apiKeyName') as HTMLInputElement;
+                                        if (apiKeyNameInput.value.trim()) {
+                                            await createApiKey(apiKeyNameInput.value);
+                                            apiKeyNameInput.value = '';
+                                        }
+                                    }}
+                                    disabled={updating}
+                                >
+                                    {updating ? 'Oluşturuluyor...' : 'API Anahtarı Oluştur'}
+                                </button>
+                            </div>
+                            <div className="mt-6 space-y-2">
+                                {apiKeysList.map((apiKey) => (
+                                    <div key={apiKey.id} className="flex items-center justify-between p-3 bg-gray-800/50 clip-sharp-sm border border-purple-500/30">
+                                        <div className="flex-1">
+                                            <p className="text-sm text-purple-300 font-semibold mb-1">{apiKey.name}</p>
+                                            <p className="text-xs text-gray-400 font-mono">{apiKey.prefix}...</p>
+                                            <p className="text-xs text-gray-500 mt-1">Oluşturuldu: {new Date(apiKey.createdAt).toLocaleDateString('tr-TR')}</p>
+                                        </div>
+                                        <button
+                                            onClick={async () => {
+                                                if (confirm(`Are you sure you want to delete the "${apiKey.name}" key?`)) {
+                                                    await deleteApiKey(apiKey.id);
+                                                    await loadApiKeys();
+                                                }
+                                            }}
+                                            className="px-4 py-2 bg-red-600 text-white text-sm hover:bg-red-700 transition-all clip-sharp-sm border border-red-500 uppercase"
+                                            disabled={updating || !apiKey.isActive}
+                                        >
+                                            {apiKey.isActive ? 'Delete' : 'Inactive'}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Password Update Card */}
                         <div className="card p-6">
                             <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
@@ -331,7 +527,7 @@ export default function DashboardPage() {
                                     }}
                                     disabled={updating}
                                 >
-                                    {updating ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
+                                    {updating ? 'Updating...' : 'Update Password'}
                                 </button>
                             </div>
                         </div>
@@ -341,7 +537,7 @@ export default function DashboardPage() {
                 {/* No Profile State */}
                 {!loading && !error && !profile && (
                     <div className="card p-12 text-center">
-                        <p className="text-xl text-gray-400 uppercase tracking-wide">Profil bilgisi bulunamadı.</p>
+                        <p className="text-xl text-gray-400 uppercase tracking-wide">Profile not found.</p>
                     </div>
                 )}
             </main>
