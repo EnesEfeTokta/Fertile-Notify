@@ -1,6 +1,7 @@
 ﻿using FertileNotify.API.Models;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Services;
+using FertileNotify.Application.DTOs;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
