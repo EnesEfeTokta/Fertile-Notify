@@ -25,7 +25,7 @@ namespace FertileNotify.API.Authentication
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Request.Headers.TryGetValue("X-Api-Key", out var extractedApiKey))
+            if (!Request.Headers.TryGetValue("FN-Api-Key", out var extractedApiKey))
                 return AuthenticateResult.NoResult();
 
             var providedKey = extractedApiKey.ToString().Trim();
