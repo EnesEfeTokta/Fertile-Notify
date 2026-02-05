@@ -157,6 +157,9 @@ builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
 builder.Services.AddScoped<TemplateEngine>();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IOtpService, OtpService>();
+
 
 var app = builder.Build();
 
