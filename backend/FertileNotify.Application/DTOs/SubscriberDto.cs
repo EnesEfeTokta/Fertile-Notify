@@ -1,4 +1,4 @@
-﻿namespace FertileNotify.API.Models
+﻿namespace FertileNotify.Application.DTOs
 {
     public class SubscriberDto
     {
