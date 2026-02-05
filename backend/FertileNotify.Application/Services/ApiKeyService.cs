@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.Services
 {
     public class ApiKeyService
     {
         private readonly IApiKeyRepository _apiKeyRepository;
+        private readonly ILogger<ApiKeyService> _logger;
 
-        public ApiKeyService(IApiKeyRepository apiKeyRepository)
+        public ApiKeyService(IApiKeyRepository apiKeyRepository, ILogger<ApiKeyService> logger)
         {
             _apiKeyRepository = apiKeyRepository;
+            _logger = logger;
         }
 
         public async Task<string> CreateApiKeyAsync(Guid subscriberId, string name)
@@ -33,6 +32,8 @@ namespace FertileNotify.Application.Services
 
             var apiKey = new ApiKey(subscriberId, hash, key.Substring(0, 7), name);
             await _apiKeyRepository.SaveAsync(apiKey);
+
+            _logger.LogInformation("New API Key created for Subscriber: {SubscriberId}. Name: {Name}", subscriberId, name);
 
             return key;
         }
