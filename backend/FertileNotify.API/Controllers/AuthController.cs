@@ -12,15 +12,18 @@ namespace FertileNotify.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ISubscriberRepository _subscriberRepository;
+        private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ITokenService _tokenService;
         private readonly IOtpService _otpService;
 
         public AuthController(
-            ISubscriberRepository subscriberRepository, 
+            ISubscriberRepository subscriberRepository,
+            ISubscriptionRepository subscriptionRepository,
             ITokenService tokenService, 
             IOtpService otpService)
         {
             _subscriberRepository = subscriberRepository;
+            _subscriptionRepository = subscriptionRepository;
             _tokenService = tokenService;
             _otpService = otpService;
         }
@@ -49,7 +52,10 @@ namespace FertileNotify.API.Controllers
             if (!isValid)
                 throw new UnauthorizedException("Invalid or expired OTP code");
 
-            var token = _tokenService.GenerateToken(subscriber);
+            var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriber.Id)
+                                ?? throw new NotFoundException("Subscription not found");
+
+            var token = _tokenService.GenerateToken(subscriber, subscription.Plan);
             return Ok( new { Token = token } );
         }
 

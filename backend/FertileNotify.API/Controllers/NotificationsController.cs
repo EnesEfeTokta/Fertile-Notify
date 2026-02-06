@@ -6,12 +6,10 @@ using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace FertileNotify.API.Controllers
 {
-    [EnableRateLimiting("fixed")]
     [Authorize]
     [ApiController]
     [Route("api/notifications")]
