@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -45,15 +46,37 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter(policyName: "fixed", opt =>
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
-        opt.PermitLimit = 100;
-        opt.Window = TimeSpan.FromMinutes(1);
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit = 50;
+        var subscriberId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+        var partitionKey = subscriberId ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+        var plan = context.User.FindFirst("Plan")?.Value ?? "Free";
+
+        int permitLimit = plan switch
+        {
+            "Free" => 5,
+            "Pro" => 20,
+            "Enterprise" => 100,
+            _ => 5
+        };
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: partitionKey,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = permitLimit,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
     });
 
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", token);
+    };
 });
 
 builder.Services.AddSwaggerGen(c =>
@@ -142,7 +165,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.ForwardDefaultSelector = context =>
     {
-        if (context.Request.Headers.ContainsKey("X-Api-Key"))
+        if (context.Request.Headers.ContainsKey("FN-Api-Key"))
             return "ApiKey";
         return "Bearer";
     };

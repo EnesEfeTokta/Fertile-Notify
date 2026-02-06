@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,7 +18,7 @@ namespace FertileNotify.Infrastructure.Authentication
             _configuration = configuration;
         }
 
-        public string GenerateToken(Subscriber user)
+        public string GenerateToken(Subscriber user, SubscriptionPlan plan)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
@@ -26,6 +27,7 @@ namespace FertileNotify.Infrastructure.Authentication
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email.Value),
+                new Claim("plan", plan.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

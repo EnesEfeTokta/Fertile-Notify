@@ -12,15 +12,18 @@ namespace FertileNotify.API.Authentication
     public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
     {
         private readonly IApiKeyRepository _apiKeyRepository;
+        private readonly ISubscriptionRepository _subscriptionRepository;
 
         public ApiKeyAuthenticationHandler(
             IOptionsMonitor<ApiKeyAuthenticationOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            IApiKeyRepository apiKeyRepository) 
+            IApiKeyRepository apiKeyRepository,
+            ISubscriptionRepository subscriptionRepository) 
             : base(options, logger, encoder)
         {
             _apiKeyRepository = apiKeyRepository;
+            _subscriptionRepository = subscriptionRepository;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -53,9 +56,13 @@ namespace FertileNotify.API.Authentication
                     return AuthenticateResult.Fail("API Key is inactive");
                 }
 
+                var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(apiKey.SubscriberId);
+                var plan = subscription?.Plan.ToString() ?? "Free";
+
                 var claims = new[] {
                     new Claim(ClaimTypes.NameIdentifier, apiKey.SubscriberId.ToString()),
-                    new Claim("ApiKeyId", apiKey.Id.ToString())
+                    new Claim("ApiKeyId", apiKey.Id.ToString()),
+                    new Claim("Plan", plan)
                 };
 
                 var identity = new ClaimsIdentity(claims, Scheme.Name);
