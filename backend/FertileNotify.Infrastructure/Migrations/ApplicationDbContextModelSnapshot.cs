@@ -145,6 +145,38 @@ namespace FertileNotify.Infrastructure.Migrations
 
                     b.ToTable("Subscriptions");
                 });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.Subscriber", b =>
+                {
+                    b.OwnsOne("FertileNotify.Domain.ValueObjects.RefreshToken", "RefreshToken", b1 =>
+                        {
+                            b1.Property<Guid>("SubscriberId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("ExpiresAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("RefreshTokenExpiresAt");
+
+                            b1.Property<bool>("IsRevoked")
+                                .HasColumnType("boolean")
+                                .HasColumnName("RefreshTokenRevoked");
+
+                            b1.Property<string>("Token")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("character varying(256)")
+                                .HasColumnName("RefreshToken");
+
+                            b1.HasKey("SubscriberId");
+
+                            b1.ToTable("Subscribers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SubscriberId");
+                        });
+
+                    b.Navigation("RefreshToken");
+                });
 #pragma warning restore 612, 618
         }
     }

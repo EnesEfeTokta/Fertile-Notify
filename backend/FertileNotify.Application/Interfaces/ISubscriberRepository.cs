@@ -9,6 +9,8 @@ namespace FertileNotify.Application.Interfaces
         Task<Subscriber?> GetByIdAsync(Guid id);
         Task<List<Guid>> GetExistingIdsAsync(List<Guid> ids);
         Task<Subscriber?> GetByEmailAsync(EmailAddress email);
+        Task<Subscriber?> GetByPhoneNumberAsync(PhoneNumber phoneNumber);
+        Task<Subscriber?> GetByRefreshTokenAsync(string refreshToken);
         Task<bool> ExistsAsync(Guid id);
     }
 }
