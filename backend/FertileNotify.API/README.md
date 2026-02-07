@@ -1,87 +1,143 @@
 # FertileNotify.API
 
-The API layer serves as the presentation layer of the Fertile Notify application, providing RESTful endpoints for event ingestion, subscriber management, and authentication.
+The API layer serves as the presentation layer of the Fertile Notify application, providing RESTful endpoints for notification delivery, subscriber management, and authentication with dual authentication support (JWT + API Keys).
 
 ## Overview
 
-This project contains the web API controllers, request/response models, validators, and middleware components that handle HTTP communication with external systems and clients. It is the entry point for all HTTP requests and coordinates with the Application layer to execute use cases.
+This project contains the web API controllers, request/response models, validators, middleware components, and authentication handlers that manage HTTP communication with external systems and clients. It is the entry point for all HTTP requests and coordinates with the Application layer to execute use cases.
 
 ## Key Components
 
 ### Controllers
 
-- **AuthController**: Handles subscriber authentication and JWT token generation
-  - Login endpoint for obtaining JWT tokens
-  - Token-based authentication for API access
+- **AuthController**: Handles subscriber authentication with OTP verification and JWT token management
+  - Login endpoint with OTP generation
+  - OTP verification for secure authentication
+  - JWT token generation and refresh
+  - Password update functionality
   
-- **NotificationsController**: Manages notification event ingestion and processing
-  - Receives events from external systems
-  - Validates and queues events for asynchronous processing
+- **NotificationsController**: Manages notification sending operations (single and bulk)
+  - Send single notification to a subscriber
+  - Send bulk notifications to multiple subscribers
+  - Validates and queues notifications for asynchronous processing
   
-- **SubscribersController**: Handles subscriber registration and profile management
-  - Subscriber registration with subscription plans
+- **SubscribersController**: Handles subscriber registration, profile management, and API key operations
+  - Subscriber registration with subscription plans (Free/Pro/Enterprise)
   - Profile retrieval and updates
-  - Contact information management
-  - Communication channel preferences
-  - Company information updates
-  - Password management
+  - Communication channel preference management (Email, SMS, Console)
+  - API key generation, listing, and revocation
+  - Subscription plan information
 
 ### Models
 
-Contains Data Transfer Objects (DTOs) for:
-- **Event Submission**: Event requests with type, subscriber ID, and payload
-- **Subscriber Registration**: Registration requests with email, password, company, and subscription plan
-- **Authentication**: Login requests and JWT token responses
-- **Profile Updates**: Contact info, company name, channel preferences, and password updates
-- **API Responses**: Standardized response models for success and error cases
+Contains Data Transfer Objects (DTOs) organized by functionality:
+
+**Authentication Models (4):**
+- `LoginRequest`: Email and password for login
+- `VerifyOtpRequest`: OTP code verification
+- `RefreshTokenRequest`: Token refresh data
+- `UpdatePasswordRequest`: Current and new password
+
+**Subscriber Models (3):**
+- `RegisterSubscriberRequest`: Email, password, company, phone, subscription plan
+- `UpdateChannelsRequest`: Enable/disable notification channels
+- `GenerateApiKeyRequest`: Name and description for API key
+
+**Notification Models (4):**
+- `SendNotificationRequest`: Single notification with title, message, and channel
+- `BulkNotificationRequest`: Multiple notifications with subscriber IDs
+- `NotificationDto`: Notification details response
+- Standardized response models for success and error cases
 
 ### Validators
 
-FluentValidation validators ensure data integrity:
-- **Event Validation**: Event type, subscriber ID, and payload structure validation
-- **Subscriber Registration**: Email format, password strength, and required fields
-- **Request Payload**: Generic payload validation for complex request objects
+FluentValidation validators ensure data integrity (10 validators):
+- **Authentication Validators**: Login, OTP verification, password update validation
+- **Subscriber Validators**: Registration with email format, password strength (min 8 chars, uppercase, lowercase, digit, special char)
+- **Notification Validators**: Single and bulk notification request validation with title/message length limits
+- **Channel Validators**: Notification channel preference validation
+- **API Key Validators**: API key generation request validation
 
 ### Middlewares
 
 Custom middleware components for:
 - **Global Error Handling**: Catches and formats exceptions as proper HTTP responses
-- **Request Logging**: Logs incoming requests and outgoing responses
-- **Authentication/Authorization**: JWT token validation and authorization checks
+- **Request Logging**: Logs incoming requests and outgoing responses (Serilog integration)
+
+### Authentication
+
+Dual authentication system supporting:
+- **JWT Bearer Tokens**: For interactive applications with login flow
+  - Generated after OTP verification
+  - Includes refresh token mechanism
+  - Short-lived access tokens (configurable expiry)
+- **API Keys**: For server-to-server integrations
+  - Generated via subscriber endpoint
+  - Hashed storage for security
+  - Can be revoked at any time
+  - Includes rate limiting per subscription plan
 
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/login` - Authenticate subscriber and receive JWT token
+- `POST /api/auth/login` - Login with email/password, generates OTP
+- `POST /api/auth/verify-otp` - Verify OTP code and receive JWT token
+- `POST /api/auth/refresh-token` - Refresh expired JWT token
+- `PUT /api/auth/password` - Update password (requires authentication)
 
 ### Subscribers
-- `POST /api/subscribers/register` - Register a new subscriber with subscription plan
+- `POST /api/subscribers/register` - Register new subscriber with subscription plan (Free/Pro/Enterprise)
 - `GET /api/subscribers/profile` - Get authenticated subscriber's profile
-- `PUT /api/subscribers/contact` - Update contact information
-- `PUT /api/subscribers/company` - Update company name
-- `PUT /api/subscribers/channels` - Manage communication channel preferences
-- `PUT /api/subscribers/password` - Update password
+- `PUT /api/subscribers/channels` - Update notification channel preferences (Email, SMS, Console)
+- `POST /api/subscribers/api-keys` - Generate new API key for server-to-server auth
+- `GET /api/subscribers/api-keys` - List all active API keys
+- `DELETE /api/subscribers/api-keys/{id}` - Revoke/delete an API key
 
 ### Notifications
-- `POST /api/notifications` - Submit notification events for processing
+- `POST /api/notifications/send` - Send single notification to a subscriber
+- `POST /api/notifications/bulk` - Send bulk notifications to multiple subscribers
 
 ## Configuration
 
 The API is configured through `appsettings.json` and supports:
-- **Database Connection**: PostgreSQL connection strings
-- **JWT Settings**: Secret key, issuer, audience, token expiry duration
-- **Logging**: Log levels and structured logging configuration
-- **CORS**: Cross-origin resource sharing policies
-- **Notification Providers**: SMTP settings for email, SMS gateway credentials
-- **Background Workers**: Queue processing intervals and retry policies
+- **Database Connection**: PostgreSQL connection string
+- **JWT Settings**: Secret key (min 32 chars), issuer, audience, token expiry duration (default: 1440 minutes)
+- **Logging**: Serilog structured logging with console and file sinks
+- **CORS**: Cross-origin resource sharing policies for allowed origins
+- **Email Settings**: SMTP host, port, username, password, from address
+- **Rate Limiting**: Per-plan rate limits (Free: 50/min, Pro: 100/min, Enterprise: 1000/min)
+- **Background Workers**: Notification queue processing intervals and retry policies
+
+Example `appsettings.json`:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=FertileNotifyDb;Username=postgres;Password=password"
+  },
+  "JwtSettings": {
+    "SecretKey": "your-secret-key-at-least-32-characters-long",
+    "Issuer": "FertileNotify",
+    "Audience": "FertileNotifyClients",
+    "ExpiryInMinutes": 1440
+  },
+  "EmailSettings": {
+    "SmtpHost": "smtp.example.com",
+    "SmtpPort": 587,
+    "Username": "notifications@example.com",
+    "Password": "smtp-password"
+  }
+}
+```
 
 ## Dependencies
 
 - **ASP.NET Core 9.0**: Web API framework
-- **FluentValidation.AspNetCore**: Request validation
-- **Microsoft.EntityFrameworkCore**: ORM integration
-- **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT authentication
-- **Serilog**: Structured logging (if configured)
+- **FluentValidation.AspNetCore**: Request validation library
+- **Microsoft.EntityFrameworkCore**: ORM integration with PostgreSQL
+- **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT Bearer token authentication
+- **Swashbuckle.AspNetCore**: Swagger/OpenAPI documentation
+- **Serilog.AspNetCore**: Structured logging with multiple sinks
+- **BCrypt.Net-Next**: Password hashing (via Domain layer)
 
 ## Running the API
 
@@ -94,6 +150,12 @@ dotnet run
 The API will start on:
 - HTTP: `http://localhost:5000`
 - HTTPS: `https://localhost:5001`
+- Swagger UI: `https://localhost:5001/swagger`
+
+### Watch Mode (Auto-reload on changes)
+```bash
+dotnet watch run
+```
 
 ### Production Mode
 ```bash
@@ -102,9 +164,25 @@ dotnet run --configuration Release
 
 ### Using Docker
 ```bash
-docker build -t fertile-notify-api .
-docker run -p 5080:8080 fertile-notify-api
+# From backend directory
+cd ..
+docker build -t fertile-notify-api -f Dockerfile .
+docker run -p 5080:8080 \
+  -e ConnectionStrings__DefaultConnection="Host=host.docker.internal;Database=FertileNotifyDb;Username=postgres;Password=password" \
+  fertile-notify-api
 ```
+
+## Subscription Plans & Rate Limiting
+
+The API enforces different limits based on subscription plans:
+
+| Plan | Monthly Notifications | Rate Limit (req/min) | Available Channels | Allowed Events |
+|------|----------------------|---------------------|-------------------|----------------|
+| **Free** | 100 | 50 | Email | Basic events |
+| **Pro** | 1,000 | 100 | Email, SMS | Extended events |
+| **Enterprise** | 10,000 | 1,000 | Email, SMS, Console | All events |
+
+Rate limiting returns HTTP 429 (Too Many Requests) when exceeded.
 
 ## Architecture Role
 

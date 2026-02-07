@@ -12,72 +12,96 @@ This project defines the fundamental concepts and business rules of the notifica
 
 Domain entities represent core business objects with unique identity:
 
-- **Subscriber**: Represents a system subscriber with contact information and preferences
-  - Properties: Id, Email, Password (hashed), Company, PreferredChannels, CreatedAt
-  - Manages subscriber identity, authentication credentials, and communication preferences
+- **Subscriber**: Represents a system subscriber with authentication and notification preferences
+  - Properties: Id, Email, PasswordHash, Company, Phone, CreatedAt, ActiveChannels
+  - Manages subscriber identity, authentication credentials, and preferred communication channels
   - Encapsulates subscriber-related business rules
+  - Tracks which notification channels are active (Email, SMS, Console)
 
-- **Notification**: Represents a notification to be sent to a subscriber
-  - Properties: Id, SubscriberId, Channel, Message, Status, CreatedAt, SentAt, RetryCount
-  - Tracks notification lifecycle from creation to delivery
-  - Manages retry attempts and delivery status
+- **Subscription**: Manages subscriber subscription plans, limits, and usage tracking
+  - Properties: Id, SubscriberId, Plan, MonthlyLimit, CurrentUsage, AllowedEventTypes, StartDate, EndDate, IsActive
+  - Enforces plan-based access control (Free/Pro/Enterprise)
+  - Tracks monthly notification usage
+  - Defines allowed event types per plan
+  - Validates usage against monthly limits
+
+- **Notification**: Represents a notification message to be sent
+  - Properties: Id, SubscriberId, Title, Message, CreatedAt
+  - Tracks notification content and creation timestamp
+  - Associated with a specific subscriber
 
 - **NotificationTemplate**: Defines reusable notification templates
   - Properties: Id, EventType, Subject, Body, Channel
-  - Supports dynamic content through placeholder substitution
-  - Associates templates with specific event types
+  - Supports dynamic content through `{{placeholder}}` syntax
+  - Maps event types to notification content
+  - Channel-specific templates (Email, SMS, Console)
 
-- **Subscription**: Manages subscriber subscription plans and usage limits
-  - Properties: Id, SubscriberId, Plan, UsageLimit, CurrentUsage, StartDate, EndDate
-  - Enforces subscription-based usage limits and quotas
-  - Tracks usage and validates against plan limits
+- **ApiKey**: Manages API keys for authentication
+  - Properties: Id, SubscriberId, Name, KeyHash, Description, CreatedAt, RevokedAt, IsRevoked
+  - Secure API key storage with hashing
+  - Supports key revocation
+  - Includes metadata (name, description)
 
 ### Value Objects
 
 Immutable objects that describe domain concepts without unique identity:
 
 - **EmailAddress**: Represents and validates email addresses
-  - Ensures proper email format
+  - Ensures proper email format using regex validation
   - Immutable value object for type safety
+  - Explicit operator for string conversion
   
-- **Password**: Represents hashed passwords
-  - Encapsulates password hashing logic
-  - Ensures password security requirements
+- **Password**: Represents hashed passwords with BCrypt
+  - Encapsulates password hashing with BCrypt.Net (work factor: 11)
+  - Password verification without exposing hash
+  - Ensures password security and complexity
+  - Hash and Verify methods for authentication
   
 - **PhoneNumber**: Represents validated phone numbers
-  - Validates phone number format
+  - Validates phone number format (optional field)
   - Provides standardized phone number representation
+  - Immutable value object
   
 - **CompanyName**: Represents company/organization names
-  - Validates company name requirements
+  - Validates company name requirements (1-200 characters)
   - Immutable value object for business names
+  - Ensures non-empty company names
   
-- **NotificationChannel**: Represents delivery channels
-  - Defines available channels (Email, SMS, InApp)
+- **NotificationChannel**: Represents delivery channels (enum-like)
+  - Defines available channels: Email, SMS, Console
   - Type-safe channel representation
+  - Used throughout the system for channel selection
+
+- **RefreshToken**: Represents JWT refresh tokens
+  - Immutable token with expiration tracking
+  - Token generation with cryptographic randomness
+  - Validates token expiry
 
 ### Enums
 
 Enumerations defining domain states and types:
 
-- **SubscriptionPlan**: Free, Basic, Premium
+- **SubscriptionPlan**: Free, Pro, Enterprise
   - Defines available subscription tiers
-  - Each tier has associated limits and features
+  - Each tier has associated limits and features:
+    - **Free**: 100 notifications/month, Email only
+    - **Pro**: 1,000 notifications/month, Email + SMS
+    - **Enterprise**: 10,000 notifications/month, All channels
 
 ### Events
 
 Domain events represent significant occurrences in the system:
 
-- **SubscriberRegistered**: Triggered when a new subscriber joins the platform
-- **NotificationSent**: Fired when a notification is successfully delivered
-- **SubscriptionExpired**: Raised when a subscriber's subscription plan expires
-- **NotificationFailed**: Emitted when notification delivery fails after max retries
+- **EventType**: Extensible event type system
+  - Supports custom event types for different notification scenarios
+  - Used to map notifications to templates
+  - Examples: "user_registered", "order_confirmed", "payment_received"
 
 Domain events enable:
 - Event-driven architecture and loose coupling
-- Reaction to domain changes without direct dependencies
-- Audit trail and event sourcing capabilities
-- Asynchronous processing of side effects
+- Template-based notification generation
+- Flexible notification workflows
+- Audit trail and tracking capabilities
 
 ### Exceptions
 
@@ -91,10 +115,31 @@ Domain-specific exceptions for business rule violations:
 
 Business rules that govern domain behavior:
 
-- **Subscription Limit Validation**: Enforces usage limits based on subscription plan
-- **Notification Delivery Rules**: Determines when and how notifications should be sent
-- **Template Validation Rules**: Ensures templates are properly formatted and valid
-- **Retry Policy Rules**: Manages retry attempts and backoff strategies
+- **SubscriptionChannelPolicy**: Controls channel access based on subscription plan
+  - Free: Email only
+  - Pro: Email + SMS
+  - Enterprise: Email + SMS + Console
+  
+- **SubscriptionEventPolicy**: Restricts event types based on subscription plan
+  - Free: Basic event types only
+  - Pro: Extended event types
+  - Enterprise: All event types
+  
+- **ChannelPreferenceRule**: Limits active notification channels
+  - Maximum 3 active channels per subscriber
+  - Validates channel activation requests
+  
+- **PasswordRule**: Enforces password security requirements
+  - Minimum 8 characters
+  - At least one uppercase letter
+  - At least one lowercase letter
+  - At least one digit
+  - At least one special character
+  
+- **SubscriptionRule**: Manages subscription validation
+  - Checks subscription expiry
+  - Validates active subscription status
+  - Enforces monthly notification limits
 
 ## Domain Principles
 
@@ -124,47 +169,61 @@ The domain enforces critical business rules:
 
 1. **Subscription Limits**
    - **Free Plan**: 100 notifications per month
-   - **Basic Plan**: 1,000 notifications per month
-   - **Premium Plan**: Unlimited notifications
-   - Usage is tracked and enforced before notification delivery
+   - **Pro Plan**: 1,000 notifications per month
+   - **Enterprise Plan**: 10,000 notifications per month
+   - Usage is tracked monthly and enforced before notification delivery
 
-2. **Notification Retry Policy**
-   - Maximum 3 retry attempts for failed notification deliveries
-   - Exponential backoff between retry attempts
-   - Permanent failure status after max retries exceeded
-   - Retry count tracked per notification
+2. **Channel Access Control**
+   - **Free Plan**: Email channel only
+   - **Pro Plan**: Email + SMS channels
+   - **Enterprise Plan**: Email + SMS + Console channels
+   - Channels enforced at subscription level
 
-3. **Template Requirements**
+3. **Password Security**
+   - Minimum 8 characters required
+   - Must contain uppercase, lowercase, digit, and special character
+   - Passwords hashed using BCrypt with work factor 11
+   - Never stored in plain text
+
+4. **Notification Channels**
+   - Subscribers can activate up to 3 channels maximum
+   - Channel must be allowed by subscription plan
+   - At least one channel must be active
+
+5. **Template Requirements**
    - Templates must specify valid event types
-   - Templates must specify target delivery channel
-   - Template placeholders must match event payload structure
+   - Templates must specify target delivery channel (Email, SMS, Console)
+   - Template placeholders use `{{variableName}}` syntax
    - Subject and body content must be provided
 
-4. **Subscriber Validation**
+6. **Subscriber Validation**
    - Email addresses must be unique and valid format
    - Passwords must meet security requirements
-   - Preferred channels must be valid channel types
-   - Company name required for business subscribers
+   - Company name required (1-200 characters)
+   - Phone number optional but validated if provided
 
 ## Domain Model Design
 
 ### Aggregate Roots
-- **Subscriber**: Root entity for subscriber-related operations
-- **Notification**: Root entity for notification lifecycle management
-- **Subscription**: Root entity for subscription and usage tracking
+- **Subscriber**: Root entity for subscriber-related operations and authentication
+- **Subscription**: Root entity for subscription plan management and usage tracking
+- **Notification**: Root entity for notification content and delivery
+- **ApiKey**: Root entity for API key management
 
 ### Entity Relationships
-- One Subscriber can have one Subscription
-- One Subscriber can have many Notifications
-- Notifications are associated with NotificationTemplates by EventType
-- Subscriptions track usage limits and current usage
+- One Subscriber has one Subscription (1:1)
+- One Subscriber can have many Notifications (1:N)
+- One Subscriber can have many ApiKeys (1:N)
+- Notifications reference NotificationTemplates by EventType
+- Subscriptions track usage limits and enforce monthly quotas
 
 ## Dependencies
 
-- **None** (by design)
-- This layer has zero external dependencies beyond .NET base libraries
+- **BCrypt.Net-Next** (4.0+) - For secure password hashing
+- **System.Text.Json** - For JSON serialization (part of .NET)
+- This layer has minimal external dependencies beyond .NET base libraries
 - Ensures maximum portability, testability, and maintainability
-- Can be reused across different application types (Web API, Console, Mobile, etc.)
+- Can be reused across different application types (Web API, Console, Mobile, Desktop, etc.)
 
 ## Architecture Role
 
@@ -193,10 +252,13 @@ Domain entities and value objects are:
 - Self-contained (all logic within domain objects)
 
 Example test scenarios:
-- Subscription limit validation
-- Password hashing and verification
+- Subscription limit validation and enforcement
+- Password hashing with BCrypt and verification
 - Email address format validation
-- Notification retry count tracking
-- Template placeholder replacement
+- Phone number format validation
+- Channel preference rule (max 3 channels)
+- Subscription plan access control policies
+- API key generation and validation
+- Refresh token expiry validation
 
 This layer embodies the business knowledge and is protected from external changes, making it the foundation of the Clean Architecture approach.
