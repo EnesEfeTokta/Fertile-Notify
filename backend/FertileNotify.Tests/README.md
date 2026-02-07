@@ -4,7 +4,7 @@ The test project contains unit tests and integration tests to ensure the reliabi
 
 ## Overview
 
-This project uses **xUnit** as the testing framework along with **FluentAssertions** for readable assertions and **Moq** for mocking dependencies. The test suite validates business logic, use case handlers, services, and integration between components.
+This project uses **xUnit** and **NUnit** as testing frameworks along with **FluentAssertions** for readable assertions and **Moq** for mocking dependencies. The test suite validates business logic, use case handlers, domain entities, value objects, and services.
 
 ## Test Coverage
 
@@ -15,23 +15,24 @@ Comprehensive tests for the notification event processing use case:
 
 **Core Functionality:**
 - Event validation and processing workflow
-- Subscription limit enforcement and quota tracking
-- Template processing integration with TemplateEngine
-- Queue management and notification enqueuing
-- Retry mechanism validation for failed deliveries
-- Notification status tracking and updates
+- Subscription limit enforcement and monthly quota tracking
+- Subscription plan validation (Free/Pro/Enterprise)
+- Template retrieval and processing integration with TemplateEngine
+- Direct notification delivery via appropriate sender (Email/SMS/Console)
+- Notification creation with rendered content
+- Usage counter increment after successful delivery
 
 **Error Scenarios:**
 - Subscriber not found handling
-- Invalid subscription states
-- Exceeded usage limits
+- Inactive or expired subscription states
+- Exceeded monthly usage limits
 - Missing or invalid templates
-- Queue operation failures
+- Event type not allowed for plan
+- Channel not available for plan
 - Template processing errors
 
 **Edge Cases:**
-- Concurrent event processing
-- Boundary condition testing (exactly at limit)
+- Boundary condition testing (exactly at monthly limit)
 - Null and empty payload handling
 - Special characters in event data
 
@@ -39,31 +40,49 @@ Comprehensive tests for the notification event processing use case:
 Thorough tests for the template processing service:
 
 **Template Processing:**
-- Placeholder replacement with dynamic values
+- Placeholder replacement with dynamic values (`{{variableName}}`)
 - Multiple placeholder handling in a single template
-- Nested object property access
 - Case-sensitive placeholder matching
-- Whitespace preservation
+- Whitespace preservation around placeholders
 
 **Validation:**
 - Template parsing and syntax validation
-- Invalid template format detection
-- Missing placeholder handling
+- Missing placeholder handling (leaves placeholder intact)
 - Empty template content validation
 
 **Edge Cases:**
 - Templates with no placeholders
 - Placeholders with special characters
-- Escaped braces (non-placeholder)
 - Very long templates and content
-- Unicode and emoji in templates
-- HTML and special character escaping
+- Unicode characters in templates
 
 **Error Handling:**
-- Missing values in payload
-- Type mismatches
+- Missing values in payload (placeholder remains)
 - Null value handling
 - Invalid placeholder syntax
+
+### Domain Layer Tests
+
+#### SubscriberTests
+Tests for Subscriber entity behavior:
+- Subscriber creation with valid data
+- Email validation through EmailAddress value object
+- Password hashing and verification
+- Active channel management
+
+#### EmailAddressTests
+Tests for EmailAddress value object:
+- Valid email format validation
+- Invalid email rejection
+- Immutability of value object
+- Equality comparison
+
+#### PasswordTests
+Tests for Password value object:
+- BCrypt password hashing with work factor 11
+- Password verification (correct and incorrect passwords)
+- Hash uniqueness (same password produces different hashes)
+- Secure password storage
 
 ## Testing Approach
 
@@ -76,11 +95,11 @@ Thorough tests for the template processing service:
 
 ### Integration Tests (Planned)
 - **Component Interaction**: Test multiple components working together
-- **In-Memory Database**: Use EF Core InMemory provider for repository tests
+- **In-Memory Database**: Use EF Core InMemory provider for repository integration tests
 - **End-to-End Flow**: Validate complete notification delivery workflow
-- **API Testing**: Test API endpoints with in-memory server
-- **Database Operations**: Verify data persistence and retrieval
-- **Transaction Handling**: Test transaction boundaries and rollback
+- **API Testing**: Test API endpoints with WebApplicationFactory
+- **Database Operations**: Verify data persistence and retrieval with real database
+- **Transaction Handling**: Test transaction boundaries and rollback scenarios
 
 ## Test Structure
 
@@ -88,29 +107,37 @@ All tests follow the **Arrange-Act-Assert (AAA)** pattern for clarity and consis
 
 ```csharp
 [Fact]
-public async Task ProcessEvent_WithValidSubscriber_ShouldEnqueueNotification()
+public async Task ProcessEvent_WithValidSubscriber_ShouldSendNotification()
 {
     // Arrange - Set up test data and configure mocks
     var mockSubscriberRepo = new Mock<ISubscriberRepository>();
-    var mockQueue = new Mock<INotificationQueue>();
+    var mockSubscriptionRepo = new Mock<ISubscriptionRepository>();
     var mockTemplateRepo = new Mock<ITemplateRepository>();
+    var mockNotificationSender = new Mock<INotificationSender>();
     
     var subscriber = CreateTestSubscriber();
+    var subscription = CreateTestSubscription(subscriber.Id, SubscriptionPlan.Pro);
+    
     mockSubscriberRepo
         .Setup(r => r.GetByIdAsync(subscriber.Id))
         .ReturnsAsync(subscriber);
     
+    mockSubscriptionRepo
+        .Setup(r => r.GetBySubscriberIdAsync(subscriber.Id))
+        .ReturnsAsync(subscription);
+    
     var handler = new ProcessEventHandler(
         mockSubscriberRepo.Object,
-        mockQueue.Object,
-        mockTemplateRepo.Object
+        mockSubscriptionRepo.Object,
+        mockTemplateRepo.Object,
+        mockNotificationSender.Object
     );
     
     var command = new ProcessEventCommand 
     {
         SubscriberId = subscriber.Id,
         EventType = "order_confirmed",
-        Payload = new { orderId = "123", amount = 99.99 }
+        Payload = new { orderId = "123", total = 99.99 }
     };
     
     // Act - Execute the code under test
@@ -118,10 +145,10 @@ public async Task ProcessEvent_WithValidSubscriber_ShouldEnqueueNotification()
     
     // Assert - Verify expected outcomes
     result.Should().BeSuccessful();
-    mockQueue.Verify(
-        q => q.EnqueueAsync(It.IsAny<Notification>()), 
+    mockNotificationSender.Verify(
+        s => s.SendAsync(It.IsAny<Notification>()), 
         Times.Once,
-        "notification should be queued for delivery"
+        "notification should be sent immediately"
     );
 }
 ```
@@ -168,21 +195,19 @@ Tests are organized by layer and component:
 FertileNotify.Tests/
 ├── Application/
 │   ├── UseCases/
-│   │   ├── ProcessEventHandlerTests.cs
-│   │   └── RegisterSubscriberHandlerTests.cs (planned)
+│   │   └── ProcessEventHandlerTests.cs
 │   └── Services/
 │       └── TemplateEngineTests.cs
-├── Domain/ (planned)
+├── Domain/
 │   ├── Entities/
-│   │   ├── SubscriberTests.cs
-│   │   ├── NotificationTests.cs
-│   │   └── SubscriptionTests.cs
+│   │   └── SubscriberTests.cs
 │   └── ValueObjects/
 │       ├── EmailAddressTests.cs
 │       └── PasswordTests.cs
 └── Infrastructure/ (planned)
     ├── Repositories/
-    │   └── EfSubscriberRepositoryTests.cs
+    │   ├── EfSubscriberRepositoryTests.cs
+    │   └── EfSubscriptionRepositoryTests.cs
     └── BackgroundJobs/
         └── NotificationWorkerTests.cs
 ```
@@ -190,10 +215,14 @@ FertileNotify.Tests/
 ## Test Dependencies
 
 **Testing Frameworks:**
-- **xUnit** (2.4+) - Main testing framework
+- **xUnit** (2.4+) - Main testing framework for Application and some Domain tests
   - Supports parallel test execution
   - Extensible with custom attributes
   - Industry-standard for .NET testing
+- **NUnit** (3.13+) - Alternative testing framework used for some Domain tests
+  - Test fixture support
+  - Rich assertion library
+  - Parameterized tests
 
 **Assertion Libraries:**
 - **FluentAssertions** (6.0+) - Fluent assertion library
@@ -202,14 +231,14 @@ FertileNotify.Tests/
   - Supports complex object comparison
 
 **Mocking Frameworks:**
-- **Moq** (4.18+) - Mocking framework
+- **Moq** (4.18+) - Mocking framework for Application layer tests
   - Create test doubles (mocks, stubs, fakes)
   - Verify method calls and behavior
   - Setup return values and exceptions
 
 **Database Testing:**
 - **Microsoft.EntityFrameworkCore.InMemory** (9.0+)
-  - In-memory database for repository tests
+  - In-memory database for repository integration tests (planned)
   - No external database required
   - Fast test execution
 
@@ -235,41 +264,50 @@ Integration with code coverage tools:
 
 ## Future Test Additions
 
-### Domain Layer Tests
-- Entity behavior and validation tests
-- Value object immutability and equality tests
-- Business rule enforcement tests
+### Domain Layer Tests (Planned)
+- Subscription entity behavior and plan validation
+- Notification entity creation and properties
+- Business rule enforcement tests (SubscriptionRule, ChannelPreferenceRule, PasswordRule)
 - Domain event handling tests
+- API key entity tests
 
-### Infrastructure Layer Tests
-- Repository integration tests with test database
-- Background worker behavior tests
-- Notification sender tests (with mocked external services)
+### Infrastructure Layer Tests (Planned)
+- Repository integration tests with test database or in-memory provider
+- Background worker behavior tests with mock notification queue
+- Notification sender tests (Email, SMS, Console with mocked external services)
 - Database migration tests
+- JWT token service tests
+- API key service tests
+- OTP service tests
 
-### API Layer Tests
-- Controller action tests
-- Input validation tests
-- Authentication/authorization tests
-- Error handling and status code tests
+### API Layer Tests (Planned)
+- Controller action tests with mocked dependencies
+- Input validation tests with FluentValidation
+- Authentication/authorization tests (JWT and API Key)
+- Error handling and HTTP status code tests
+- Rate limiting tests
 
-### End-to-End Tests
-- Complete notification flow from API to delivery
-- Retry mechanism end-to-end validation
+### End-to-End Tests (Planned)
+- Complete notification flow from API request to delivery
+- Subscription plan enforcement end-to-end
 - Multi-channel delivery scenarios
-- Subscription limit enforcement
+- Monthly usage limit tracking across requests
+- API key and JWT authentication flows
 
-### Performance Tests
-- Load testing for queue processing
-- Concurrent request handling
-- Database query performance
+### Performance Tests (Planned)
+- Background worker queue processing throughput
+- Concurrent request handling with rate limiting
+- Database query performance and optimization
 - Memory usage and leak detection
+- Template rendering performance
 
-### Security Tests
+### Security Tests (Planned)
 - JWT token validation and expiry
-- SQL injection prevention
-- Input sanitization
-- Password hashing security
+- API key hashing and validation
+- OTP generation and expiration
+- SQL injection prevention in repositories
+- Input sanitization in validators
+- BCrypt password hashing security
 
 ## Test Data Builders (Planned)
 
@@ -387,6 +425,9 @@ The test suite is a critical component that ensures the Fertile Notify platform 
 
 **Current Test Status:**
 - ✅ Application layer core use cases (ProcessEventHandler)
-- ✅ Template engine functionality
-- 🔄 Expanding coverage to domain and infrastructure layers
-- 📋 Planning comprehensive integration and E2E tests
+- ✅ Template engine functionality with placeholder replacement
+- ✅ Domain entity tests (Subscriber)
+- ✅ Domain value object tests (EmailAddress, Password)
+- 🔄 Expanding coverage to remaining domain entities and rules
+- 📋 Planning comprehensive infrastructure integration tests
+- 📋 Planning API controller and end-to-end tests
