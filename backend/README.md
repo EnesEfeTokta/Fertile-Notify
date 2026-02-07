@@ -144,6 +144,27 @@ Create an `appsettings.Development.json` file in the `FertileNotify.API` directo
     "Password": "your-smtp-password",
     "FromAddress": "notifications@example.com",
     "FromName": "Fertile Notify"
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "System": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console"
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/log-.txt",
+          "rollingInterval": "Day"
+        }
+      }
+    ]
   }
 }
 ```
