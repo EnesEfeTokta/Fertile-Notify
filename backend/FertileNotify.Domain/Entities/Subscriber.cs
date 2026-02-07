@@ -2,7 +2,6 @@ using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.Rules;
 using FertileNotify.Domain.ValueObjects;
-using System.Numerics;
 
 namespace FertileNotify.Domain.Entities
 {
@@ -13,6 +12,7 @@ namespace FertileNotify.Domain.Entities
         public Password Password { get; private set; }
         public EmailAddress Email { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
+        public RefreshToken? RefreshToken { get; private set; }
 
         private readonly HashSet<NotificationChannel> _activeChannels = new();
         public IReadOnlyCollection<NotificationChannel> ActiveChannels => _activeChannels;
@@ -43,6 +43,8 @@ namespace FertileNotify.Domain.Entities
         public void UpdateCompanyName(CompanyName companyName) => CompanyName = companyName;
 
         public void UpdatePassword(Password password) => Password = password;
+
+        public void SetRefreshToken(RefreshToken refreshToken) => RefreshToken = refreshToken;
 
         public void UpdateContactInfo(EmailAddress email, PhoneNumber? phoneNumber)
         {

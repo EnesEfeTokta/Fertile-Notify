@@ -43,6 +43,17 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
                 )
                 .HasMaxLength(20);
 
+            builder.OwnsOne(u => u.RefreshToken, rt =>
+            {
+                rt.Property(r => r.Token)
+                    .HasColumnName("RefreshToken")
+                    .HasMaxLength(256);
+                rt.Property(r => r.ExpiresAt)
+                    .HasColumnName("RefreshTokenExpiresAt");
+                rt.Property(r => r.IsRevoked)
+                    .HasColumnName("RefreshTokenRevoked");
+            });
+
             builder.Property(u => u.ActiveChannels)
                 .HasConversion(
                     v => string.Join(',', v.Select(c => c.Name)),

@@ -37,6 +37,12 @@ namespace FertileNotify.Infrastructure.Persistence
         public async Task<Subscriber?> GetByEmailAsync(EmailAddress email)
             => await _context.Subscribers.FirstOrDefaultAsync(u => u.Email == email);
 
+        public async Task<Subscriber?> GetByPhoneNumberAsync(PhoneNumber phoneNumber)
+            => await _context.Subscribers.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+
+        public async Task<Subscriber?> GetByRefreshTokenAsync(string refreshToken)
+            => await _context.Subscribers.FirstOrDefaultAsync(u => u.RefreshToken!.Token == refreshToken);
+
         public async Task<bool> ExistsAsync(Guid id)
             => await _context.Subscribers.AnyAsync(u => u.Id == id);
     }

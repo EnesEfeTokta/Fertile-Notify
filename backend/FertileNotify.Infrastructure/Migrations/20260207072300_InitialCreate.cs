@@ -51,6 +51,9 @@ namespace FertileNotify.Infrastructure.Migrations
                     Password = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     Email = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
                     PhoneNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    RefreshToken = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    RefreshTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    RefreshTokenRevoked = table.Column<bool>(type: "boolean", nullable: true),
                     ActiveChannels = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

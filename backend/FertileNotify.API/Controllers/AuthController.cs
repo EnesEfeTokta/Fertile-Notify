@@ -55,8 +55,34 @@ namespace FertileNotify.API.Controllers
             var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriber.Id)
                                 ?? throw new NotFoundException("Subscription not found");
 
-            var token = _tokenService.GenerateToken(subscriber, subscription.Plan);
-            return Ok( new { Token = token } );
+            var accessToken = _tokenService.GenerateToken(subscriber, subscription.Plan);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            subscriber.SetRefreshToken(refreshToken);
+            await _subscriberRepository.SaveAsync(subscriber);
+
+            return Ok( new { AccessToken = accessToken, RefreshToken = refreshToken } );
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken_([FromBody] RefreshTokenRequest request)
+        {
+            var subscriber = await _subscriberRepository.GetByRefreshTokenAsync(request.RefreshToken)
+                                ?? throw new UnauthorizedException("Invalid or expired refresh token");
+
+            if (!subscriber.RefreshToken!.IsActive())
+                throw new UnauthorizedException("Refresh token has expired");
+
+            var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriber.Id)
+                    ?? throw new NotFoundException("Subscription not found");
+
+            var newAccessToken = _tokenService.GenerateToken(subscriber, subscription.Plan);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            subscriber.SetRefreshToken(newRefreshToken);
+            await _subscriberRepository.SaveAsync(subscriber);
+
+            return Ok(new { AccessToken = newAccessToken, RefreshToken = newRefreshToken });
         }
 
         public async Task<Subscriber> GetSubscriber(string email)
