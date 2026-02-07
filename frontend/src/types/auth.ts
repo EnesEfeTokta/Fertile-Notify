@@ -4,7 +4,22 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    token: string;
+    message: string;
+}
+
+export interface VerifyOtpRequest {
+    email: string;
+    otpCode: string;
+}
+
+export interface VerifyOtpResponse {
+    accessToken: string;
+    refreshToken:
+    {
+        token: string,
+        expiresAt: string,
+        isRevoked: boolean
+    };
 }
 
 export interface RegisterRequest {
