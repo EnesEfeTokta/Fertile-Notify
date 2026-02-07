@@ -55,10 +55,10 @@ builder.Services.AddRateLimiter(options =>
 
         int permitLimit = plan switch
         {
-            "Free" => 5,
-            "Pro" => 20,
-            "Enterprise" => 100,
-            _ => 5
+            "Free" => 50,
+            "Pro" => 100,
+            "Enterprise" => 1000,
+            _ => 20
         };
 
         return RateLimitPartition.GetFixedWindowLimiter(
@@ -198,11 +198,11 @@ if (app.Environment.IsDevelopment())
 // --- 8. Database Seed ---
 await DbSeeder.SeedAsync(app);
 
+app.UseCors("AllowAll");
+
 app.UseRateLimiter();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
