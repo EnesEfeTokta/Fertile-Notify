@@ -5,7 +5,9 @@ namespace FertileNotify.Application.Interfaces
 {
     public interface ITemplateRepository
     {
-        Task<NotificationTemplate?> GetByEventTypeAsync(EventType eventType);
+        Task<NotificationTemplate?> GetTemplateAsync(EventType eventType, Guid? subscriberId);
+        Task<NotificationTemplate?> GetGlobalTemplateAsync(EventType eventType);
+        Task<NotificationTemplate?> GetCustomTemplateAsync(EventType eventType, Guid subscriberId);
         Task AddAsync(NotificationTemplate template);
     }
 }

@@ -11,12 +11,38 @@ namespace FertileNotify.Domain.Rules
             {
                 SubscriptionPlan.Free =>
                 [
-                    EventType.SubscriberRegistered
+                    EventType.SubscriberRegistered,
+                    EventType.PasswordReset,
+                    EventType.EmailVerified,
+                    EventType.LoginAlert,
+
+                    EventType.OrderCancelled,
+                    EventType.OrderShipped,
+                    EventType.OrderDelivered,
+                    EventType.OrderCreated,
+                    EventType.PaymentFailed,
+
+                    EventType.Campaign,
+                    EventType.MonthlyNewsletter,
+                    EventType.SupportTicketUpdated
                 ],
 
                 SubscriptionPlan.Pro =>
                 [
-                    EventType.SubscriberRegistered
+                    EventType.SubscriberRegistered,
+                    EventType.PasswordReset,
+                    EventType.EmailVerified,
+                    EventType.LoginAlert,
+
+                    EventType.OrderCancelled,
+                    EventType.OrderShipped,
+                    EventType.OrderDelivered,
+                    EventType.OrderCreated,
+                    EventType.PaymentFailed,
+
+                    EventType.Campaign,
+                    EventType.MonthlyNewsletter,
+                    EventType.SupportTicketUpdated
                 ],
 
                 SubscriptionPlan.Enterprise =>

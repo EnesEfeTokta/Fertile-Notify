@@ -20,10 +20,32 @@ namespace FertileNotify.Infrastructure.Persistence
             await _context.SaveChangesAsync();
         }
 
-        public async Task<NotificationTemplate?> GetByEventTypeAsync(EventType eventType)
+        public async Task<NotificationTemplate?> GetTemplateAsync(EventType eventType, Guid? subscriberId)
         {
-            var allTemplates = await _context.NotificationTemplates.ToListAsync();
-            return allTemplates.FirstOrDefault(t => t.EventType.Equals(eventType));
+            if (subscriberId.HasValue)
+            {
+                var customTemplate = _context.NotificationTemplates
+                    .FirstOrDefault(t =>
+                        t.SubscriberId == subscriberId &&
+                        t.EventType == eventType 
+                    );
+                if (customTemplate != null) return customTemplate;
+            }
+
+            return await _context.NotificationTemplates
+                .FirstOrDefaultAsync(t => t.SubscriberId == null && t.EventType == eventType);
         }
+
+        public async Task<NotificationTemplate?> GetGlobalTemplateAsync(EventType eventType)
+            => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
+                    t.EventType == eventType
+                    && t.SubscriberId == null
+                    && t.EventType.Name == eventType.Name);
+
+        public async Task<NotificationTemplate?> GetCustomTemplateAsync(EventType eventType, Guid subscriberId)
+            => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
+                    t.EventType == eventType
+                    && t.SubscriberId == subscriberId
+                    && t.EventType.Name == eventType.Name);
     }
 }

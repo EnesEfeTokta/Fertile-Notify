@@ -85,6 +85,7 @@ namespace FertileNotify.API.Controllers
             return Ok(new { AccessToken = newAccessToken, RefreshToken = newRefreshToken });
         }
 
+        [NonAction]
         public async Task<Subscriber> GetSubscriber(string email)
             => await _subscriberRepository.GetByEmailAsync(EmailAddress.Create(email))
                 ?? throw new NotFoundException("Subscriber not found");

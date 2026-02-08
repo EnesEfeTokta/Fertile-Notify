@@ -33,6 +33,7 @@ namespace FertileNotify.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: true),
                     EventType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     SubjectTemplate = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     BodyTemplate = table.Column<string>(type: "text", nullable: false)
