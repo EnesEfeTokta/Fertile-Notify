@@ -11,7 +11,6 @@ using FertileNotify.Infrastructure.Persistence;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -23,39 +22,37 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- LOGGING ---
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .WriteTo.File("logs/log-.txt",
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 7)
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7)
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
+// --- CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
     {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
 
+// --- RATE LIMITER ---
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
-        var subscriberId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+        var subscriberId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var partitionKey = subscriberId ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
 
         var plan = context.User.FindFirst("Plan")?.Value ?? "Free";
 
         int permitLimit = plan switch
         {
-            "Free" => 50,
             "Pro" => 100,
             "Enterprise" => 1000,
             _ => 20
@@ -75,13 +72,15 @@ builder.Services.AddRateLimiter(options =>
     options.OnRejected = async (context, token) =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", token);
+        await context.HttpContext.Response.WriteAsync("Too many requests. Please upgrade your plan.", token);
     };
 });
 
+// --- SWAGGER ---
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Fertile Notify API", Version = "v1" });
+    c.CustomSchemaIds(type => type.FullName);
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -90,18 +89,32 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "API Key authentication using FN-Api-Key header. Example: \"FN-Api-Key: your-api-key\"",
+        Name = "FN-Api-Key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "ApiKeyScheme"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" },
                 Scheme = "oauth2",
                 Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" },
+                Scheme = "ApiKeyScheme",
+                Name = "FN-Api-Key",
                 In = ParameterLocation.Header,
             },
             new List<string>()
@@ -109,37 +122,39 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// --- 1. Controller ve JSON Settings ---
+// --- CONTROLLERS ---
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// --- 2. Database ve EF Core ---
+// --- DATABASE & EF ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
-// --- 3. Repositories ---
+// --- REPOSITORIES ---
 builder.Services.AddScoped<ISubscriberRepository, EfSubscriberRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
 builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 builder.Services.AddScoped<IApiKeyRepository, EfApiKeyRepository>();
 
-// --- 4. Queue ve Worker ---
+// --- BACKGROUND JOBS ---
 builder.Services.AddSingleton<INotificationQueue, InMemoryNotificationQueue>();
 builder.Services.AddHostedService<NotificationWorker>();
 
-// --- 5. Validasyon ---
+// --- VALIDATION ---
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-// --- 6. Auth & Token ---
+// --- AUTH ---
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<ApiKeyService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -171,7 +186,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// --- 7. Sender and Services ---
+// --- SERVICES ---
 builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
 builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
@@ -180,11 +195,9 @@ builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
 builder.Services.AddScoped<TemplateEngine>();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<IOtpService, OtpService>();
-
-
 var app = builder.Build();
+
+// --- MIDDLEWARE PIPELINE ---
 
 if (app.Environment.IsDevelopment())
 {
@@ -195,13 +208,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// --- 8. Database Seed ---
+// Seeder
 await DbSeeder.SeedAsync(app);
 
 app.UseCors("AllowAll");
-
 app.UseRateLimiter();
-
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
@@ -210,7 +221,6 @@ app.UseAuthorization();
 app.UseSerilogRequestLogging();
 
 app.MapControllers();
-
 app.MapHealthChecks("/health");
 
 app.Run();
