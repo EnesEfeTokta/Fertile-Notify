@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FertileNotify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260207072300_InitialCreate")]
+    [Migration("20260208105103_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -79,6 +79,9 @@ namespace FertileNotify.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<Guid?>("SubscriberId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

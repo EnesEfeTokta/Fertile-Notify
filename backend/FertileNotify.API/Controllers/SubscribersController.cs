@@ -179,6 +179,7 @@ namespace FertileNotify.API.Controllers
             return Ok();
         }
 
+        [NonAction]
         private Guid GetSubscriberIdFromClaims()
         {
             var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
@@ -186,6 +187,7 @@ namespace FertileNotify.API.Controllers
             return Guid.Parse(subscriberIdClaim.Value);
         }
 
+        [NonAction]
         private async Task<Subscriber> GetSubscriberAsync()
             => await _subscriberRepository.GetByIdAsync(GetSubscriberIdFromClaims())
                 ?? throw new NotFoundException("Subscriber not found.");

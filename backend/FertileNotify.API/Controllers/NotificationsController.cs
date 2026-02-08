@@ -65,6 +65,7 @@ namespace FertileNotify.API.Controllers
             });
         }
 
+        [NonAction]
         private Guid GetSubscriberIdFromClaims()
         {
             var subscriberIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)
