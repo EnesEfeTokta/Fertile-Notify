@@ -21,13 +21,32 @@ const defaultMjml = `<mjml>
   </mj-body>
 </mjml>`;
 
-export default function EmailDesignPanelAdvancedPage() {
+// System-defined event types
+const EVENT_TYPES = [
+  { value: 'SubscriberRegistered', label: 'Subscriber Registered', icon: '👋' },
+  { value: 'PasswordReset', label: 'Password Reset', icon: '🔐' },
+  { value: 'EmailVerified', label: 'Email Verified', icon: '🛒' },
+  { value: 'LoginAlert', label: 'Login Alert', icon: '🔔' },
+  { value: 'AccountLocked', label: 'Account Locked', icon: '🔒' },
+  { value: 'OrderCreated', label: 'Order Created', icon: '📦' },
+  { value: 'OrderShipped', label: 'Order Shipped', icon: '🚚' },
+  { value: 'OrderDelivered', label: 'Order Delivered', icon: '✅' },
+  { value: 'OrderCancelled', label: 'Order Cancelled', icon: '❌' },
+  { value: 'PaymentFailed', label: 'Payment Failed', icon: '💰' },
+  { value: 'SubscriptionRenewed', label: 'Subscription Renewed', icon: '🔄' },
+  { value: 'Campaign', label: 'Campaign', icon: '📢' },
+  { value: 'MonthlyNewsletter', label: 'Monthly Newsletter', icon: '📰' },
+  { value: 'SupportTicketUpdated', label: 'Support Ticket Updated', icon: '🎫' },
+];
+
+export default function EmailDesignAdvancedPanelPage() {
   const [mjmlCode, setMjmlCode] = useState(defaultMjml);
   const [emailSubject, setEmailSubject] = useState('');
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
+  const [selectedEventType, setSelectedEventType] = useState('');
   const navigate = useNavigate();
 
   const { html: htmlPreview, hasError, errorMsg } = useMemo(() => {
@@ -43,12 +62,12 @@ export default function EmailDesignPanelAdvancedPage() {
   }, [mjmlCode]);
 
   const handleSave = () => {
-    console.log('Saving template:', { templateName, templateDescription, emailSubject, mjmlCode });
+    console.log('Saving template:', { templateName, templateDescription, emailSubject, selectedEventType, mjmlCode });
     // TODO: API call to save template
     setShowSaveModal(false);
     setTemplateName('');
     setTemplateDescription('');
-    setEmailSubject('');
+    setSelectedEventType('');
   };
 
   return (
@@ -60,6 +79,30 @@ export default function EmailDesignPanelAdvancedPage() {
             <h2 className="text-xl font-bold text-white mb-4">Save Template</h2>
 
             <div className="space-y-4">
+              {/* Event Type Selection */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Event Type</label>
+                <div className="relative">
+                  <select
+                    value={selectedEventType}
+                    onChange={(e) => setSelectedEventType(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white appearance-none focus:outline-none focus:border-purple-500 cursor-pointer"
+                  >
+                    <option value="" disabled>Select an event type...</option>
+                    {EVENT_TYPES.map((event) => (
+                      <option key={event.value} value={event.value}>
+                        {event.icon} {event.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Template Name</label>
                 <input
@@ -77,7 +120,7 @@ export default function EmailDesignPanelAdvancedPage() {
                   value={templateDescription}
                   onChange={(e) => setTemplateDescription(e.target.value)}
                   placeholder="Enter description..."
-                  rows={3}
+                  rows={2}
                   className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-none"
                 />
               </div>
@@ -92,7 +135,7 @@ export default function EmailDesignPanelAdvancedPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={!templateName.trim()}
+                disabled={!templateName.trim() || !selectedEventType}
                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save
