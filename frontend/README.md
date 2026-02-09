@@ -38,11 +38,28 @@ This project contains the user-facing web interface for the Fertile Notify notif
   - JWT-based authentication
   - Secure API communication
 
+### Email Template Design
+
+- **Visual Email Editor**
+  - Drag-and-drop email template builder with GrapesJS
+  - MJML-based responsive email design
+  - Real-time preview of email templates
+  - Pre-built email components and blocks
+  - Export email templates as HTML/MJML
+
+- **Advanced Email Editor**
+  - Monaco Editor integration for code editing
+  - Syntax highlighting for MJML and HTML
+  - Real-time MJML to HTML compilation
+  - Split-pane view with code and preview
+  - Advanced code editing features (IntelliSense, error detection)
+
 ### User Experience
 
 - **Home Page**: Modern landing page with feature highlights
 - **Registration**: New subscriber sign-up with subscription plan selection
 - **Login**: Secure authentication with JWT tokens
+- **Email Template Editors**: Visual and advanced code-based email design tools
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 - **Modern UI**: Gradient backgrounds, animations, and polished components
 
@@ -51,7 +68,7 @@ This project contains the user-facing web interface for the Fertile Notify notif
 ### Core Technologies
 - **React 19.2**: Modern React with latest features
 - **TypeScript 5.9**: Type-safe development
-- **Vite (Rolldown)**: Fast build tool with HMR (Hot Module Replacement)
+- **Vite (Rolldown) 7.2**: Fast build tool with HMR (Hot Module Replacement)
 - **React Router 7.13**: Client-side routing
 
 ### UI & Styling
@@ -59,14 +76,20 @@ This project contains the user-facing web interface for the Fertile Notify notif
 - **Custom CSS**: Gradient animations and modern effects
 - **Responsive Design**: Mobile-first approach
 
+### Email Design Tools
+- **Monaco Editor 0.55**: Advanced code editor with IntelliSense
+- **GrapesJS 0.22**: Visual page/email builder framework
+- **GrapesJS MJML 1.0**: MJML plugin for GrapesJS
+- **MJML Browser 4.18**: Client-side MJML to HTML compiler
+
 ### HTTP & API
 - **Axios 1.13**: HTTP client for API communication
 - **JWT Authentication**: Token-based secure authentication
 
 ### Development Tools
-- **ESLint**: Code linting and quality
-- **TypeScript ESLint**: TypeScript-specific linting rules
-- **PostCSS**: CSS processing with Autoprefixer
+- **ESLint 9.39**: Code linting and quality
+- **TypeScript ESLint 8.46**: TypeScript-specific linting rules
+- **PostCSS 8.5**: CSS processing with Autoprefixer
 
 ## Project Structure
 
@@ -82,11 +105,14 @@ frontend/
 │   │   ├── HomePage.tsx        # Landing page
 │   │   ├── LoginPage.tsx       # Login page
 │   │   ├── RegisterPage.tsx    # Registration page
-│   │   └── DashboardPage.tsx   # Subscriber dashboard
+│   │   ├── DashboardPage.tsx   # Subscriber dashboard
+│   │   ├── EmailDesignVisualPanelPage.tsx   # Visual email editor (GrapesJS)
+│   │   └── EmailDesignAdvancedPanelPage.tsx # Advanced email editor (Monaco)
 │   │
 │   ├── types/                  # TypeScript type definitions
 │   │   ├── auth.ts             # Authentication types
-│   │   └── subscriber.ts       # Subscriber-related types
+│   │   ├── subscriber.ts       # Subscriber-related types
+│   │   └── mjml-browser.d.ts   # MJML browser type declarations
 │   │
 │   ├── assets/                 # Static assets
 │   ├── App.tsx                 # Main application component
@@ -278,13 +304,15 @@ The application is built with modern web standards and supports:
 ## Future Enhancements
 
 Planned features for future releases:
+- Email template library and management
+- Template versioning and history
 - Real-time notification preview
 - Advanced analytics dashboard
 - Notification history and logs
-- Template customization interface
 - Multi-language support
 - Dark/light theme toggle
 - Notification scheduling UI
+- Team collaboration features
 
 ## Contributing
 
