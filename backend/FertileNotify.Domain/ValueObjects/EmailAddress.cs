@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace FertileNotify.Domain.ValueObjects
 {
-    public sealed class EmailAddress
+    public sealed partial class EmailAddress
     {
         public string Value { get; }
 
@@ -24,8 +24,11 @@ namespace FertileNotify.Domain.ValueObjects
             return new EmailAddress(email.Trim().ToLower());
         }
 
+        [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase)]
+        private static partial Regex EmailRegex();
+
         private static bool IsValid(string email)
-            => Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
+            => EmailRegex().IsMatch(email);
 
         public override string ToString() => Value;
 
