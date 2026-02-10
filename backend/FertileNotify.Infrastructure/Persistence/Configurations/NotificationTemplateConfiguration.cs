@@ -1,5 +1,6 @@
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,6 +16,14 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
                 .HasConversion(
                     eventType => eventType.Name, 
                     value => EventType.From(value)
+                )
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder.Property(t => t.Channel)
+                .HasConversion(
+                    channel => channel.Name,
+                    value => NotificationChannel.From(value)
                 )
                 .HasMaxLength(50)
                 .IsRequired();

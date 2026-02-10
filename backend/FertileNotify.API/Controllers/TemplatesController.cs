@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using FertileNotify.API.Models;
+using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.API.Controllers
 {
@@ -28,8 +29,9 @@ namespace FertileNotify.API.Controllers
         {
             var subscriberId = GetSubscriberIdFromClaims();
             var eventType = EventType.From(request.EventType);
+            var channel = NotificationChannel.From(request.Channel);
 
-            var existingTemplate = await _templateRepository.GetCustomTemplateAsync(eventType, subscriberId);
+            var existingTemplate = await _templateRepository.GetCustomTemplateAsync(eventType, channel,subscriberId);
 
             if (existingTemplate != null)
             {
@@ -38,7 +40,7 @@ namespace FertileNotify.API.Controllers
             }
             else
             {
-                var newTemplate = NotificationTemplate.CreateCustom(subscriberId, eventType, request.SubjectTemplate, request.BodyTemplate);
+                var newTemplate = NotificationTemplate.CreateCustom(subscriberId, eventType, channel, request.SubjectTemplate, request.BodyTemplate);
                 await _templateRepository.AddAsync(newTemplate);
             }
 

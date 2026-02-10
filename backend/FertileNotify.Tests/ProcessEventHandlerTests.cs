@@ -68,8 +68,8 @@ namespace FertileNotify.Tests
             var subscription = Subscription.Create(subscriberId, SubscriptionPlan.Free);
             _mockSubRepo.Setup(x => x.GetBySubscriberIdAsync(subscriberId)).ReturnsAsync(subscription);
 
-            var template = NotificationTemplate.CreateGlobal(EventType.SubscriberRegistered, "Subject {Name}", "Body");
-            _mockTemplateRepo.Setup(x => x.GetTemplateAsync(EventType.SubscriberRegistered, subscriberId)).ReturnsAsync(template);
+            var template = NotificationTemplate.CreateGlobal(EventType.SubscriberRegistered, NotificationChannel.Email,"Subject {Name}", "Body");
+            _mockTemplateRepo.Setup(x => x.GetTemplateAsync(EventType.SubscriberRegistered, NotificationChannel.Email, subscriberId)).ReturnsAsync(template);
 
             _mockEmailSender
                 .Setup(x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))

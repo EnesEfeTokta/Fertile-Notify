@@ -1,20 +1,47 @@
-﻿namespace FertileNotify.Application.Services
+﻿using Mjml.Net;
+using FertileNotify.Domain.ValueObjects;
+
+namespace FertileNotify.Application.Services
 {
     public class TemplateEngine
     {
-        public string Render(string template, Dictionary<string, string> parameters)
+        private readonly IMjmlRenderer _mjmlRenderer = new MjmlRenderer();
+
+        public string Render(string template, NotificationChannel channel, Dictionary<string, string> parameters)
         {
-            if (string.IsNullOrEmpty(template))
+            if (string.IsNullOrWhiteSpace(template))
                 return string.Empty;
 
-            if (parameters == null || parameters.Count == 0) return template;
-
-            string rendered = template;
-            foreach (var param in parameters)
+            string processedText = template;
+            if (parameters != null && parameters.Any())
             {
-                rendered = rendered.Replace($"{{{param.Key}}}", param.Value);
+                foreach (var param in parameters)
+                {
+                    processedText = processedText.Replace($"{{{param.Key}}}", param.Value);
+                }
             }
-            return rendered;
+
+            if (channel.Equals(NotificationChannel.Email))
+            {
+                var result = _mjmlRenderer.Render(processedText, new MjmlOptions
+                {
+                    Beautify = false
+                });
+
+                return result.Html;
+            }
+
+            if (channel.Equals(NotificationChannel.SMS))
+            {
+                return processedText;
+            }
+
+            if (channel.Equals(NotificationChannel.Console))
+            {
+                return processedText;
+            }
+
+            return string.Empty;
         }
     }
 }
