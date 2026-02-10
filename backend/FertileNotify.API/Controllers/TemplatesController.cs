@@ -29,11 +29,12 @@ namespace FertileNotify.API.Controllers
             var subscriberId = GetSubscriberIdFromClaims();
             var eventType = EventType.From(request.EventType);
 
-            var existingTemplate = await _templateRepository.GetTemplateAsync(eventType, subscriberId);
+            var existingTemplate = await _templateRepository.GetCustomTemplateAsync(eventType, subscriberId);
 
             if (existingTemplate != null)
             {
                 existingTemplate.Update(request.SubjectTemplate, request.BodyTemplate);
+                await _templateRepository.SaveAsync();
             }
             else
             {
