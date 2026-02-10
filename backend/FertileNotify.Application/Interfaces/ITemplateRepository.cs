@@ -9,5 +9,6 @@ namespace FertileNotify.Application.Interfaces
         Task<NotificationTemplate?> GetGlobalTemplateAsync(EventType eventType);
         Task<NotificationTemplate?> GetCustomTemplateAsync(EventType eventType, Guid subscriberId);
         Task AddAsync(NotificationTemplate template);
+        Task SaveAsync();
     }
 }

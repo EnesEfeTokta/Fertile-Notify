@@ -12,7 +12,7 @@ namespace FertileNotify.Domain.Entities
 
         private NotificationTemplate() { }
 
-        private NotificationTemplate(EventType eventType, string subject, string body, Guid? subscriberId = null)
+        private NotificationTemplate(EventType eventType, string subject, string body, Guid? subscriberId)
         {
             Id = Guid.NewGuid();
             SubscriberId = subscriberId;
@@ -28,7 +28,7 @@ namespace FertileNotify.Domain.Entities
             if (string.IsNullOrWhiteSpace(body))
                 throw new ArgumentException("Body template cannot be null or empty.", nameof(body));
 
-            return new NotificationTemplate(eventType, subject, body);
+            return new NotificationTemplate(eventType, subject, body, null);
         }
 
         public static NotificationTemplate CreateCustom(Guid subscriberId, EventType eventType, string subject, string body)

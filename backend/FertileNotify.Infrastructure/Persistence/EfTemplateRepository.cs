@@ -20,15 +20,17 @@ namespace FertileNotify.Infrastructure.Persistence
             await _context.SaveChangesAsync();
         }
 
+        public async Task SaveAsync() => await _context.SaveChangesAsync();
+
         public async Task<NotificationTemplate?> GetTemplateAsync(EventType eventType, Guid? subscriberId)
         {
             if (subscriberId.HasValue)
             {
-                var customTemplate = _context.NotificationTemplates
-                    .FirstOrDefault(t =>
-                        t.SubscriberId == subscriberId &&
-                        t.EventType == eventType 
-                    );
+                var customTemplate = await _context.NotificationTemplates
+                    .FirstOrDefaultAsync(t => 
+                        t.SubscriberId == subscriberId 
+                        && t.EventType == eventType);
+
                 if (customTemplate != null) return customTemplate;
             }
 
@@ -38,14 +40,10 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public async Task<NotificationTemplate?> GetGlobalTemplateAsync(EventType eventType)
             => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
-                    t.EventType == eventType
-                    && t.SubscriberId == null
-                    && t.EventType.Name == eventType.Name);
+                    t.SubscriberId == null && t.EventType == eventType);
 
         public async Task<NotificationTemplate?> GetCustomTemplateAsync(EventType eventType, Guid subscriberId)
             => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
-                    t.EventType == eventType
-                    && t.SubscriberId == subscriberId
-                    && t.EventType.Name == eventType.Name);
+                    t.SubscriberId == subscriberId && t.EventType == eventType);
     }
 }
