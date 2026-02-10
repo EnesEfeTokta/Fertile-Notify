@@ -54,7 +54,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
 
             subscription.EnsureCanSendNotification();
 
-            var template = await _templateRepository.GetTemplateAsync(command.EventType, command.SubscriberId)
+            var template = await _templateRepository.GetTemplateAsync(command.EventType, command.Channel, command.SubscriberId)
                 ?? throw new NotFoundException("Notification template not found");
 
             string subject = command.EventType.Name;
@@ -62,8 +62,8 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
 
             if (template != null)
             {
-                subject = templateEngine.Render(template.SubjectTemplate, command.Parameters);
-                body = templateEngine.Render(template.BodyTemplate, command.Parameters);
+                subject = templateEngine.Render(template.SubjectTemplate, command.Channel, command.Parameters);
+                body = templateEngine.Render(template.BodyTemplate, command.Channel, command.Parameters);
             }
             else
             {

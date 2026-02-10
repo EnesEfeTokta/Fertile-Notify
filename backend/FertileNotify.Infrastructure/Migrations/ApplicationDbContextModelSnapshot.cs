@@ -67,6 +67,11 @@ namespace FertileNotify.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<string>("EventType")
                         .IsRequired()
                         .HasMaxLength(50)

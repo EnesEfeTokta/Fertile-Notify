@@ -11,6 +11,9 @@ namespace FertileNotify.API.Validators
                 .NotEmpty().WithMessage("EventType is required.")
                 .Must(BeAValidEventType).WithMessage("Invalid EventType.");
 
+            RuleFor(x => x.Channel)
+                .NotEmpty().WithMessage("Channel is required.");
+
             RuleFor(x => x.SubjectTemplate)
                 .NotEmpty().WithMessage("SubjectTemplate is required.");
 
