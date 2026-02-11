@@ -14,11 +14,8 @@ namespace FertileNotify.API.Validators
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is a required field.")
-                .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
-                .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
-                .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-                .Matches("[0-9]").WithMessage("Password must contain at least one digit.")
-                .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+                .Must(IsValidPassword)
+                .WithMessage("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is a required field.")
@@ -39,5 +36,17 @@ namespace FertileNotify.API.Validators
 
         private bool SubscriptionPlanValid(string plan)
             => Enum.TryParse<SubscriptionPlan>(plan, ignoreCase: true, out _);
+
+        private bool IsValidPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password) ||
+                password.Length < 8 ||
+                !password.Any(char.IsUpper) ||
+                !password.Any(char.IsLower) ||
+                !password.Any(char.IsDigit)
+            )
+                return false;
+            return true;
+        }
     }
 }
