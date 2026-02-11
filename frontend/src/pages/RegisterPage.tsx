@@ -23,26 +23,25 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-animated-gradient flex items-center justify-center px-4 py-8 animate-fade-in">
-            <div className="glass p-8 md:p-10 w-full max-w-md animate-slide-up clip-sharp border-t-4 border-pink-500">
+        <div className="min-h-screen bg-primary flex items-center justify-center px-4 py-8 animate-fade-in">
+            <div className="card w-full max-w-md p-8">
                 {/* Logo/Title */}
                 <div className="text-center mb-8">
-                    <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Sign Up</h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mb-3"></div>
-                    <p className="text-gray-400 uppercase text-sm tracking-wide">Create New Account</p>
+                    <h2 className="text-3xl font-display font-semibold text-primary mb-2">Sign Up</h2>
+                    <p className="text-sm text-secondary">Create new account</p>
                 </div>
 
                 {/* Error Message */}
                 {error && (
-                    <div className="bg-red-900/30 border-l-4 border-red-500 text-red-300 p-4 mb-6 clip-sharp-sm animate-slide-up">
-                        <p className="font-medium uppercase text-sm">{error}</p>
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 mb-6 rounded-md text-sm">
+                        {error}
                     </div>
                 )}
 
                 {/* Register Form */}
-                <form onSubmit={handleRegister} className="space-y-5">
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Name</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">Company Name</label>
                         <input
                             type="text"
                             className="input-modern"
@@ -54,7 +53,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Email</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">Email</label>
                         <input
                             type="email"
                             className="input-modern"
@@ -66,18 +65,18 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Phone Number</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">Phone Number</label>
                         <input
                             type="tel"
                             className="input-modern"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="(Optional)"
+                            placeholder="Optional"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Select Plan</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">Select Plan</label>
                         <select
                             className="input-modern cursor-pointer"
                             value={plan}
@@ -90,7 +89,7 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                        <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Password</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">Password</label>
                         <input
                             type="password"
                             className="input-modern"
@@ -103,7 +102,7 @@ export default function RegisterPage() {
 
                     <button
                         type="submit"
-                        className="btn-gradient w-full text-lg uppercase tracking-wider"
+                        className="btn-primary w-full mt-6"
                     >
                         Sign Up
                     </button>
@@ -111,11 +110,11 @@ export default function RegisterPage() {
 
                 {/* Login Link */}
                 <div className="mt-6 text-center">
-                    <p className="text-gray-400">
+                    <p className="text-sm text-secondary">
                         Already have an account?{" "}
                         <button
                             onClick={() => navigate("/login")}
-                            className="text-pink-400 font-semibold hover:text-purple-400 transition-colors uppercase text-sm"
+                            className="text-primary-500 hover:text-primary-400 transition-colors font-medium"
                         >
                             Login
                         </button>
