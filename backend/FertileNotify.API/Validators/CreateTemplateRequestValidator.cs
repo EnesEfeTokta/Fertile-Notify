@@ -1,4 +1,5 @@
 ﻿using FertileNotify.API.Models;
+using FertileNotify.Domain.ValueObjects;
 using FluentValidation;
 
 namespace FertileNotify.API.Validators
@@ -12,7 +13,8 @@ namespace FertileNotify.API.Validators
                 .Must(BeAValidEventType).WithMessage("Invalid EventType.");
 
             RuleFor(x => x.Channel)
-                .NotEmpty().WithMessage("Channel is required.");
+                .NotEmpty().WithMessage("Channel is a required field.")
+                .Must(ChannelValid).WithMessage("Invalid Channel type.");
 
             RuleFor(x => x.SubjectTemplate)
                 .NotEmpty().WithMessage("SubjectTemplate is required.");
@@ -23,15 +25,13 @@ namespace FertileNotify.API.Validators
 
         private bool BeAValidEventType(string eventType)
         {
-            try
-            {
-                Domain.Events.EventType.From(eventType);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            try { Domain.Events.EventType.From(eventType); return true; }
+            catch { return false; }
+        }
+        private bool ChannelValid(string channel)
+        {
+            try { NotificationChannel.From(channel); return true; }
+            catch { return false; }
         }
     }
 }

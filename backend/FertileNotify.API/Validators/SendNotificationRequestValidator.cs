@@ -1,6 +1,7 @@
 ﻿using FertileNotify.API.Models;
-using FluentValidation;
 using FertileNotify.Domain.Events;
+using FertileNotify.Domain.ValueObjects;
+using FluentValidation;
 
 namespace FertileNotify.API.Validators
 {
@@ -8,6 +9,10 @@ namespace FertileNotify.API.Validators
     {
         public SendNotificationRequestValidator()
         {
+            RuleFor(x => x.Channel)
+                .NotEmpty().WithMessage("Channel is required.")
+                .Must(ChannelValid).WithMessage("Invalid Channel.");
+
             RuleFor(x => x.Recipient)
                 .NotEmpty().WithMessage("Recipient is required.");
 
@@ -18,6 +23,12 @@ namespace FertileNotify.API.Validators
             RuleFor(x => x.Parameters)
                 .NotNull().WithMessage("Parameters object cannot be null.")
                 .Must(CheckParameters).WithMessage("Parameters contain invalid keys or values.");
+        }
+
+        private bool ChannelValid(string channel)
+        {
+            try { NotificationChannel.From(channel); return true; }
+            catch { return false; }
         }
 
         private bool EventTypeValid(string eventType)
