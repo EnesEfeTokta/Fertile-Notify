@@ -33,6 +33,12 @@ export default function HomePage() {
                     </button>
                     <button
                         className="btn-secondary text-sm min-w-[160px]"
+                        onClick={() => navigate("/pricing")}
+                    >
+                        View Pricing
+                    </button>
+                    <button
+                        className="btn-secondary text-sm min-w-[160px]"
                         onClick={() => navigate("/login")}
                     >
                         Sign In
