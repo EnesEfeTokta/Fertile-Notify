@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import EmailDesignAdvancedPanelPage from './pages/EmailDesignAdvancedPanelPage';
 import EmailDesignVisualPanelPage from './pages/EmailDesignVisualPanelPage';
+import PricingPlanPage from './pages/PricingPlanPage';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/pricing" element={<PricingPlanPage />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
