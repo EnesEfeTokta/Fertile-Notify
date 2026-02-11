@@ -48,7 +48,7 @@ export default function LoginPage() {
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        
+
         if (timeLeft === 0) {
             setError("OTP code has expired. Please login again.");
             return;
@@ -66,28 +66,27 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-animated-gradient flex items-center justify-center px-4 animate-fade-in">
+        <div className="min-h-screen bg-primary flex items-center justify-center px-4 animate-fade-in">
             {!showOtpForm ? (
                 // Login Form
-                <div className="glass p-8 md:p-10 w-full max-w-md animate-slide-up clip-sharp border-t-4 border-purple-500">
+                <div className="card w-full max-w-md p-8">
                     {/* Logo/Title */}
                     <div className="text-center mb-8">
-                        <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Login</h2>
-                        <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-3"></div>
-                        <p className="text-gray-400 uppercase text-sm tracking-wide">Access Your Account</p>
+                        <h2 className="text-3xl font-display font-semibold text-primary mb-2">Login</h2>
+                        <p className="text-sm text-secondary">Access your account</p>
                     </div>
 
                     {/* Error Message */}
                     {error && (
-                        <div className="bg-red-900/30 border-l-4 border-red-500 text-red-300 p-4 mb-6 clip-sharp-sm animate-slide-up">
-                            <p className="font-medium uppercase text-sm">{error}</p>
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 mb-6 rounded-md text-sm">
+                            {error}
                         </div>
                     )}
 
                     {/* Login Form */}
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Company Email</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Email</label>
                             <input
                                 type="email"
                                 className="input-modern"
@@ -99,7 +98,7 @@ export default function LoginPage() {
                         </div>
 
                         <div>
-                            <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">Password</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Password</label>
                             <input
                                 type="password"
                                 className="input-modern"
@@ -112,7 +111,7 @@ export default function LoginPage() {
 
                         <button
                             type="submit"
-                            className="btn-gradient w-full text-lg uppercase tracking-wider mt-6"
+                            className="btn-primary w-full mt-6"
                         >
                             Login
                         </button>
@@ -120,11 +119,11 @@ export default function LoginPage() {
 
                     {/* Register Link */}
                     <div className="mt-6 text-center">
-                        <p className="text-gray-400">
+                        <p className="text-sm text-secondary">
                             Don't have an account?{" "}
                             <button
                                 onClick={() => navigate("/register")}
-                                className="text-purple-400 font-semibold hover:text-pink-400 transition-colors uppercase text-sm"
+                                className="text-primary-500 hover:text-primary-400 transition-colors font-medium"
                             >
                                 Sign Up
                             </button>
@@ -133,22 +132,19 @@ export default function LoginPage() {
                 </div>
             ) : (
                 // OTP Verify Form
-                <div className="glass p-8 md:p-10 w-full max-w-md animate-slide-up clip-sharp border-t-4 border-purple-500">
+                <div className="card w-full max-w-md p-8">
                     <div className="text-center mb-8">
-                        <h2 className="text-4xl font-display font-bold gradient-text mb-2 uppercase tracking-wider">Verify OTP</h2>
-                        <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mb-3"></div>
-                        <p className="text-gray-400 uppercase text-sm tracking-wide">Enter the OTP sent to your email</p>
+                        <h2 className="text-3xl font-display font-semibold text-primary mb-2">Verify OTP</h2>
+                        <p className="text-sm text-secondary">Enter the code sent to your email</p>
                     </div>
 
                     {/* Timer Display */}
                     <div className="mb-6 text-center">
-                        <div className={`inline-block px-6 py-3 rounded-lg ${
-                            timeLeft > 60 ? 'bg-green-900/30 border border-green-500' : 'bg-red-900/30 border border-red-500'
-                        }`}>
-                            <p className="text-sm text-gray-400 mb-1">Code expires in</p>
-                            <p className={`text-3xl font-bold font-mono ${
-                                timeLeft > 60 ? 'text-green-400' : 'text-red-400'
+                        <div className={`inline-block px-6 py-3 rounded-lg border ${timeLeft > 60 ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'
                             }`}>
+                            <p className="text-xs text-secondary mb-1">Code expires in</p>
+                            <p className={`text-2xl font-mono font-semibold ${timeLeft > 60 ? 'text-green-400' : 'text-red-400'
+                                }`}>
                                 {formatTime(timeLeft)}
                             </p>
                         </div>
@@ -156,17 +152,17 @@ export default function LoginPage() {
 
                     {/* Error Message */}
                     {error && (
-                        <div className="bg-red-900/30 border-l-4 border-red-500 text-red-300 p-4 mb-6 clip-sharp-sm animate-slide-up">
-                            <p className="font-medium uppercase text-sm">{error}</p>
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 mb-6 rounded-md text-sm">
+                            {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleVerifyOtp} className="space-y-5">
+                    <form onSubmit={handleVerifyOtp} className="space-y-4">
                         <div>
-                            <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">OTP Code</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">OTP Code</label>
                             <input
                                 type="text"
-                                className="input-modern text-center text-2xl tracking-widest"
+                                className="input-modern text-center text-xl tracking-widest font-mono"
                                 value={otpCode}
                                 onChange={(e) => setOtpCode(e.target.value)}
                                 placeholder="000000"
@@ -178,7 +174,7 @@ export default function LoginPage() {
 
                         <button
                             type="submit"
-                            className="btn-gradient w-full text-lg uppercase tracking-wider mt-6"
+                            className="btn-primary w-full mt-6"
                             disabled={timeLeft === 0}
                         >
                             Verify OTP
@@ -194,7 +190,7 @@ export default function LoginPage() {
                                 setOtpCode("");
                                 setTimeLeft(300);
                             }}
-                            className="text-purple-400 font-semibold hover:text-pink-400 transition-colors uppercase text-sm"
+                            className="text-sm text-secondary hover:text-primary transition-colors"
                         >
                             Back to Login
                         </button>

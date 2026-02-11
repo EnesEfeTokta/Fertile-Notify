@@ -194,46 +194,45 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+        <div className="min-h-screen bg-primary">
             {/* API Key Modal */}
             {newApiKey && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 px-4 animate-fade-in">
-                    <div className="bg-gradient-to-br from-gray-900 to-purple-900 border-4 border-purple-500 clip-sharp max-w-2xl w-full p-8 animate-slide-up shadow-neon">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+                    <div className="card-elevated max-w-2xl w-full p-8">
                         <div className="text-center mb-6">
-                            <div className="text-6xl mb-4">🔑</div>
-                            <h2 className="text-3xl font-display font-bold gradient-text uppercase tracking-wider mb-2">
-                                Your API Key Created!
+                            <div className="text-5xl mb-4">🔑</div>
+                            <h2 className="text-2xl font-display font-semibold text-primary mb-2">
+                                API Key Created
                             </h2>
-                            <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto"></div>
+                            <div className="h-px w-24 bg-primary-500 mx-auto"></div>
                         </div>
 
                         {/* Warning Message */}
-                        <div className="bg-red-900/40 border-l-4 border-red-500 p-4 mb-6 clip-sharp-sm">
-                            <p className="text-red-300 font-bold uppercase text-sm mb-2">⚠️ IMPORTANT WARNING</p>
-                            <p className="text-red-200 text-sm">
-                                This API key is shown ONLY ONCE. 
-                                Please save the key in a secure location. You will not be able to view 
-                                the key again after closing this window!
+                        <div className="bg-red-500/10 border border-red-500/20 p-4 mb-6 rounded-md">
+                            <p className="text-red-400 font-semibold text-sm mb-2">⚠️ Important</p>
+                            <p className="text-red-300 text-sm">
+                                This API key is shown only once. Save it in a secure location.
+                                You will not be able to view it again.
                             </p>
                         </div>
 
                         {/* API Key Display */}
-                        <div className="bg-gray-900/60 border-2 border-purple-500/50 p-4 clip-sharp-sm mb-6">
-                            <label className="block text-purple-300 font-semibold mb-2 uppercase text-sm tracking-wide">
+                        <div className="bg-secondary border border-primary p-4 rounded-md mb-6">
+                            <label className="block text-secondary font-medium mb-2 text-sm">
                                 Your API Key:
                             </label>
-                            <div className="bg-black/40 p-4 border border-cyan-500/30 clip-sharp-sm">
-                                <p className="text-cyan-300 font-mono text-sm break-all select-all">
+                            <div className="bg-primary p-3 border border-primary-500/30 rounded-md">
+                                <p className="text-primary-400 font-mono text-sm break-all select-all">
                                     {newApiKey}
                                 </p>
                             </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex gap-4">
+                        <div className="flex gap-3">
                             <button
                                 onClick={handleCopyApiKey}
-                                className="flex-1 btn-gradient uppercase tracking-wider flex items-center justify-center gap-2"
+                                className="flex-1 btn-primary flex items-center justify-center gap-2"
                             >
                                 {copied ? (
                                     <>
@@ -249,30 +248,25 @@ export default function DashboardPage() {
                             </button>
                             <button
                                 onClick={closeApiKeyModal}
-                                className="flex-1 px-8 py-3 font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-all duration-300 clip-sharp-sm border-2 border-gray-600 uppercase tracking-wider"
+                                className="flex-1 btn-secondary"
                             >
                                 Close
                             </button>
                         </div>
-
-                        {/* Additional Info */}
-                        <p className="text-center text-gray-400 text-xs mt-4 uppercase tracking-wide">
-                            Store the key in a secure password manager
-                        </p>
                     </div>
                 </div>
             )}
 
             {/* Header */}
-            <header className="bg-gray-900/80 backdrop-blur-md border-b-2 border-purple-500/50">
+            <header className="bg-secondary border-b border-primary">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-display font-bold gradient-text uppercase tracking-wider">Dashboard</h1>
-                        <p className="text-gray-400 mt-1 uppercase text-sm tracking-wide">Welcome</p>
+                        <h1 className="text-2xl font-display font-semibold text-primary">Dashboard</h1>
+                        <p className="text-sm text-secondary mt-1">Welcome back</p>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="px-6 py-2 bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-300 clip-sharp-sm border-2 border-red-500 uppercase text-sm tracking-wide"
+                        className="px-4 py-2 text-sm bg-red-500/10 text-red-400 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors"
                     >
                         Logout
                     </button>
@@ -284,31 +278,31 @@ export default function DashboardPage() {
                 {loading && (
                     <div className="flex justify-center items-center py-12">
                         <div className="spinner"></div>
-                        <span className="ml-3 text-purple-400 font-semibold uppercase tracking-wide">Loading...</span>
+                        <span className="ml-3 text-secondary text-sm">Loading...</span>
                     </div>
                 )}
 
                 {/* Error State */}
                 {error && (
-                    <div className="card p-6 bg-red-900/30 border-l-4 border-red-500 mb-6 animate-slide-up">
-                        <p className="font-bold text-red-300 uppercase">Error:</p>
-                        <p className="text-red-400">{error}</p>
+                    <div className="card p-4 bg-red-500/10 border-red-500/20 mb-6">
+                        <p className="font-semibold text-red-400 text-sm">Error:</p>
+                        <p className="text-red-300 text-sm">{error}</p>
                     </div>
                 )}
 
                 {/* Profile Content */}
                 {!loading && !error && profile && (
-                    <div className="space-y-6 animate-fade-in">
+                    <div className="space-y-6">
                         {/* Profile Information Card */}
                         <div className="card p-6">
-                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                            <h2 className="text-lg font-display font-semibold text-primary mb-6">
                                 Profile Information
                             </h2>
 
                             <div className="space-y-4">
                                 {/* Company Name */}
-                                <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-purple-500">
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Company Name</label>
+                                <div className="p-4 bg-tertiary rounded-md border-l-2 border-primary-500">
+                                    <label className="block text-sm font-medium text-secondary mb-2">Company Name</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
@@ -317,7 +311,7 @@ export default function DashboardPage() {
                                             value={profile.companyName}
                                         />
                                         <button
-                                            className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                                            className="btn-primary px-6 disabled:opacity-50"
                                             onClick={() => updateCompanyName(profile.companyName)}
                                             disabled={updating}
                                         >
@@ -327,8 +321,8 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Email */}
-                                <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-cyan-500">
-                                    <label className="block text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Company Email</label>
+                                <div className="p-4 bg-tertiary rounded-md border-l-2 border-primary-500">
+                                    <label className="block text-sm font-medium text-secondary mb-2">Email</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="email"
@@ -337,7 +331,7 @@ export default function DashboardPage() {
                                             value={profile.email}
                                         />
                                         <button
-                                            className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                                            className="btn-primary px-6 disabled:opacity-50"
                                             onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
                                             disabled={updating}
                                         >
@@ -347,8 +341,8 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Phone */}
-                                <div className="p-4 bg-gray-900/40 clip-sharp-sm border-l-2 border-pink-500">
-                                    <label className="block text-sm font-semibold text-pink-300 mb-2 uppercase tracking-wide">Company Phone</label>
+                                <div className="p-4 bg-tertiary rounded-md border-l-2 border-primary-500">
+                                    <label className="block text-sm font-medium text-secondary mb-2">Phone</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="tel"
@@ -357,7 +351,7 @@ export default function DashboardPage() {
                                             value={profile.phoneNumber}
                                         />
                                         <button
-                                            className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                                            className="btn-primary px-6 disabled:opacity-50"
                                             onClick={() => updateContactInfo(profile.email, profile.phoneNumber)}
                                             disabled={updating}
                                         >
@@ -370,7 +364,7 @@ export default function DashboardPage() {
 
                         {/* Notification Channels Card */}
                         <div className="card p-6">
-                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                            <h2 className="text-lg font-display font-semibold text-primary mb-6">
                                 Notification Channels
                             </h2>
 
@@ -380,20 +374,20 @@ export default function DashboardPage() {
                                     return (
                                         <button
                                             key={channel}
-                                            className={`p-4 font-semibold transition-all duration-300 clip-sharp border-2 uppercase tracking-wide ${isActive
-                                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border-green-500'
-                                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border-gray-700'
-                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            className={`p-4 rounded-md font-medium transition-colors text-sm border ${isActive
+                                                ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                                : 'bg-tertiary text-tertiary border-secondary hover:border-hover'
+                                                } disabled:opacity-50`}
                                             onClick={() => updateChannel(channel, !isActive)}
                                             disabled={updating}
                                         >
                                             <div className="text-2xl mb-2">
-                                                {channel === 'email'}
-                                                {channel === 'sms'}
-                                                {channel === 'console'}
+                                                {channel === 'email' && '📧'}
+                                                {channel === 'sms' && '💬'}
+                                                {channel === 'console' && '🖥️'}
                                             </div>
-                                            <div>{channel}</div>
-                                            <div className="text-sm mt-1">
+                                            <div className="capitalize">{channel}</div>
+                                            <div className="text-xs mt-1">
                                                 {isActive ? 'Active' : 'Inactive'}
                                             </div>
                                         </button>
@@ -404,33 +398,33 @@ export default function DashboardPage() {
 
                         {/* Subscription Information Card */}
                         <div className="card p-6">
-                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                            <h2 className="text-lg font-display font-semibold text-primary mb-6">
                                 Subscription Information
                             </h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {/* Plan */}
-                                <div className="p-4 bg-gradient-to-br from-purple-900/50 to-purple-700/30 clip-sharp border-2 border-purple-500">
-                                    <p className="text-sm text-purple-300 font-semibold mb-1 uppercase tracking-wide">Plan</p>
-                                    <p className="text-2xl font-bold text-white">{profile.subscription?.plan || 'N/A'}</p>
+                                <div className="p-4 bg-tertiary rounded-md border border-primary">
+                                    <p className="text-xs text-secondary font-medium mb-1">Plan</p>
+                                    <p className="text-xl font-semibold text-primary">{profile.subscription?.plan || 'N/A'}</p>
                                 </div>
 
                                 {/* Monthly Limit */}
-                                <div className="p-4 bg-gradient-to-br from-blue-900/50 to-blue-700/30 clip-sharp border-2 border-blue-500">
-                                    <p className="text-sm text-blue-300 font-semibold mb-1 uppercase tracking-wide">Limit</p>
-                                    <p className="text-2xl font-bold text-white">{profile.subscription?.monthlyLimit ?? 'N/A'}</p>
+                                <div className="p-4 bg-tertiary rounded-md border border-primary">
+                                    <p className="text-xs text-secondary font-medium mb-1">Limit</p>
+                                    <p className="text-xl font-semibold text-primary">{profile.subscription?.monthlyLimit ?? 'N/A'}</p>
                                 </div>
 
                                 {/* Used This Month */}
-                                <div className="p-4 bg-gradient-to-br from-cyan-900/50 to-cyan-700/30 clip-sharp border-2 border-cyan-500">
-                                    <p className="text-sm text-cyan-300 font-semibold mb-1 uppercase tracking-wide">Usage</p>
-                                    <p className="text-2xl font-bold text-white">{profile.subscription?.usedThisMonth ?? 'N/A'}</p>
+                                <div className="p-4 bg-tertiary rounded-md border border-primary">
+                                    <p className="text-xs text-secondary font-medium mb-1">Usage</p>
+                                    <p className="text-xl font-semibold text-primary">{profile.subscription?.usedThisMonth ?? 'N/A'}</p>
                                 </div>
 
                                 {/* Expiry Date */}
-                                <div className="p-4 bg-gradient-to-br from-pink-900/50 to-pink-700/30 clip-sharp border-2 border-pink-500">
-                                    <p className="text-sm text-pink-300 font-semibold mb-1 uppercase tracking-wide">Expires</p>
-                                    <p className="text-lg font-bold text-white">
+                                <div className="p-4 bg-tertiary rounded-md border border-primary">
+                                    <p className="text-xs text-secondary font-medium mb-1">Expires</p>
+                                    <p className="text-base font-semibold text-primary">
                                         {profile.subscription?.expiresAt
                                             ? new Date(profile.subscription.expiresAt).toLocaleDateString('en-US')
                                             : 'N/A'}
@@ -441,12 +435,12 @@ export default function DashboardPage() {
 
                         {/* API Keys Card */}
                         <div className="card p-6">
-                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                            <h2 className="text-lg font-display font-semibold text-primary mb-6">
                                 API Keys
                             </h2>
                             <div className="max-w-md space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">API Key Name</label>
+                                    <label className="block text-sm font-medium text-secondary mb-2">API Key Name</label>
                                     <input
                                         type="text"
                                         placeholder="Key Name"
@@ -455,7 +449,7 @@ export default function DashboardPage() {
                                     />
                                 </div>
                                 <button
-                                    className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+                                    className="btn-primary disabled:opacity-50"
                                     onClick={async () => {
                                         const apiKeyNameInput = document.getElementById('apiKeyName') as HTMLInputElement;
                                         if (apiKeyNameInput.value.trim()) {
@@ -470,20 +464,20 @@ export default function DashboardPage() {
                             </div>
                             <div className="mt-6 space-y-2">
                                 {apiKeysList.map((apiKey) => (
-                                    <div key={apiKey.id} className="flex items-center justify-between p-3 bg-gray-800/50 clip-sharp-sm border border-purple-500/30">
+                                    <div key={apiKey.id} className="flex items-center justify-between p-3 bg-tertiary rounded-md border border-primary">
                                         <div className="flex-1">
-                                            <p className="text-sm text-purple-300 font-semibold mb-1">{apiKey.name}</p>
-                                            <p className="text-xs text-gray-400 font-mono">{apiKey.prefix}...</p>
-                                            <p className="text-xs text-gray-500 mt-1">Created: {new Date(apiKey.createdAt).toLocaleDateString('en-US')}</p>
+                                            <p className="text-sm text-primary font-medium mb-1">{apiKey.name}</p>
+                                            <p className="text-xs text-secondary font-mono">{apiKey.prefix}...</p>
+                                            <p className="text-xs text-tertiary mt-1">Created: {new Date(apiKey.createdAt).toLocaleDateString('en-US')}</p>
                                         </div>
                                         <button
                                             onClick={async () => {
-                                                if (confirm(`Are you sure you want to delete the "${apiKey.name}" key?`)) {
+                                                if (confirm(`Delete "${apiKey.name}" key?`)) {
                                                     await deleteApiKey(apiKey.id);
                                                     await loadApiKeys();
                                                 }
                                             }}
-                                            className="px-4 py-2 bg-red-600 text-white text-sm hover:bg-red-700 transition-all clip-sharp-sm border border-red-500 uppercase"
+                                            className="px-3 py-1.5 bg-red-500/10 text-red-400 text-xs border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors disabled:opacity-50"
                                             disabled={updating || !apiKey.isActive}
                                         >
                                             {apiKey.isActive ? 'Delete' : 'Inactive'}
@@ -495,13 +489,13 @@ export default function DashboardPage() {
 
                         {/* Password Update Card */}
                         <div className="card p-6">
-                            <h2 className="text-2xl font-display font-bold text-purple-300 mb-6 flex items-center uppercase tracking-wide">
+                            <h2 className="text-lg font-display font-semibold text-primary mb-6">
                                 Password Update
                             </h2>
 
                             <div className="max-w-md space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">Current Password</label>
+                                    <label className="block text-sm font-medium text-secondary mb-2">Current Password</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
@@ -510,7 +504,7 @@ export default function DashboardPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">New Password</label>
+                                    <label className="block text-sm font-medium text-secondary mb-2">New Password</label>
                                     <input
                                         type="password"
                                         placeholder="••••••••"
@@ -519,7 +513,7 @@ export default function DashboardPage() {
                                     />
                                 </div>
                                 <button
-                                    className="btn-gradient disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+                                    className="btn-primary disabled:opacity-50"
                                     onClick={() => {
                                         const currentPasswordInput = document.getElementById('currentPassword') as HTMLInputElement;
                                         const newPasswordInput = document.getElementById('newPassword') as HTMLInputElement;
@@ -537,7 +531,7 @@ export default function DashboardPage() {
                 {/* No Profile State */}
                 {!loading && !error && !profile && (
                     <div className="card p-12 text-center">
-                        <p className="text-xl text-gray-400 uppercase tracking-wide">Profile not found.</p>
+                        <p className="text-base text-secondary">Profile not found.</p>
                     </div>
                 )}
             </main>

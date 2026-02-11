@@ -4,56 +4,63 @@ export default function HomePage() {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-animated-gradient flex flex-col items-center justify-center px-4 animate-fade-in">
-            <div className="max-w-4xl mx-auto text-center">
+        <div className="min-h-screen bg-primary flex flex-col items-center justify-center px-4 animate-fade-in">
+            <div className="max-w-5xl mx-auto text-center">
                 {/* Hero Title */}
-                <h1 className="text-6xl md:text-8xl font-display font-bold text-white mb-6 animate-slide-up text-shadow-lg tracking-tight">
+                <h1 className="text-5xl md:text-7xl font-display font-bold text-primary mb-4 tracking-tight">
                     FERTILE-NOTIFY
                 </h1>
 
                 {/* Subtitle */}
-                <div className="inline-block mb-4 px-6 py-2 border-neon clip-sharp-sm animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                    <p className="text-xl md:text-2xl text-purple-300 font-semibold">
+                <div className="inline-block mb-3 px-4 py-1.5 border border-primary rounded-md">
+                    <p className="text-base md:text-lg text-secondary font-medium">
                         Modern Notification Service
                     </p>
                 </div>
 
-                <p className="text-lg text-gray-300 mb-12 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                    Powerful and flexible notification management for your business. Reach your users with Email, SMS, and more.
+                <p className="text-base text-secondary mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Powerful and flexible notification management for your business.
+                    Reach your users with Email, SMS, and more.
                 </p>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up mb-20" style={{ animationDelay: '0.3s' }}>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-20">
                     <button
-                        className="btn-gradient text-lg min-w-[200px] uppercase tracking-wider"
+                        className="btn-primary text-sm min-w-[160px]"
                         onClick={() => navigate("/register")}
                     >
                         Get Started
                     </button>
                     <button
-                        className="px-8 py-3 font-semibold text-white border-2 border-purple-500 hover:border-pink-500 transition-all duration-300 min-w-[200px] clip-sharp-sm hover:shadow-neon uppercase tracking-wider"
+                        className="btn-secondary text-sm min-w-[160px]"
                         onClick={() => navigate("/login")}
                     >
-                        Login
+                        Sign In
                     </button>
                 </div>
 
                 {/* Features */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-                    <div className="glass p-6 clip-sharp border-l-4 border-purple-500 hover:border-pink-500 transition-all">
-                        <div className="text-4xl mb-3">📧</div>
-                        <h3 className="text-xl font-bold text-purple-300 mb-2 uppercase tracking-wide">Email Notifications</h3>
-                        <p className="text-gray-400">Stay in touch with your users through professional email notifications.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                    <div className="card p-6 text-left hover:border-secondary transition-smooth">
+                        <div className="text-3xl mb-3">📧</div>
+                        <h3 className="text-base font-semibold text-primary mb-2">Email Notifications</h3>
+                        <p className="text-sm text-secondary leading-relaxed">
+                            Stay in touch with your users through professional email notifications.
+                        </p>
                     </div>
-                    <div className="glass p-6 clip-sharp border-l-4 border-cyan-500 hover:border-pink-500 transition-all">
-                        <div className="text-4xl mb-3">💬</div>
-                        <h3 className="text-xl font-bold text-cyan-300 mb-2 uppercase tracking-wide">SMS Support</h3>
-                        <p className="text-gray-400">Use SMS notification channel for instant reach.</p>
+                    <div className="card p-6 text-left hover:border-secondary transition-smooth">
+                        <div className="text-3xl mb-3">💬</div>
+                        <h3 className="text-base font-semibold text-primary mb-2">SMS Support</h3>
+                        <p className="text-sm text-secondary leading-relaxed">
+                            Use SMS notification channel for instant reach.
+                        </p>
                     </div>
-                    <div className="glass p-6 clip-sharp border-l-4 border-pink-500 hover:border-purple-500 transition-all">
-                        <div className="text-4xl mb-3">⚡</div>
-                        <h3 className="text-xl font-bold text-pink-300 mb-2 uppercase tracking-wide">Fast & Reliable</h3>
-                        <p className="text-gray-400">Fast and reliable notification delivery with modern infrastructure.</p>
+                    <div className="card p-6 text-left hover:border-secondary transition-smooth">
+                        <div className="text-3xl mb-3">⚡</div>
+                        <h3 className="text-base font-semibold text-primary mb-2">Fast & Reliable</h3>
+                        <p className="text-sm text-secondary leading-relaxed">
+                            Fast and reliable notification delivery with modern infrastructure.
+                        </p>
                     </div>
                 </div>
             </div>
