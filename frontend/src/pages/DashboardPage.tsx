@@ -264,12 +264,20 @@ export default function DashboardPage() {
                         <h1 className="text-2xl font-display font-semibold text-primary">Dashboard</h1>
                         <p className="text-sm text-secondary mt-1">Welcome back</p>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="px-4 py-2 text-sm bg-red-500/10 text-red-400 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors"
-                    >
-                        Logout
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/templates')}
+                            className="px-4 py-2 text-sm bg-primary-500/10 text-primary-400 border border-primary-500/20 rounded-md hover:bg-primary-500/20 transition-colors"
+                        >
+                            Templates
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 text-sm bg-red-500/10 text-red-400 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </header>
 
