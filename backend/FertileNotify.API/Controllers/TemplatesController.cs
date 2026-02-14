@@ -1,12 +1,12 @@
-﻿using FertileNotify.Application.Interfaces;
+﻿using FertileNotify.API.Models;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using FertileNotify.API.Models;
-using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.API.Controllers
 {
@@ -24,8 +24,33 @@ namespace FertileNotify.API.Controllers
             _subscriberRepository = subscriberRepository;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateOrUpdate([FromBody] CreateTemplateRequest request)
+        [HttpPost("custom-query")]
+        public async Task<IActionResult> GetCustomQuery([FromBody] GetCustomTemplatesRequest request)
+        {
+            var subscriberId = GetSubscriberIdFromClaims();
+            var templates = new List<NotificationTemplate>();
+
+            foreach (var query in request.Queries)
+            {
+                var eventType = EventType.From(query.EventType);
+                var channel = NotificationChannel.From(query.Channel);
+
+                var template = await _templateRepository.GetCustomTemplateAsync(eventType, channel, subscriberId);
+
+                if (template != null) 
+                    templates.Add(template);
+            }
+
+            return Ok(templates.Select(t => new {
+                Event = t.EventType.Name,
+                Channel = t.Channel.Name,
+                Subject = t.SubjectTemplate,
+                Body = t.BodyTemplate
+            }));
+        }
+
+        [HttpPost("create-or-update-custom")]
+        public async Task<IActionResult> CreateOrUpdateCustom([FromBody] CreateTemplateRequest request)
         {
             var subscriberId = GetSubscriberIdFromClaims();
             var eventType = EventType.From(request.EventType);
