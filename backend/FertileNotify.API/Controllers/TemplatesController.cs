@@ -16,16 +16,14 @@ namespace FertileNotify.API.Controllers
     public class TemplatesController : ControllerBase
     {
         private readonly ITemplateRepository _templateRepository;
-        private readonly ISubscriberRepository _subscriberRepository;
 
-        public TemplatesController(ITemplateRepository templateRepository, ISubscriberRepository subscriberRepository)
+        public TemplatesController(ITemplateRepository templateRepository)
         {
             _templateRepository = templateRepository;
-            _subscriberRepository = subscriberRepository;
         }
 
-        [HttpPost("custom-query")]
-        public async Task<IActionResult> GetCustomQuery([FromBody] GetCustomTemplatesRequest request)
+        [HttpPost("query")]
+        public async Task<IActionResult> GetTemplates([FromBody] GetTemplatesRequest request)
         {
             var subscriberId = GetSubscriberIdFromClaims();
             var templates = new List<NotificationTemplate>();
@@ -35,7 +33,8 @@ namespace FertileNotify.API.Controllers
                 var eventType = EventType.From(query.EventType);
                 var channel = NotificationChannel.From(query.Channel);
 
-                var template = await _templateRepository.GetCustomTemplateAsync(eventType, channel, subscriberId);
+                var template = request.IsTemplateTypeCustom ? 
+                    await _templateRepository.GetCustomTemplateAsync(eventType, channel, subscriberId) : await _templateRepository.GetGlobalTemplateAsync(eventType, channel); ;
 
                 if (template != null) 
                     templates.Add(template);
