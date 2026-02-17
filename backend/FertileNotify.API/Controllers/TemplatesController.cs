@@ -22,6 +22,23 @@ namespace FertileNotify.API.Controllers
             _templateRepository = templateRepository;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllTemplates()
+        {
+            var subscriberId = GetSubscriberIdFromClaims();
+            var templates = await _templateRepository.GetAllTemplatesAsync(subscriberId);
+
+            return Ok(templates.Select(t => new
+            {
+                Id = t.Id,
+                Event = t.EventType.Name,
+                Channel = t.Channel.Name,
+                Subject = t.SubjectTemplate,
+                Body = t.BodyTemplate,
+                Source = t.SubscriberId == null ? "Default" : "Custom"
+            }));
+        }
+
         [HttpPost("query")]
         public async Task<IActionResult> GetTemplates([FromBody] GetTemplatesRequest request)
         {
@@ -41,6 +58,7 @@ namespace FertileNotify.API.Controllers
             }
 
             return Ok(templates.Select(t => new {
+                Id = t.Id,
                 Event = t.EventType.Name,
                 Channel = t.Channel.Name,
                 Subject = t.SubjectTemplate,
