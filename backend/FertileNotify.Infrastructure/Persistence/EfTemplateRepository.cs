@@ -46,5 +46,18 @@ namespace FertileNotify.Infrastructure.Persistence
             EventType eventType, NotificationChannel channel, Guid subscriberId)
             => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
                     t.SubscriberId == subscriberId && t.EventType == eventType && t.Channel == channel);
+
+        public async Task<List<NotificationTemplate>> GetAllTemplatesAsync(Guid subscriberId)
+        {
+            var globalTemplates = await _context.NotificationTemplates
+                .Where(t => t.SubscriberId == null)
+                .ToListAsync();
+
+            var customTemplates = await _context.NotificationTemplates
+                .Where(t => t.SubscriberId == subscriberId)
+                .ToListAsync();
+
+            return globalTemplates.Concat(customTemplates).ToList();
+        }
     }
 }
