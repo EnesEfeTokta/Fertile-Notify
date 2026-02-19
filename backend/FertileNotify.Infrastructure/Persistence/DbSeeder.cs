@@ -33,6 +33,8 @@ namespace FertileNotify.Infrastructure.Persistence
 
                         // --- AUTH EVENTS ---
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "User Welcome Message",
+                            "Sent to new subscribers immediately after registration to welcome them to the platform.",
                             EventType.SubscriberRegistered,
                             channel,
                             "Welcome to {AppName}!",
@@ -41,6 +43,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Password Reset Request",
+                            "Contains the security code or link required for a user to reset their forgotten password.",
                             EventType.PasswordReset,
                             channel,
                             "Reset Your Password",
@@ -49,6 +53,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Email Verification Success",
+                            "Confirmation sent once the user successfully verifies their email address.",
                             EventType.EmailVerified,
                             channel,
                             "Email Verified Successfully",
@@ -57,6 +63,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Security Login Alert",
+                            "Notifies the user when a login occurs from a new device or unrecognized location.",
                             EventType.LoginAlert,
                             channel,
                             "New Login Detected",
@@ -66,6 +74,8 @@ namespace FertileNotify.Infrastructure.Persistence
 
                         // --- E-COMMERCE EVENTS ---
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Order Confirmation",
+                            "Sent after a successful purchase, providing the customer with an order summary.",
                             EventType.OrderCreated,
                             channel,
                             "Order Confirmation #{OrderId}",
@@ -74,6 +84,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Shipping Notification",
+                            "Alerts the customer when their order has been dispatched and provides tracking info.",
                             EventType.OrderShipped,
                             channel,
                             "Your Order Has Shipped! #{OrderId}",
@@ -82,6 +94,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Delivery Confirmation",
+                            "Sent to the customer once the courier marks the package as delivered.",
                             EventType.OrderDelivered,
                             channel,
                             "Order Delivered",
@@ -90,6 +104,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Payment Failure Notice",
+                            "Urgent notification sent when a transaction fails, asking the user to update payment info.",
                             EventType.PaymentFailed,
                             channel,
                             "Payment Failed for Order #{OrderId}",
@@ -99,6 +115,8 @@ namespace FertileNotify.Infrastructure.Persistence
 
                         // --- GENERAL EVENTS ---
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Marketing Campaign",
+                            "A versatile template used for promotional offers, discounts, and announcements.",
                             EventType.Campaign,
                             channel,
                             "{CampaignTitle}",
@@ -107,6 +125,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Monthly Newsletter",
+                            "Sent monthly to keep users informed about platform updates and news.",
                             EventType.MonthlyNewsletter,
                             channel,
                             "{Month} Newsletter",
@@ -115,6 +135,8 @@ namespace FertileNotify.Infrastructure.Persistence
                         ));
 
                         globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                            "Support Ticket Update",
+                            "Notifies the user when there is a new response or status change on their support ticket.",
                             EventType.SupportTicketUpdated,
                             channel,
                             "Update on Ticket #{TicketId}",

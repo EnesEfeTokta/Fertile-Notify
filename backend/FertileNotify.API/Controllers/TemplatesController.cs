@@ -31,6 +31,8 @@ namespace FertileNotify.API.Controllers
             return Ok(templates.Select(t => new
             {
                 Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
                 Event = t.EventType.Name,
                 Channel = t.Channel.Name,
                 Subject = t.SubjectTemplate,
@@ -57,12 +59,16 @@ namespace FertileNotify.API.Controllers
                     templates.Add(template);
             }
 
-            return Ok(templates.Select(t => new {
+            return Ok(templates.Select(t => new
+            {
                 Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
                 Event = t.EventType.Name,
                 Channel = t.Channel.Name,
                 Subject = t.SubjectTemplate,
-                Body = t.BodyTemplate
+                Body = t.BodyTemplate,
+                Source = t.SubscriberId == null ? "Default" : "Custom"
             }));
         }
 
@@ -77,12 +83,20 @@ namespace FertileNotify.API.Controllers
 
             if (existingTemplate != null)
             {
-                existingTemplate.Update(request.SubjectTemplate, request.BodyTemplate);
+                existingTemplate.Update(request.Name, request.Description, request.SubjectTemplate, request.BodyTemplate);
                 await _templateRepository.SaveAsync();
             }
             else
             {
-                var newTemplate = NotificationTemplate.CreateCustom(subscriberId, eventType, channel, request.SubjectTemplate, request.BodyTemplate);
+                var newTemplate = NotificationTemplate.CreateCustom(
+                    subscriberId, 
+                    request.Name, 
+                    request.Description, 
+                    eventType, 
+                    channel, 
+                    request.SubjectTemplate, 
+                    request.BodyTemplate
+                );
                 await _templateRepository.AddAsync(newTemplate);
             }
 
