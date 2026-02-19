@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import grapesjs, { type Editor as GjsEditor } from 'grapesjs';
 import gjsMjml from 'grapesjs-mjml';
 import 'grapesjs/dist/css/grapes.min.css';
+import type { CreateOrUpdateCustom } from '../types/template';
+import { templateSevice } from '../api/templateSevice';
 
 const defaultMjml = `
 <mjml>
@@ -47,6 +49,7 @@ export default function EmailDesignVisualPanelPage() {
   const [templateDescription, setTemplateDescription] = useState('');
   const [selectedEventType, setSelectedEventType] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -73,20 +76,48 @@ export default function EmailDesignVisualPanelPage() {
     });
 
     gjsRef.current = editor;
-    editor.setComponents(defaultMjml);
+
+    // Check for template data in location state
+    if (location.state && location.state.template) {
+      const { template } = location.state;
+      setEmailSubject(template.subject || '');
+      setTemplateName(template.name || '');
+      setTemplateDescription(template.description || '');
+      setSelectedEventType(template.eventType || '');
+
+      // Load template body if available, otherwise default
+      editor.setComponents(template.body || defaultMjml);
+    } else {
+      editor.setComponents(defaultMjml);
+    }
 
     setTimeout(() => {
       if (editor) editor.refresh();
     }, 200);
 
     return () => editor.destroy();
-  }, []);
+  }, [location.state]);
 
-  const handleSave = () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (gjsRef.current) {
       const mjml = gjsRef.current.getHtml();
       console.log('Saving template:', { templateName, templateDescription, emailSubject, selectedEventType, mjml });
-      // TODO: API call
+      try {
+        const request: CreateOrUpdateCustom = {
+          name: templateName,
+          description: templateDescription,
+          eventType: selectedEventType,
+          channel: 'email',
+          subjectTemplate: emailSubject,
+          bodyTemplate: mjml
+        };
+        await templateSevice.createOrUpdateTemplate(request);
+        navigate("/templates");
+      } catch (error) {
+        alert("Template registration failed. Please try again.");
+        console.error("Template registration error:", error);
+      }
     }
     setShowSaveModal(false);
     setTemplateName('');

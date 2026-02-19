@@ -316,7 +316,7 @@ export default function DashboardPage() {
                                             type="text"
                                             className="input-modern flex-1"
                                             onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
-                                            value={profile.companyName}
+                                            value={profile.companyName || ''}
                                         />
                                         <button
                                             className="btn-primary px-6 disabled:opacity-50"
@@ -336,7 +336,7 @@ export default function DashboardPage() {
                                             type="email"
                                             className="input-modern flex-1"
                                             onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                            value={profile.email}
+                                            value={profile.email || ''}
                                         />
                                         <button
                                             className="btn-primary px-6 disabled:opacity-50"
@@ -356,7 +356,7 @@ export default function DashboardPage() {
                                             type="tel"
                                             className="input-modern flex-1"
                                             onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-                                            value={profile.phoneNumber}
+                                            value={profile.phoneNumber || ''}
                                         />
                                         <button
                                             className="btn-primary px-6 disabled:opacity-50"
