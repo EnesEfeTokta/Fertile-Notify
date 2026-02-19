@@ -17,6 +17,8 @@ export interface Query {
 
 export interface Template {
     id: string;
+    name: string,
+    description: string
     event: string;
     channel: string;
     subject: string;

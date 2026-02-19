@@ -20,43 +20,6 @@ const capitalizeChannel = (channel: string): 'Email' | 'SMS' | 'Console' => {
     return 'Email'; // fallback
 };
 
-const generateTemplateName = (event: string, channel: string): string => {
-    const eventNames: Record<string, string> = {
-        'SubscriberRegistered': 'Welcome',
-        'PasswordReset': 'Password Recovery',
-        'EmailVerified': 'Email Verification',
-        'LoginAlert': 'Login Alert',
-        'OrderCreated': 'Order Confirmation',
-        'OrderShipped': 'Order Shipped',
-        'OrderDelivered': 'Order Delivered',
-        'PaymentFailed': 'Payment Failed',
-        'Campaign': 'Campaign',
-        'MonthlyNewsletter': 'Monthly Newsletter',
-        'SupportTicketUpdated': 'Support Ticket Update'
-    };
-
-    const eventName = eventNames[event] || event;
-    return `${eventName} ${capitalizeChannel(channel)}`;
-};
-
-const generateTemplateDescription = (event: string, channel: string): string => {
-    const descriptions: Record<string, string> = {
-        'SubscriberRegistered': 'Welcome message for new subscribers',
-        'PasswordReset': 'Password reset notification',
-        'EmailVerified': 'Email verification confirmation',
-        'LoginAlert': 'Security alert for new login',
-        'OrderCreated': 'Order confirmation notification',
-        'OrderShipped': 'Shipping notification',
-        'OrderDelivered': 'Delivery confirmation',
-        'PaymentFailed': 'Payment failure alert',
-        'Campaign': 'Marketing campaign message',
-        'MonthlyNewsletter': 'Monthly newsletter',
-        'SupportTicketUpdated': 'Support ticket update notification'
-    };
-
-    return descriptions[event] || `${event} notification via ${channel}`;
-};
-
 export default function TemplatesPage() {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
@@ -76,12 +39,12 @@ export default function TemplatesPage() {
 
                 const mappedTemplates: Template[] = data.map((t: ApiTemplate) => ({
                     id: t.id,
-                    name: generateTemplateName(t.event, t.channel),
-                    description: generateTemplateDescription(t.event, t.channel),
+                    name: t.name,
+                    description: t.description || 'No description available',
                     type: capitalizeChannel(t.channel),
                     eventType: t.event,
                     source: t.source,
-                    updatedAt: new Date().toISOString().split('T')[0] // Using current date as placeholder
+                    updatedAt: new Date().toISOString().split('T')[0]
                 }));
 
                 setTemplates(mappedTemplates);
