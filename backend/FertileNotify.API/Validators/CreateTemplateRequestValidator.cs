@@ -8,6 +8,14 @@ namespace FertileNotify.API.Validators
     {
         public CreateTemplateRequestValidator()
         {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Name is required")
+                .MaximumLength(100).WithMessage("The template name exceeds the character limit.");
+
+            RuleFor(x => x.Description)
+                .NotEmpty().WithMessage("Name is required")
+                .MaximumLength(250).WithMessage("The template description exceeds the character limit.");
+
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")
                 .Must(BeAValidEventType).WithMessage("Invalid EventType.");

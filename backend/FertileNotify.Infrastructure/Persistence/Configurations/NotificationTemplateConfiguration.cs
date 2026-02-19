@@ -12,6 +12,14 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
         {
             builder.HasKey(t => t.Id);
 
+            builder.Property(t => t.Name)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder.Property(t => t.Description)
+                .HasMaxLength(250)
+                .IsRequired();
+
             builder.Property(t => t.EventType)
                 .HasConversion(
                     eventType => eventType.Name, 
