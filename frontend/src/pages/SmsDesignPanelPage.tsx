@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { templateSevice } from '../api/templateSevice';
+import type { CreateOrUpdateCustom } from '../types/template';
 
 // System-defined event types
 const EVENT_TYPES = [
@@ -24,13 +26,25 @@ const MAX_TITLE_LENGTH = 40;
 const MAX_MESSAGE_LENGTH = 160;
 
 export default function SmsDesignPanelPage() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [templateName, setTemplateName] = useState('');
     const [templateDescription, setTemplateDescription] = useState('');
     const [selectedEventType, setSelectedEventType] = useState('');
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (location.state && location.state.template) {
+            const { template } = location.state;
+            setTitle(template.subject || ''); // Using subject as title for SMS
+            setMessage(template.body || '');  // Using body as message
+            setTemplateName(template.name || '');
+            setTemplateDescription(template.description || '');
+            setSelectedEventType(template.eventType || '');
+        }
+    }, [location.state]);
 
     const isTitleTooLong = title.length > MAX_TITLE_LENGTH;
     const isMessageTooLong = message.length > MAX_MESSAGE_LENGTH;
@@ -41,15 +55,23 @@ export default function SmsDesignPanelPage() {
         return text.slice(0, maxLength) + '...';
     };
 
-    const handleSave = () => {
-        console.log('Saving SMS template:', {
-            templateName,
-            templateDescription,
-            selectedEventType,
-            title,
-            message,
-        });
-        // TODO: API call to save template
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const request: CreateOrUpdateCustom = {
+                name: templateName,
+                description: templateDescription,
+                eventType: selectedEventType,
+                channel: 'sms',
+                subjectTemplate: title,
+                bodyTemplate: message
+            };
+            await templateSevice.createOrUpdateTemplate(request);
+            navigate("/templates");
+        } catch (error) {
+            alert("Template registration failed. Please try again.");
+            console.error("Template registration error:", error);
+        }
         setShowSaveModal(false);
         setTemplateName('');
         setTemplateDescription('');

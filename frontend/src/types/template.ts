@@ -1,4 +1,6 @@
 export interface CreateOrUpdateCustom {
+    name:string,
+    description: string,
     eventType: string,
     channel: string,
     subjectTemplate: string,
@@ -16,12 +18,12 @@ export interface Query {
 }
 
 export interface Template {
-    id: string;
+    id: string,
     name: string,
-    description: string
-    event: string;
-    channel: string;
-    subject: string;
-    body: string;
-    source: 'Default' | 'Custom';
+    description: string,
+    event: string,
+    channel: string,
+    subject: string,
+    body: string,
+    source: 'Default' | 'Custom'
 }

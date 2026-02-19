@@ -6,7 +6,7 @@ export const templateSevice = {
         const response = await axiosClient.get("templates");
         return response.data;
     },
-    createTemplate: async (data: CreateOrUpdateCustom): Promise<void> => {
+    createOrUpdateTemplate: async (data: CreateOrUpdateCustom): Promise<void> => {
         const response = await axiosClient.post("templates/create-or-update-custom", data);
         return response.data;
     },

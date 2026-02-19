@@ -11,6 +11,8 @@ interface Template {
     eventType: string;
     source: 'Default' | 'Custom';
     updatedAt: string;
+    subject: string;
+    body: string;
 }
 
 const capitalizeChannel = (channel: string): 'Email' | 'SMS' | 'Console' => {
@@ -29,6 +31,7 @@ export default function TemplatesPage() {
     const [templates, setTemplates] = useState<Template[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTemplates = async () => {
@@ -44,7 +47,9 @@ export default function TemplatesPage() {
                     type: capitalizeChannel(t.channel),
                     eventType: t.event,
                     source: t.source,
-                    updatedAt: new Date().toISOString().split('T')[0]
+                    updatedAt: new Date().toISOString().split('T')[0],
+                    subject: t.subject || '',
+                    body: t.body || ''
                 }));
 
                 setTemplates(mappedTemplates);
@@ -58,6 +63,10 @@ export default function TemplatesPage() {
 
         fetchTemplates();
     }, []);
+
+    const toggleTemplate = (id: string) => {
+        setExpandedTemplateId(expandedTemplateId === id ? null : id);
+    };
 
     const filteredTemplates = templates.filter(t => {
         const matchesSearch = t.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -175,9 +184,17 @@ export default function TemplatesPage() {
                 {!loading && !error && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredTemplates.map(template => (
-                            <div key={template.id} className="card p-6 flex flex-col justify-between group hover:border-hover transition-smooth">
-                                <div className="card p-6 flex flex-col justify-between group hover:border-hover transition-smooth">
-                                    <div className="flex justify-between items-start">
+                            <div key={template.id} className="card p-6 flex flex-col justify-between group hover:border-hover transition-smooth relative overflow-hidden">
+                                {template.source === 'Default' && (
+                                    <div className="absolute top-0 right-0 p-2 opacity-50">
+                                        <svg className="w-16 h-16 text-primary-500/5 -rotate-12 transform translate-x-4 -translate-y-4 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                )}
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start relative z-10">
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl">
                                                 {template.type === 'Email' ? '📧' : template.type === 'SMS' ? '💬' : '🖥️'}
@@ -198,46 +215,90 @@ export default function TemplatesPage() {
                                         </p>
                                     </div>
 
-                                    <div className="pt-2">
+                                    <div className="pt-2 flex items-center justify-between">
                                         <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-tertiary border border-primary rounded text-[11px] text-primary-400 font-mono">
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                             </svg>
                                             {template.eventType}
                                         </div>
+                                        <button
+                                            onClick={() => toggleTemplate(template.id)}
+                                            className="text-xs text-secondary hover:text-primary-400 transition-colors flex items-center gap-1 font-medium"
+                                        >
+                                            {expandedTemplateId === template.id ? 'Hide Details' : 'View Details'}
+                                            <svg className={`w-3 h-3 transition-transform ${expandedTemplateId === template.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
                                     </div>
+
+                                    {/* Collapsible Details */}
+                                    {expandedTemplateId === template.id && (
+                                        <div className="mt-4 p-4 bg-tertiary/50 rounded-lg animate-fade-in border border-primary-500/10 relative z-10 transition-all">
+                                            <div className="mb-3">
+                                                <h4 className="text-[10px] font-bold text-primary-400 uppercase mb-1 tracking-wider">Subject / Title</h4>
+                                                <p className="text-xs text-primary font-medium p-2 bg-primary/50 rounded border border-primary-500/10">
+                                                    {template.subject || <span className="text-secondary italic">No subject defined</span>}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-[10px] font-bold text-primary-400 uppercase mb-1 tracking-wider">Content Template</h4>
+                                                <div className="text-xs text-secondary bg-primary/50 p-3 rounded border border-primary-500/10 max-h-32 overflow-y-auto whitespace-pre-wrap font-mono relative">
+                                                    {template.description.length > 500 ? (
+                                                        template.body || <span className="text-secondary italic">No content template defined</span>
+                                                    ) : (
+                                                        template.body || <span className="text-secondary italic">No content template defined</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="flex flex-col gap-2 mt-8 pt-4 border-t border-primary">
-                                    {template.type === "Email" ? (
-                                        <div className="flex gap-2 w-full">
-                                            <button
-                                                className="btn-secondary flex-1 text-[10px] py-2 h-auto"
-                                                onClick={() => navigate("/email-visual-editor")}
-                                            >
-                                                Visual Editor
+                                <div className="flex flex-col gap-2 mt-8 pt-4 border-t border-primary relative z-10">
+                                    {template.source === 'Custom' ? (
+                                        <>
+                                            {template.type === "Email" ? (
+                                                <div className="flex gap-2 w-full">
+                                                    <button
+                                                        className="btn-secondary flex-1 text-[10px] py-2 h-auto"
+                                                        onClick={() => navigate("/email-visual-editor", { state: { template } })}
+                                                    >
+                                                        Visual Editor
+                                                    </button>
+                                                    <button
+                                                        className="btn-secondary flex-1 text-[10px] py-2 h-auto"
+                                                        onClick={() => navigate("/email-advanced-editor", { state: { template } })}
+                                                    >
+                                                        Advanced
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    className="btn-secondary flex-1 text-xs py-2 h-auto"
+                                                    onClick={() => navigate(template.type === "SMS" ? "/sms-editor" : "/console-editor", { state: { template } })}
+                                                >
+                                                    Edit {template.type}
+                                                </button>
+                                            )}
+                                            <button className="btn-secondary text-xs py-2 h-auto px-3 hover:text-red-400 hover:border-red-500/30 flex items-center justify-center gap-2">
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span className="text-[10px] uppercase font-bold tracking-wider">Delete</span>
                                             </button>
-                                            <button
-                                                className="btn-secondary flex-1 text-[10px] py-2 h-auto"
-                                                onClick={() => navigate("/email-advanced-editor")}
-                                            >
-                                                Advanced
-                                            </button>
-                                        </div>
+                                        </>
                                     ) : (
-                                        <button
-                                            className="btn-secondary flex-1 text-xs py-2 h-auto"
-                                            onClick={() => navigate(template.type === "SMS" ? "/sms-editor" : "/console-editor")}
-                                        >
-                                            Edit {template.type}
-                                        </button>
+                                        <div className="py-2 text-center">
+                                            <span className="text-xs text-secondary flex items-center justify-center gap-1.5 opacity-60 cursor-not-allowed">
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                                System Template (Read Only)
+                                            </span>
+                                        </div>
                                     )}
-                                    <button className="btn-secondary text-xs py-2 h-auto px-3 hover:text-red-400 hover:border-red-500/30 flex items-center justify-center gap-2">
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                        <span className="text-[10px] uppercase font-bold tracking-wider">Delete</span>
-                                    </button>
                                 </div>
                             </div>
                         ))}

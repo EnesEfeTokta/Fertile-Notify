@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import mjml2html from 'mjml-browser';
 import Editor from '@monaco-editor/react';
+import type { CreateOrUpdateCustom } from '../types/template';
+import { templateSevice } from '../api/templateSevice';
 
 const defaultMjml = `<mjml>
   <mj-body background-color="#f0f2f5">
@@ -48,6 +50,21 @@ export default function EmailDesignAdvancedPanelPage() {
   const [templateDescription, setTemplateDescription] = useState('');
   const [selectedEventType, setSelectedEventType] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check for template data in location state
+    if (location.state && location.state.template) {
+      const { template } = location.state;
+      setEmailSubject(template.subject || '');
+      setTemplateName(template.name || '');
+      setTemplateDescription(template.description || '');
+      setSelectedEventType(template.eventType || '');
+
+      // Load template body if available, otherwise default
+      setMjmlCode(template.body || defaultMjml);
+    }
+  }, [location.state]);
 
   const { html: htmlPreview, hasError, errorMsg } = useMemo(() => {
     try {
@@ -61,9 +78,23 @@ export default function EmailDesignAdvancedPanelPage() {
     }
   }, [mjmlCode]);
 
-  const handleSave = () => {
-    console.log('Saving template:', { templateName, templateDescription, emailSubject, selectedEventType, mjmlCode });
-    // TODO: API call to save template
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const request: CreateOrUpdateCustom = {
+        name: templateName,
+        description: templateDescription,
+        eventType: selectedEventType,
+        channel: 'email',
+        subjectTemplate: emailSubject,
+        bodyTemplate: mjmlCode
+      };
+      await templateSevice.createOrUpdateTemplate(request);
+      navigate("/templates");
+    } catch (error) {
+      alert("Template registration failed. Please try again.");
+      console.error("Template registration error:", error);
+    }
     setShowSaveModal(false);
     setTemplateName('');
     setTemplateDescription('');
