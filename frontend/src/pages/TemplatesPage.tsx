@@ -110,13 +110,22 @@ export default function TemplatesPage() {
 
                         {showCreateDropdown && (
                             <div className="absolute right-0 mt-2 w-56 card-elevated z-50 overflow-hidden animate-slide-up shadow-2xl">
-                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3">
-                                    <span className="text-primary-400">📧</span> Email Template
+                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3"
+                                    onClick={() => navigate("/email-visual-editor")}
+                                >
+                                    <span className="text-primary-400">📧</span> Email Visual Editor
                                 </button>
-                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3 border-t border-primary">
+                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3"
+                                    onClick={() => navigate("/email-advanced-editor")}
+                                >
+                                    <span className="text-primary-400">📧</span> Email Advanced Editor
+                                </button>
+                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3 border-t border-primary"
+                                    onClick={() => navigate("/sms-editor")}>
                                     <span className="text-primary-400">💬</span> SMS Template
                                 </button>
-                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3 border-t border-primary">
+                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3 border-t border-primary"
+                                    onClick={() => navigate("/console-editor")}>
                                     <span className="text-primary-400">🖥️</span> Console Template
                                 </button>
                             </div>
