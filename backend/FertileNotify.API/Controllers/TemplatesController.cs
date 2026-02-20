@@ -6,6 +6,7 @@ using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace FertileNotify.API.Controllers
@@ -16,10 +17,13 @@ namespace FertileNotify.API.Controllers
     public class TemplatesController : ControllerBase
     {
         private readonly ITemplateRepository _templateRepository;
+        private readonly INotificationLogRepository _logRepository;
 
-        public TemplatesController(ITemplateRepository templateRepository)
+        public TemplatesController(ITemplateRepository templateRepository, INotificationLogRepository logRepository)
         {
+
             _templateRepository = templateRepository;
+            _logRepository = logRepository;
         }
 
         [HttpGet]
@@ -39,6 +43,14 @@ namespace FertileNotify.API.Controllers
                 Body = t.BodyTemplate,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
             }));
+        }
+
+        [HttpGet("logs")]
+        public async Task<IActionResult> GetLogs()
+        {
+            var subscriberId = GetSubscriberIdFromClaims();
+            var logs = await _logRepository.GetLatestBySubscriberIdAsync(subscriberId, 10);
+            return Ok(logs);
         }
 
         [HttpPost("query")]

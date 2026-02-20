@@ -84,7 +84,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
                 command.Recipient
             );
 
-            await sender.SendAsync(command.Recipient, subject, body);
+            await sender.SendAsync(command.SubscriberId, command.Recipient, command.EventType, subject, body);
 
             subscription.IncreaseUsage();
             await _subscriptionRepository.SaveAsync(command.SubscriberId, subscription);

@@ -141,6 +141,7 @@ builder.Services.AddScoped<ISubscriberRepository, EfSubscriberRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
 builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 builder.Services.AddScoped<IApiKeyRepository, EfApiKeyRepository>();
+builder.Services.AddScoped<INotificationLogRepository, EfNotificationLogRepository>();
 
 // --- BACKGROUND JOBS ---
 builder.Services.AddSingleton<INotificationQueue, InMemoryNotificationQueue>();

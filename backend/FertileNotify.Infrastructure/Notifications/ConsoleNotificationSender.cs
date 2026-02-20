@@ -1,4 +1,6 @@
 ﻿using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -6,24 +8,31 @@ namespace FertileNotify.Infrastructure.Notifications
 {
     public class ConsoleNotificationSender : INotificationSender
     {
+        private readonly INotificationLogRepository _logRepository;
         private readonly ILogger<ConsoleNotificationSender> _logger;
 
-        public ConsoleNotificationSender(ILogger<ConsoleNotificationSender> logger)
+        public ConsoleNotificationSender(INotificationLogRepository logRepository, ILogger<ConsoleNotificationSender> logger)
         {
+            _logRepository = logRepository;
             _logger = logger;
         }
 
         public NotificationChannel Channel => NotificationChannel.Console;
 
-        public Task SendAsync(string recipient, string subject, string body)
+        public async Task SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
         {
-            _logger.LogInformation(
-                "[CONSOLE] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
+            _logger.LogInformation("[CONSOLE LOG] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
+
+            var log = new NotificationLog(
+                subscriberId,
                 recipient,
+                NotificationChannel.Console,
+                eventType,
                 subject,
                 body
             );
-            return Task.CompletedTask;
+
+            await _logRepository.AddAsync(log);
         }
     }
 }

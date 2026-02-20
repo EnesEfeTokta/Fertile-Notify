@@ -1,5 +1,4 @@
 ﻿using FertileNotify.Application.Interfaces;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace FertileNotify.Infrastructure.Authentication
