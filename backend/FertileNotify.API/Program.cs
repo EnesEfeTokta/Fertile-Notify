@@ -154,7 +154,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<ApiKeyService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
-builder.Services.AddMemoryCache();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379";
+    options.InstanceName = "FertileNotify_";
+});
 
 builder.Services.AddAuthentication(options =>
 {
