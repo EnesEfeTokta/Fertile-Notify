@@ -29,6 +29,24 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NotificationLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Recipient = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    EventType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Subject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Body = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotificationLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NotificationTemplates",
                 columns: table => new
                 {
@@ -88,6 +106,9 @@ namespace FertileNotify.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ApiKeys");
+
+            migrationBuilder.DropTable(
+                name: "NotificationLogs");
 
             migrationBuilder.DropTable(
                 name: "NotificationTemplates");

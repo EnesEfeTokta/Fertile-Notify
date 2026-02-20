@@ -1,4 +1,5 @@
 ﻿using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +16,7 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.SMS;
 
-        public Task SendAsync(string recipient, string subject, string body)
+        public Task SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
         {
             _logger.LogInformation(
                 "[SMS] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",

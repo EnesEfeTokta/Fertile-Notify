@@ -75,14 +75,16 @@ namespace FertileNotify.Tests
             _mockTemplateRepo.Setup(x => x.GetTemplateAsync(EventType.SubscriberRegistered, NotificationChannel.Email, subscriberId)).ReturnsAsync(template);
 
             _mockEmailSender
-                .Setup(x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.CompletedTask);
 
             await _handler.HandleAsync(command);
 
             _mockEmailSender.Verify(
                 x => x.SendAsync(
+                    subscriberId,
                     "customer@example.com",
+                    EventType.SubscriberRegistered,
                     It.IsAny<string>(),
                     It.IsAny<string>()
                 ),
@@ -121,7 +123,7 @@ namespace FertileNotify.Tests
             await Assert.ThrowsAsync<BusinessRuleException>(() => _handler.HandleAsync(command));
 
             _mockEmailSender.Verify(
-                x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+                x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>()),
                 Times.Never);
         }
     }
