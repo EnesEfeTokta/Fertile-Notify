@@ -77,6 +77,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 // --- SWAGGER ---
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "Fertile Notify API", Version = "v1" });
@@ -203,16 +204,14 @@ builder.Services.AddScoped<TemplateEngine>();
 
 var app = builder.Build();
 
-// --- MIDDLEWARE PIPELINE ---
-
-if (app.Environment.IsDevelopment())
+// --- SWAGGER ---
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fertile Notify API v1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fertile Notify API v1");
+});
+
+// --- MIDDLEWARE PIPELINE ---
 
 // Seeder
 await DbSeeder.SeedAsync(app);
