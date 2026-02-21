@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscriberService } from '../api/subscriberService';
 import type { SubscriberProfile, ApiKey } from '../types/subscriber';
+import ConsoleLogsModal from '../components/ConsoleLogsModal';
 
 export default function DashboardPage() {
     const [profile, setProfile] = useState<SubscriberProfile | null>(null);
@@ -12,6 +13,7 @@ export default function DashboardPage() {
     const [apiKeysList, setApiKeysList] = useState<ApiKey[]>([]);
     const [newApiKey, setNewApiKey] = useState<string | null>(null);
     const [copied, setCopied] = useState<boolean>(false);
+    const [showConsoleModal, setShowConsoleModal] = useState<boolean>(false);
 
     const fetchProfile = React.useCallback(async () => {
         try {
@@ -265,6 +267,13 @@ export default function DashboardPage() {
                         <p className="text-sm text-secondary mt-1">Welcome back</p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setShowConsoleModal(true)}
+                            className="px-4 py-2 text-sm bg-green-500/10 text-green-400 border border-green-500/20 rounded-md hover:bg-green-500/20 transition-colors flex items-center gap-2"
+                        >
+                            <span>🖥️</span>
+                            <span>Open Console</span>
+                        </button>
                         <button
                             onClick={() => navigate('/templates')}
                             className="px-4 py-2 text-sm bg-primary-500/10 text-primary-400 border border-primary-500/20 rounded-md hover:bg-primary-500/20 transition-colors"
@@ -543,6 +552,10 @@ export default function DashboardPage() {
                     </div>
                 )}
             </main>
+            <ConsoleLogsModal
+                isOpen={showConsoleModal}
+                onClose={() => setShowConsoleModal(false)}
+            />
         </div>
     );
 }

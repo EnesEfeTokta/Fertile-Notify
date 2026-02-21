@@ -1,5 +1,5 @@
 import axiosClient from "./axiosClient";
-import type { CreateOrUpdateCustom, TemplateQuery, Template } from "../types/template";
+import type { CreateOrUpdateCustom, TemplateQuery, Template, Notification } from "../types/template";
 
 export const templateSevice = {
     getAllTemplates: async (): Promise<Template[]> => {
@@ -12,6 +12,10 @@ export const templateSevice = {
     },
     queryTemplate: async (data: TemplateQuery): Promise<void> => {
         const response = await axiosClient.post("templates/query", data);
+        return response.data;
+    },
+    getNotificationLogs: async (): Promise<Notification[]> => {
+        const response = await axiosClient.get("templates/logs");
         return response.data;
     }
 }

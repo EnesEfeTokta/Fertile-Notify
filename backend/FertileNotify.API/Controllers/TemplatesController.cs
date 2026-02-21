@@ -50,7 +50,17 @@ namespace FertileNotify.API.Controllers
         {
             var subscriberId = GetSubscriberIdFromClaims();
             var logs = await _logRepository.GetLatestBySubscriberIdAsync(subscriberId, 10);
-            return Ok(logs);
+
+            return Ok(logs.Select(t => new
+            {
+                Id = t.Id,
+                Recipient = t.Recipient,
+                Channel = t.Channel.Name,
+                Event = t.EventType.Name,
+                Subject = t.Subject,
+                Body = t.Body,
+                CreatedAt = t.CreatedAt
+            }));
         }
 
         [HttpPost("query")]
