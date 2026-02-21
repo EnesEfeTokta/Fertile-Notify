@@ -27,3 +27,13 @@ export interface Template {
     body: string,
     source: 'Default' | 'Custom'
 }
+
+export interface Notification {
+    id: string,
+    recipient: string,
+    channel: string,
+    event: string,
+    subject: string,
+    body: string,
+    createdAt: string
+}
