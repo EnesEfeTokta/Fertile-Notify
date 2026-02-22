@@ -39,6 +39,8 @@ namespace FertileNotify.Infrastructure.Migrations
                     EventType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Subject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Body = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

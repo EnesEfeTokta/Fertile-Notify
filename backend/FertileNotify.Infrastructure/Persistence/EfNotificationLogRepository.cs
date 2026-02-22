@@ -27,5 +27,13 @@ namespace FertileNotify.Infrastructure.Persistence
                 .Take(count)
                 .ToListAsync();
         }
+
+        public async Task<List<NotificationLog>> GetLogsForStatsAsync(Guid subscriberId, DateTime startDate)
+        {
+            return await _context.NotificationLogs
+                .Where(l => l.SubscriberId == subscriberId && l.CreatedAt >= startDate)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

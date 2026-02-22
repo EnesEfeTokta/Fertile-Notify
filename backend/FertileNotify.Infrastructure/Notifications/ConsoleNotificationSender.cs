@@ -19,20 +19,26 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Console;
 
-        public async Task SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
+        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
         {
-            _logger.LogInformation("[CONSOLE LOG] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
+            try
+            {
+                _logger.LogInformation("[CONSOLE LOG] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
 
-            var log = new NotificationLog(
-                subscriberId,
-                recipient,
-                NotificationChannel.Console,
-                eventType,
-                subject,
-                body
-            );
+                var log = new NotificationLog(
+                    subscriberId,
+                    recipient,
+                    NotificationChannel.Console,
+                    eventType,
+                    subject,
+                    body
+                );
 
-            await _logRepository.AddAsync(log);
+                await _logRepository.AddAsync(log);
+
+                return true;
+            }
+            catch { return false; }
         }
     }
 }
