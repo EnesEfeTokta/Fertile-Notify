@@ -8,6 +8,7 @@ import EmailDesignVisualPanelPage from './pages/EmailDesignVisualPanelPage';
 import PricingPlanPage from './pages/PricingPlanPage';
 import SmsDesignPanelPage from './pages/SmsDesignPanelPage';
 import TemplatesPage from './pages/TemplatesPage';
+import StatisticsPage from './pages/StatisticsPage';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/email-visual-editor" element={<EmailDesignVisualPanelPage />} />
         <Route path="/sms-editor" element={<SmsDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
