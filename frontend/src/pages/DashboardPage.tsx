@@ -275,6 +275,13 @@ export default function DashboardPage() {
                             <span>Open Console</span>
                         </button>
                         <button
+                            onClick={() => navigate('/statistics')}
+                            className="px-4 py-2 text-sm bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                        >
+                            <span>📊</span>
+                            <span>Statistics</span>
+                        </button>
+                        <button
                             onClick={() => navigate('/templates')}
                             className="px-4 py-2 text-sm bg-primary-500/10 text-primary-400 border border-primary-500/20 rounded-md hover:bg-primary-500/20 transition-colors"
                         >

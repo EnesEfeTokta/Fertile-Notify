@@ -28,7 +28,7 @@ namespace FertileNotify.API.Controllers
             var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriberId)
                 ?? throw new NotFoundException("Subscription not found.");
 
-            var stats = await _statisticsService.GetSubscriberStatsAsync(subscriberId, period, subscription.Plan);
+            var stats = await _statisticsService.GetSubscriberStatsAsync(subscriberId, period.ToLower(), subscription.Plan);
 
             return Ok(stats);
         }
