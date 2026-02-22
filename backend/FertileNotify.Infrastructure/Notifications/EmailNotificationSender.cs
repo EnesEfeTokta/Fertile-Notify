@@ -16,15 +16,20 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Email;
 
-        public Task SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
+        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
         {
-            _logger.LogInformation(
-                "[EMAIL] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
-                recipient,
-                subject,
-                body
-            );
-            return Task.CompletedTask;
+            try
+            {
+                _logger.LogInformation(
+                    "[EMAIL] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
+                    recipient,
+                    subject,
+                    body
+                );
+                await Task.Delay( 1 ); // TEST
+                return true;
+            }
+            catch { return false; }
         }
     }
 }

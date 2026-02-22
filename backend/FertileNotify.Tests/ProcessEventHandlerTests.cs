@@ -75,8 +75,7 @@ namespace FertileNotify.Tests
             _mockTemplateRepo.Setup(x => x.GetTemplateAsync(EventType.SubscriberRegistered, NotificationChannel.Email, subscriberId)).ReturnsAsync(template);
 
             _mockEmailSender
-                .Setup(x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.CompletedTask);
+                .Setup(x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>()));
 
             await _handler.HandleAsync(command);
 

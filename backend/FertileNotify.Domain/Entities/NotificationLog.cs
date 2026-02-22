@@ -1,4 +1,5 @@
-﻿using FertileNotify.Domain.Events;
+﻿using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Domain.Entities
@@ -12,6 +13,8 @@ namespace FertileNotify.Domain.Entities
         public EventType EventType { get; private set; } = default!;
         public string Subject { get; private set; } = string.Empty;
         public string Body { get; private set; } = string.Empty;
+        public DeliveryStatus Status { get; private set; }
+        public string? ErrorMessage { get; private set; }
         public DateTime CreatedAt { get; private set; }
 
         private NotificationLog() { }
@@ -26,6 +29,12 @@ namespace FertileNotify.Domain.Entities
             Subject = subject;
             Body = body;
             CreatedAt = DateTime.UtcNow;
+        }
+
+        public void SetResult(bool isSuccess, string? error = null)
+        {
+            Status = isSuccess ? DeliveryStatus.Success : DeliveryStatus.Failed;
+            ErrorMessage = error;
         }
     }
 }

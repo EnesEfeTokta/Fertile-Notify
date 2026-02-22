@@ -144,6 +144,9 @@ builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 builder.Services.AddScoped<IApiKeyRepository, EfApiKeyRepository>();
 builder.Services.AddScoped<INotificationLogRepository, EfNotificationLogRepository>();
 
+// --- NOTIFICATION LOG ---
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+
 // --- BACKGROUND JOBS ---
 builder.Services.AddSingleton<INotificationQueue, InMemoryNotificationQueue>();
 builder.Services.AddHostedService<NotificationWorker>();
