@@ -1,0 +1,6 @@
+{
+  "AccountTag": "YOUR_ACCOUNT_ID",
+  "TunnelID": "YOUR_TUNNEL_ID",
+  "TunnelName": "fertile-notify",
+  "TunnelSecret": "BASE64_SECRET"
+}

@@ -61,12 +61,12 @@ services:
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: tunnel
-    restart: unless-stopped
-    command: tunnel run --token ${TUNNEL_TOKEN}
-    depends_on:
-      - api
+    command: tunnel --no-autoupdate run
+    volumes:
+      - ./cloudflared:/etc/cloudflared
     networks:
       - fertile-network
+    restart: unless-stopped
 
 networks:
   fertile-network:

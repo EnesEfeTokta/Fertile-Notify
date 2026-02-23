@@ -1,0 +1,11 @@
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /etc/cloudflared/YOUR_TUNNEL_ID.json
+
+ingress:
+  - hostname: fertile-notify.enesefetokta.shop
+    service: http://frontend:80
+
+  - hostname: fertile-notify-api.enesefetokta.shop
+    service: http://api:8080
+
+  - service: http_status:404

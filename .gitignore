@@ -67,3 +67,6 @@ backend/project_docs/
 .env.development
 .env.production
 !.env.example
+
+cloudflared/*.json
+cloudflared/config.yml
