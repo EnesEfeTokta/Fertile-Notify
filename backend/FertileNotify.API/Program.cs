@@ -35,10 +35,13 @@ builder.Host.UseSerilog();
 // --- CORS ---
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("https://fertile-notify.enesefetokta.shop")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
 });
 
 // --- RATE LIMITER ---
@@ -219,7 +222,7 @@ app.UseSwaggerUI(c =>
 // Seeder
 await DbSeeder.SeedAsync(app);
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 app.UseRateLimiter();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

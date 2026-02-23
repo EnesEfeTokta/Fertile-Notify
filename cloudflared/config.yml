@@ -1,0 +1,11 @@
+tunnel: fertile-tunnel
+credentials-file: /etc/cloudflared/eyJhIjoiNDNlZjE4ZDFjNGMzNDFhN2FhZGUxZjI4MjZkODZlZjQiLCJ0IjoiOTVkNWRhYzktYzFmZC00ZTFkLThlYmQtMGE4NTRmNmFjNDkzIiwicyI6Ik1qQTNOakV6TkRJdE1HTTBZaTAwT0dZMUxUZzBPVGd0T0RNek5UYzJZVGMxTmpKaiJ9.json
+
+ingress:
+  - hostname: fertile-notify.enesefetokta.shop
+    service: http://frontend:80
+
+  - hostname: fertile-notify-api.enesefetokta.shop
+    service: http://api:8080
+
+  - service: http_status:404
