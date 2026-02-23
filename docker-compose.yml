@@ -7,9 +7,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=http://localhost:${API_PORT:-5080}/api
+        - VITE_API_URL=https://fertile-notify-api.enesefetokta.shop/api
     ports:
-      - "${FRONTEND_PORT:-5173}:80"
+      - "3000:80"
     depends_on:
       - api
     networks:
@@ -21,7 +21,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "${API_PORT:-5080}:8080"
+      - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
@@ -55,6 +55,16 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fertile-network
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: tunnel
+    restart: unless-stopped
+    command: tunnel run --token ${TUNNEL_TOKEN}
+    depends_on:
+      - api
     networks:
       - fertile-network
 
