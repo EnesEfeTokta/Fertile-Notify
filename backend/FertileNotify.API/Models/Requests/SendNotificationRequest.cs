@@ -1,11 +1,9 @@
-﻿namespace FertileNotify.API.Models
+﻿namespace FertileNotify.API.Models.Requests
 {
-    public class SendBulkNotificationRequest
+    public class SendNotificationRequest
     {
         public string Channel { get; set; } = "Email";
-
-        public List<string> Recipients { get; set; } = new();
-
+        public string Recipient { get; set; } = string.Empty;
         public string EventType { get; set; } = string.Empty;
         public Dictionary<string, string> Parameters { get; set; } = new();
     }

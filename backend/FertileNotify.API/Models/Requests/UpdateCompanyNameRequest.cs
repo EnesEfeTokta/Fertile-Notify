@@ -1,4 +1,4 @@
-﻿namespace FertileNotify.API.Models
+﻿namespace FertileNotify.API.Models.Requests
 {
     public class UpdateCompanyNameRequest
     {

@@ -1,4 +1,4 @@
-﻿using FertileNotify.API.Models;
+﻿using FertileNotify.API.Models.Requests;
 using FertileNotify.Domain.Enums;
 using FluentValidation;
 using System.Text.RegularExpressions;

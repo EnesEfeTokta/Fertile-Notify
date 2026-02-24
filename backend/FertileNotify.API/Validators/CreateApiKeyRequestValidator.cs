@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using FertileNotify.API.Models;
+using FertileNotify.API.Models.Requests;
 
 namespace FertileNotify.API.Validators
 {

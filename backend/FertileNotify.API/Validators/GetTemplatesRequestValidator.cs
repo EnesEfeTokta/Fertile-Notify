@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using FertileNotify.API.Models;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
+using FertileNotify.API.Models.Requests;
 
 namespace FertileNotify.API.Validators
 {
