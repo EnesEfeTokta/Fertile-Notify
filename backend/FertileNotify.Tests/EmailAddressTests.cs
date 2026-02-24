@@ -1,7 +1,7 @@
 ﻿using FertileNotify.Domain.ValueObjects;
 using FluentAssertions;
 
-namespace FertileNotify.Tests.Domain
+namespace FertileNotify.Tests
 {
     public class EmailAddressTests
     {

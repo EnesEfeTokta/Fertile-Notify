@@ -1,4 +1,4 @@
-﻿using FertileNotify.API.Models;
+﻿using FertileNotify.API.Models.Requests;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
