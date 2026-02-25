@@ -1,7 +1,8 @@
-﻿using FertileNotify.API.Models;
+﻿using FertileNotify.API.Models.Requests;
+using FertileNotify.API.Models.Responses;
+using FertileNotify.Application.DTOs;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Services;
-using FertileNotify.Application.DTOs;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
@@ -10,6 +11,7 @@ using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace FertileNotify.API.Controllers
 {
@@ -61,7 +63,7 @@ namespace FertileNotify.API.Controllers
                 }
             };
 
-            return Ok(respone);
+            return Ok(ApiResponse<SubscriberDto>.SuccessResult(respone, "Subscription information belonging to the subscriber."));
         }
 
         [Authorize]
@@ -78,7 +80,7 @@ namespace FertileNotify.API.Controllers
             );
 
             await _subscriberRepository.SaveAsync(subscriber);
-            return Ok();
+            return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's contact information has been updated."));
         }
 
         [Authorize]
@@ -90,7 +92,7 @@ namespace FertileNotify.API.Controllers
             subscriber.UpdateCompanyName(CompanyName.Create(request.CompanyName));
 
             await _subscriberRepository.SaveAsync(subscriber);
-            return Ok();
+            return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's company name has been updated."));
         }
 
         [Authorize]
@@ -107,7 +109,10 @@ namespace FertileNotify.API.Controllers
                 subscriber.DisableChannel(channel);
 
             await _subscriberRepository.SaveAsync(subscriber);
-            return Ok(new { activeChannels = subscriber.ActiveChannels.Select(c => c.Name) });
+            return Ok(ApiResponse<object>.SuccessResult(
+                new { activeChannels = subscriber.ActiveChannels.Select(c => c.Name) }, 
+                "The subscriber's company name has been updated.")
+            );
         }
 
         [Authorize]
@@ -122,7 +127,7 @@ namespace FertileNotify.API.Controllers
             subscriber.UpdatePassword(Password.Create(request.NewPassword));
 
             await _subscriberRepository.SaveAsync(subscriber);
-            return Ok();
+            return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's password has been updated."));
         }
 
         [HttpPost("register")]
@@ -140,14 +145,14 @@ namespace FertileNotify.API.Controllers
                 Plan = plan,
             };
             await _registerSubscriberHandler.HandleAsync(command);
-            return CreatedAtAction(nameof(Register), new { message = "Registration successful, log in." });
+            return Ok(ApiResponse<RegisterSubscriberCommand>.SuccessResult(command, "Registration successful, log in."));
         }
 
         [HttpPost("create-api-key")]
         public async Task<IActionResult> Create([FromBody] CreateApiKeyRequest request)
         {
             var rawApiKey = await _apiKeyService.CreateApiKeyAsync(GetSubscriberIdFromClaims(), request.Name);
-            return Ok(new { ApiKey = rawApiKey, Message = "Please save this key securely. You won't be able to see it again." });
+            return Ok(ApiResponse<object>.SuccessResult(new { ApiKey = rawApiKey }, "Please save this key securely. You won't be able to see it again."));
         }
 
         [HttpGet("api-keys")]
@@ -162,7 +167,7 @@ namespace FertileNotify.API.Controllers
                 IsActive = k.IsActive,
                 CreatedAt = k.CreatedAt,
             });
-            return Ok(response);
+            return Ok(ApiResponse<IEnumerable<ApiKeyDto>>.SuccessResult(response, "An API Key has been generated for the subscriber."));
         }
 
         [HttpDelete("api-keys/{apiKeyId}")]
@@ -176,7 +181,7 @@ namespace FertileNotify.API.Controllers
             keyToRevoke.Revoke();
             await _apiKeyRepository.SaveAsync(keyToRevoke);
 
-            return Ok();
+            return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's API Key has been decommissioned."));
         }
 
         [NonAction]

@@ -1,4 +1,5 @@
-using FertileNotify.API.Models;
+using FertileNotify.API.Models.Requests;
+using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Exceptions;
@@ -38,8 +39,8 @@ namespace FertileNotify.API.Controllers
 
             var otpCode = await _otpService.GenerateOtpAsync(subscriber.Id);
 
-            return Ok(new { Message = "A special 6-character code valid for 5 minutes " +
-                                      "has been sent to your email address. Please enter this code." });
+            return Ok(ApiResponse<object>.SuccessResult(default!, "A special 6-character code valid for 5 minutes has been sent to your email address. Please enter this code."));
+
         }
 
         [HttpPost("verify-code")]
@@ -61,7 +62,7 @@ namespace FertileNotify.API.Controllers
             subscriber.SetRefreshToken(refreshToken);
             await _subscriberRepository.SaveAsync(subscriber);
 
-            return Ok( new { AccessToken = accessToken, RefreshToken = refreshToken } );
+            return Ok(ApiResponse<object>.SuccessResult(new { AccessToken = accessToken, RefreshToken = refreshToken }, "Login successful."));
         }
 
         [HttpPost("refresh-token")]
@@ -82,7 +83,7 @@ namespace FertileNotify.API.Controllers
             subscriber.SetRefreshToken(newRefreshToken);
             await _subscriberRepository.SaveAsync(subscriber);
 
-            return Ok(new { AccessToken = newAccessToken, RefreshToken = newRefreshToken });
+            return Ok(ApiResponse<object>.SuccessResult(new { AccessToken = newAccessToken, RefreshToken = newRefreshToken }, "Token refreshed successfully."));
         }
 
         [NonAction]

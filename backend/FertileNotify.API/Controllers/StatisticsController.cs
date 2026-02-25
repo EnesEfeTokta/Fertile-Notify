@@ -1,4 +1,5 @@
-﻿using FertileNotify.Application.Interfaces;
+﻿using FertileNotify.API.Models.Responses;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace FertileNotify.API.Controllers
 
             var stats = await _statisticsService.GetSubscriberStatsAsync(subscriberId, period.ToLower(), subscription.Plan);
 
-            return Ok(stats);
+            return Ok(ApiResponse<object>.SuccessResult(stats, "Statistics retrieved successfully."));
         }
 
         [NonAction]
