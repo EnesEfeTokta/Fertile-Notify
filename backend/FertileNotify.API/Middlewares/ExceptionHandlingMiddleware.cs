@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using FertileNotify.API.Models.Responses;
 using FertileNotify.Domain.Exceptions;
 
 namespace FertileNotify.API.Middlewares
@@ -42,21 +43,24 @@ namespace FertileNotify.API.Middlewares
                 _logger.LogError(ex, "Unhandled exception occurred.");
             }
 
-            var errorResponse = new
+            var errorResponse = new ApiResponse<object>
             {
-                Error = new
+                Success = false,
+                Message = message,
+                Data = new
                 {
                     Code = errorCode,
-                    Message = message,
                     Details = details,
-                    traceId = context.TraceIdentifier
-                }
+                    TraceId = context.TraceIdentifier
+                },
+                Errors = new List<string> { message }
             };
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = status;
 
-            return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            return context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse, options));
         }
     }
 }

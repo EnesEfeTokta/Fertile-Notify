@@ -1,4 +1,5 @@
 ﻿using FertileNotify.API.Models.Requests;
+using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Domain.Events;
@@ -35,7 +36,7 @@ namespace FertileNotify.API.Controllers
             };
 
             await _queue.QueueBackgroundWorkItemAsync(command);
-            return Accepted((new { status = "Queued", message = "The notification has been added to the queue." }));
+            return Accepted(ApiResponse<object>.SuccessResult(new { status = "Queued" }, "The notification has been added to the queue."));
         }
 
         [HttpPost("bulk")]
@@ -57,12 +58,11 @@ namespace FertileNotify.API.Controllers
                 await _queue.QueueBackgroundWorkItemAsync(command);
             }
 
-            return Accepted(new
+            return Accepted(ApiResponse<object>.SuccessResult(new
             {
                 status = "Queued",
-                totalRequested = request.Recipients.Count,
-                message = $"{request.Recipients.Count} notifications have been added to the queue."
-            });
+                totalRequested = request.Recipients.Count
+            }, $"{request.Recipients.Count} notifications have been added to the queue."));
         }
 
         [NonAction]

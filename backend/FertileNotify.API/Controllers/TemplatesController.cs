@@ -1,4 +1,5 @@
 ﻿using FertileNotify.API.Models.Requests;
+using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
@@ -32,7 +33,7 @@ namespace FertileNotify.API.Controllers
             var subscriberId = GetSubscriberIdFromClaims();
             var templates = await _templateRepository.GetAllTemplatesAsync(subscriberId);
 
-            return Ok(templates.Select(t => new
+            var result = templates.Select(t => new
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -42,7 +43,9 @@ namespace FertileNotify.API.Controllers
                 Subject = t.SubjectTemplate,
                 Body = t.BodyTemplate,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
-            }));
+            });
+
+            return Ok(ApiResponse<object>.SuccessResult(result, "Templates retrieved successfully."));
         }
 
         [HttpGet("logs")]
@@ -51,7 +54,7 @@ namespace FertileNotify.API.Controllers
             var subscriberId = GetSubscriberIdFromClaims();
             var logs = await _logRepository.GetLatestBySubscriberIdAsync(subscriberId, 10);
 
-            return Ok(logs.Select(t => new
+            var result = logs.Select(t => new
             {
                 Id = t.Id,
                 Recipient = t.Recipient,
@@ -60,7 +63,9 @@ namespace FertileNotify.API.Controllers
                 Subject = t.Subject,
                 Body = t.Body,
                 CreatedAt = t.CreatedAt
-            }));
+            });
+
+            return Ok(ApiResponse<object>.SuccessResult(result, "Notification logs retrieved successfully."));
         }
 
         [HttpPost("query")]
@@ -81,7 +86,7 @@ namespace FertileNotify.API.Controllers
                     templates.Add(template);
             }
 
-            return Ok(templates.Select(t => new
+            var result = templates.Select(t => new
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -91,7 +96,9 @@ namespace FertileNotify.API.Controllers
                 Subject = t.SubjectTemplate,
                 Body = t.BodyTemplate,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
-            }));
+            });
+
+            return Ok(ApiResponse<object>.SuccessResult(result, "Queried templates retrieved successfully."));
         }
 
         [HttpPost("create-or-update-custom")]
@@ -122,7 +129,7 @@ namespace FertileNotify.API.Controllers
                 await _templateRepository.AddAsync(newTemplate);
             }
 
-            return Ok();
+            return Ok(ApiResponse<object>.SuccessResult(default!, "Template created or updated successfully."));
         }
 
         [NonAction]
