@@ -1,7 +1,8 @@
-import axios from "axios";
+import axios, { type AxiosResponse } from "axios";
+import type { ApiResponse } from "../types/api";
 
 const axiosClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5080/api",
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         "Content-Type": "application/json",
     },
@@ -16,9 +17,19 @@ axiosClient.interceptors.request.use(config => {
 });
 
 axiosClient.interceptors.response.use(
-    (response) => response,
+    (response: AxiosResponse<ApiResponse<any>>) => {
+        if (response.data && typeof response.data === 'object' && 'success' in response.data) {
+            if (response.data.success) {
+                return { ...response, data: response.data.data };
+            } else {
+                return Promise.reject(response.data);
+            }
+        }
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
+
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
@@ -27,10 +38,12 @@ axiosClient.interceptors.response.use(
                 if (!refreshToken) {
                     throw new Error("No refresh token available");
                 }
-                const response = await axios.post(`${import.meta.env.VITE_API_URL || "http://localhost:5080/api"}/auth/refresh-token`, {
-                    token: refreshToken
+                const response = await axios.post<ApiResponse<any>>(`${import.meta.env.VITE_API_URL}/auth/refresh-token`, {
+                    refreshToken: refreshToken
                 });
-                const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+                const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+
                 localStorage.setItem("accessToken", accessToken);
                 localStorage.setItem("refreshToken", newRefreshToken.token);
 
@@ -46,6 +59,11 @@ axiosClient.interceptors.response.use(
                 return Promise.reject(err);
             }
         }
+
+        if (error.success === false) {
+            return Promise.reject(error);
+        }
+
         return Promise.reject(error);
     }
 );
