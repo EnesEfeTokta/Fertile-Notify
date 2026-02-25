@@ -39,8 +39,9 @@ export default function LoginPage() {
             await authService.login({ email, password });
             setShowOtpForm(true);
             setTimeLeft(300);
-        } catch (err) {
-            setError("Invalid email or password");
+        } catch (err: any) {
+            const message = err.message || (err.errors && err.errors.length > 0 ? err.errors[0] : "Invalid email or password");
+            setError(message);
             console.error("Login error:", err);
         }
     };
@@ -59,8 +60,9 @@ export default function LoginPage() {
             localStorage.setItem("accessToken", response.accessToken);
             localStorage.setItem("refreshToken", response.refreshToken.token);
             navigate("/dashboard");
-        } catch (err) {
-            setError("Invalid OTP code");
+        } catch (err: any) {
+            const message = err.message || (err.errors && err.errors.length > 0 ? err.errors[0] : "Invalid OTP code");
+            setError(message);
             console.error("OTP verification error:", err);
         }
     };
