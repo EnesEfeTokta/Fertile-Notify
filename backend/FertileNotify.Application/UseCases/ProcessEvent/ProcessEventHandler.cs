@@ -11,6 +11,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly IEnumerable<INotificationSender> _senders;
         private readonly ITemplateRepository _templateRepository;
+        private readonly ISubscriberChannelRepository _subscriberChannelRepository;
         private readonly TemplateEngine templateEngine;
         private readonly ILogger<ProcessEventHandler> _logger;
 
@@ -19,6 +20,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             ISubscriberRepository subscriberRepository,
             IEnumerable<INotificationSender> senders,
             ITemplateRepository templateRepository,
+            ISubscriberChannelRepository subscriberChannelRepository,
             TemplateEngine templateEngine,
             ILogger<ProcessEventHandler> logger
         )
@@ -27,6 +29,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             _subscriberRepository = subscriberRepository;
             _senders = senders;
             _templateRepository = templateRepository;
+            _subscriberChannelRepository = subscriberChannelRepository;
             this.templateEngine = templateEngine;
             _logger = logger;
         }
@@ -69,6 +72,8 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             {
                 body = string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}={kv.Value}"));
             }
+
+            var channelSetting = await _subscriberChannelRepository.GetSettingAsync(command.SubscriberId, command.Channel);
 
             var sender = _senders.FirstOrDefault(s => s.Channel.Equals(command.Channel));
 

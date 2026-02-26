@@ -6,6 +6,6 @@ namespace FertileNotify.Application.Interfaces
     public interface INotificationSender
     {
         NotificationChannel Channel { get; }
-        Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body);
+        Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null);
     }
 }

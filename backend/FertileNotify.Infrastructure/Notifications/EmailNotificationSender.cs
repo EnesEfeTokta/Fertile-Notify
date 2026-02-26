@@ -2,6 +2,7 @@
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
+using System.Net.Mail;
 
 namespace FertileNotify.Infrastructure.Notifications
 {
@@ -16,20 +17,31 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Email;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
+        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
-                _logger.LogInformation(
-                    "[EMAIL] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
-                    recipient,
-                    subject,
-                    body
-                );
-                await Task.Delay( 1 ); // TEST
+                // Connects to the mailpit service inside Docker
+                // When testing locally, use 'localhost', but inside Docker, use 'mailpit'
+                using var client = new SmtpClient("localhost", 1025);
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("test@fertilenotify.local"),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(recipient);
+
+                await client.SendMailAsync(mailMessage);
                 return true;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[MAILPIT ERROR] Connection failed.");
+                return false;
+            }
         }
     }
 }

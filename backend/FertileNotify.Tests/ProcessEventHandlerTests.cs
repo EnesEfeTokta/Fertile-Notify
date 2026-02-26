@@ -16,6 +16,7 @@ namespace FertileNotify.Tests
         private readonly Mock<ISubscriptionRepository> _mockSubRepo;
         private readonly Mock<ISubscriberRepository> _mockSubscriberRepo;
         private readonly Mock<ITemplateRepository> _mockTemplateRepo;
+        private readonly Mock<ISubscriberChannelRepository> _mockSubscriberChannelRepo;
         private readonly Mock<INotificationSender> _mockEmailSender;
         private readonly Mock<ILogger<ProcessEventHandler>> _mockLogger;
         private readonly TemplateEngine _templateEngine;
@@ -27,6 +28,7 @@ namespace FertileNotify.Tests
             _mockSubRepo = new Mock<ISubscriptionRepository>();
             _mockSubscriberRepo = new Mock<ISubscriberRepository>();
             _mockTemplateRepo = new Mock<ITemplateRepository>();
+            _mockSubscriberChannelRepo = new Mock<ISubscriberChannelRepository>();
             _mockEmailSender = new Mock<INotificationSender>();
             _mockLogger = new Mock<ILogger<ProcessEventHandler>>();
 
@@ -40,6 +42,7 @@ namespace FertileNotify.Tests
                 _mockSubscriberRepo.Object,
                 senders,
                 _mockTemplateRepo.Object,
+                _mockSubscriberChannelRepo.Object,
                 _templateEngine,
                 _mockLogger.Object
             );
@@ -48,6 +51,7 @@ namespace FertileNotify.Tests
         [Fact]
         public async Task HandleAsync_Should_Send_Notification_When_Rules_Are_Valid()
         {
+            // ARRANGE
             var subscriberId = Guid.NewGuid();
             var command = new ProcessEventCommand
             {
@@ -55,52 +59,52 @@ namespace FertileNotify.Tests
                 Channel = NotificationChannel.Email,
                 Recipient = "customer@example.com",
                 EventType = EventType.SubscriberRegistered,
-                Parameters = new Dictionary<string, string> { { "Name", "TestUser" } }
+                Parameters = new Dictionary<string, string> { { "Name", "Enes" } }
             };
 
             var subscriber = new Subscriber(
                 CompanyName.Create("Company Test"),
                 Password.Create("StrongP@ssw0rd"),
-                EmailAddress.Create("company@test.com"), 
+                EmailAddress.Create("company@test.com"),
                 null);
             _mockSubscriberRepo.Setup(x => x.GetByIdAsync(subscriberId)).ReturnsAsync(subscriber);
 
             var subscription = Subscription.Create(subscriberId, SubscriptionPlan.Free);
             _mockSubRepo.Setup(x => x.GetBySubscriberIdAsync(subscriberId)).ReturnsAsync(subscription);
 
-            string name = "Test Name";
-            string description = "Description";
-
-            var template = NotificationTemplate.CreateGlobal(name, description, EventType.SubscriberRegistered, NotificationChannel.Email,"Subject {Name}", "Body");
-            _mockTemplateRepo.Setup(x => x.GetTemplateAsync(EventType.SubscriberRegistered, NotificationChannel.Email, subscriberId)).ReturnsAsync(template);
+            _mockSubscriberChannelRepo.Setup(x => x.GetSettingAsync(subscriberId, NotificationChannel.Email))
+                .ReturnsAsync((SubscriberChannelSetting)null!);
 
             _mockEmailSender
-                .Setup(x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>()));
+                .Setup(x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IReadOnlyDictionary<string, string>>()))
+                .ReturnsAsync(true);
 
+            // ACT
             await _handler.HandleAsync(command);
 
+            // ASSERT
             _mockEmailSender.Verify(
                 x => x.SendAsync(
                     subscriberId,
                     "customer@example.com",
                     EventType.SubscriberRegistered,
                     It.IsAny<string>(),
-                    It.IsAny<string>()
+                    It.IsAny<string>(),
+                    It.IsAny<IReadOnlyDictionary<string, string>>()
                 ),
                 Times.Once,
-                "An email must be sent to the recipient.");
+                "Email must be sent correctly.");
 
             _mockSubRepo.Verify(
                 x => x.SaveAsync(subscriberId, It.IsAny<Subscription>()),
-                Times.Once,
-                "The subscription usage needs to be updated.");
+                Times.Once);
         }
 
         [Fact]
         public async Task HandleAsync_Should_Not_Send_When_Plan_Does_Not_Support_Event()
         {
+            // ARRANGE
             var subscriberId = Guid.NewGuid();
-
             var command = new ProcessEventCommand
             {
                 SubscriberId = subscriberId,
@@ -116,13 +120,15 @@ namespace FertileNotify.Tests
                 null);
             _mockSubscriberRepo.Setup(x => x.GetByIdAsync(subscriberId)).ReturnsAsync(subscriber);
 
+            // Free Plan (Sadece SubscriberRegistered destekler)
             var subscription = Subscription.Create(subscriberId, SubscriptionPlan.Free);
             _mockSubRepo.Setup(x => x.GetBySubscriberIdAsync(subscriberId)).ReturnsAsync(subscription);
 
+            // ACT & ASSERT
             await Assert.ThrowsAsync<BusinessRuleException>(() => _handler.HandleAsync(command));
 
             _mockEmailSender.Verify(
-                x => x.SendAsync(subscriberId, "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>()),
+                x => x.SendAsync(It.IsAny<Guid>(), "customer@example.com", EventType.SubscriberRegistered, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IReadOnlyDictionary<string, string>>()),
                 Times.Never);
         }
     }

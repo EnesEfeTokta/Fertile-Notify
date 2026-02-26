@@ -19,7 +19,7 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Console;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body)
+        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {

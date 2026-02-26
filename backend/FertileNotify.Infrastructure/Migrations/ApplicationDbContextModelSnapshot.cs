@@ -181,6 +181,31 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.ToTable("Subscribers");
                 });
 
+            modelBuilder.Entity("FertileNotify.Domain.Entities.SubscriberChannelSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Settings")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("SubscriberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriberId", "Channel");
+
+                    b.ToTable("SubscriberChannelSettings");
+                });
+
             modelBuilder.Entity("FertileNotify.Domain.Entities.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
