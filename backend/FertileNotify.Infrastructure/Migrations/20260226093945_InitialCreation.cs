@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FertileNotify.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -67,6 +67,20 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubscriberChannelSettings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Settings = table.Column<string>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubscriberChannelSettings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Subscribers",
                 columns: table => new
                 {
@@ -101,6 +115,11 @@ namespace FertileNotify.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Subscriptions", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubscriberChannelSettings_SubscriberId_Channel",
+                table: "SubscriberChannelSettings",
+                columns: new[] { "SubscriberId", "Channel" });
         }
 
         /// <inheritdoc />
@@ -114,6 +133,9 @@ namespace FertileNotify.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "NotificationTemplates");
+
+            migrationBuilder.DropTable(
+                name: "SubscriberChannelSettings");
 
             migrationBuilder.DropTable(
                 name: "Subscribers");

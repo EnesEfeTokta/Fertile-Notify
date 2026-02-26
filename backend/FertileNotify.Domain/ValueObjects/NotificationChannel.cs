@@ -12,6 +12,10 @@ namespace FertileNotify.Domain.ValueObjects
         public static readonly NotificationChannel Console = new("console");
         public static readonly NotificationChannel SMS = new("sms");
         public static readonly NotificationChannel Email = new("email");
+        public static readonly NotificationChannel Telegram = new("telegram");
+        public static readonly NotificationChannel Discord = new("discord");
+        public static readonly NotificationChannel WhatsApp = new("whatsapp");
+        public static readonly NotificationChannel Signal = new("signal");
 
         public static NotificationChannel From(string value)
         {
@@ -20,6 +24,10 @@ namespace FertileNotify.Domain.ValueObjects
                 "console" => Console,
                 "sms" => SMS,
                 "email" => Email,
+                "telegram" => Telegram,
+                "discord" => Discord,
+                "whatsapp" => WhatsApp,
+                "signal" => Signal,
                 _ => throw new ArgumentException($"Unknown notification channel: {value}")
             };
         }

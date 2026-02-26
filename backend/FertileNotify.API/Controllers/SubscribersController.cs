@@ -23,6 +23,7 @@ namespace FertileNotify.API.Controllers
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IApiKeyRepository _apiKeyRepository;
+        private readonly ISubscriberChannelRepository _subscriberChannelRepository;
         private readonly ApiKeyService _apiKeyService;
 
         public SubscriberController(
@@ -30,12 +31,14 @@ namespace FertileNotify.API.Controllers
             ISubscriptionRepository subscriptionRepository,
             ISubscriberRepository subscriberRepository,
             IApiKeyRepository apiKeyRepository,
+            ISubscriberChannelRepository subscriberChannelRepository,
             ApiKeyService apiKeyService)
         {
             _registerSubscriberHandler = registerSubscriberHandler;
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
             _apiKeyRepository = apiKeyRepository;
+            _subscriberChannelRepository = subscriberChannelRepository;
             _apiKeyService = apiKeyService;
         }
 
@@ -182,6 +185,18 @@ namespace FertileNotify.API.Controllers
             await _apiKeyRepository.SaveAsync(keyToRevoke);
 
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's API Key has been decommissioned."));
+        }
+
+        [HttpPost("settings/telegram")]
+        public async Task<IActionResult> SetTelegramSettings([FromBody] string botToken)
+        {
+            var subscriberId = GetSubscriberIdFromClaims();
+
+            var settings = new Dictionary<string, string> { { "BotToken", botToken } };
+            var channelSetting = new SubscriberChannelSetting(subscriberId, NotificationChannel.Telegram, settings);
+
+            await _subscriberChannelRepository.SaveAsync(channelSetting);
+            return Ok(new { message = "Telegram bot configured successfully." });
         }
 
         [NonAction]

@@ -146,6 +146,7 @@ builder.Services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
 builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 builder.Services.AddScoped<IApiKeyRepository, EfApiKeyRepository>();
 builder.Services.AddScoped<INotificationLogRepository, EfNotificationLogRepository>();
+builder.Services.AddScoped<ISubscriberChannelRepository, EfSubscriberChannelRepository>();
 
 // --- NOTIFICATION LOG ---
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
@@ -203,10 +204,17 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
 builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
+builder.Services.AddScoped<INotificationSender, DiscordNotificationSender>();
+builder.Services.AddScoped<INotificationSender, WhatsAppNotificationSender>();
+builder.Services.AddScoped<INotificationSender, SignalNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
 builder.Services.AddScoped<TemplateEngine>();
+
+// --- HTTP CLIENT ---
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<INotificationSender, TelegramNotificationSender>();
 
 var app = builder.Build();
 

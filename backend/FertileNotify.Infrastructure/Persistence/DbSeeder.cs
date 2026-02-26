@@ -24,7 +24,11 @@ namespace FertileNotify.Infrastructure.Persistence
                     var channels = new[] {
                         NotificationChannel.Email,
                         NotificationChannel.SMS,
-                        NotificationChannel.Console
+                        NotificationChannel.Console,
+                        NotificationChannel.Discord,
+                        NotificationChannel.Telegram,
+                        NotificationChannel.WhatsApp,
+                        NotificationChannel.Signal
                     };
 
                     foreach (var channel in channels)
