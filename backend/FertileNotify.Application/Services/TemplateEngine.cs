@@ -41,6 +41,26 @@ namespace FertileNotify.Application.Services
                 return processedText;
             }
 
+            if (channel.Equals(NotificationChannel.Discord))
+            {
+                return processedText;
+            }
+
+            if (channel.Equals(NotificationChannel.Telegram))
+            {
+                return processedText;
+            }
+
+            if (channel.Equals(NotificationChannel.WhatsApp))
+            {
+                return processedText;
+            }
+
+            if (channel.Equals(NotificationChannel.Signal))
+            {
+                return processedText;
+            }
+
             return string.Empty;
         }
     }

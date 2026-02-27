@@ -58,19 +58,18 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             subscription.EnsureCanSendNotification();
 
             var template = await _templateRepository.GetTemplateAsync(command.EventType, command.Channel, command.SubscriberId)
-                ?? throw new NotFoundException("Notification template not found");
+                ?? throw new NotFoundException($"No template found for {command.EventType.Name} on channel {command.Channel.Name}");
 
             string subject = command.EventType.Name;
-            string body = string.Empty;
+            string body = string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}: {kv.Value}"));
 
             if (template != null)
             {
-                subject = templateEngine.Render(template.SubjectTemplate, command.Channel, command.Parameters);
-                body = templateEngine.Render(template.BodyTemplate, command.Channel, command.Parameters);
-            }
-            else
-            {
-                body = string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}={kv.Value}"));
+                var renderedSubject = templateEngine.Render(template.SubjectTemplate, command.Channel, command.Parameters);
+                var renderedBody = templateEngine.Render(template.BodyTemplate, command.Channel, command.Parameters);
+
+                if (!string.IsNullOrWhiteSpace(renderedSubject)) subject = renderedSubject;
+                if (!string.IsNullOrWhiteSpace(renderedBody)) body = renderedBody;
             }
 
             var channelSetting = await _subscriberChannelRepository.GetSettingAsync(command.SubscriberId, command.Channel);

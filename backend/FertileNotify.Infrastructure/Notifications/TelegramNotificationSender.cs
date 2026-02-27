@@ -8,7 +8,7 @@ namespace FertileNotify.Infrastructure.Notifications
 {
     public class TelegramNotificationSender : INotificationSender
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<TelegramNotificationSender> _logger;
         private readonly HttpClient _httpClient;
 
         public TelegramNotificationSender(ILogger<TelegramNotificationSender> logger, HttpClient httpClient)
@@ -28,15 +28,27 @@ namespace FertileNotify.Infrastructure.Notifications
 
                 var url = $"https://api.telegram.org/bot{botToken}/sendMessage";
                 var payload = new { 
-                    chat_id = recipient, 
+                    chat_id = recipient,
                     text = $"*{subject}*\n\n{body}", 
                     parse_mode = "Markdown" 
                 };
 
                 var response = await _httpClient.PostAsJsonAsync(url, payload);
-                return response.IsSuccessStatusCode;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDetails = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Telegram API Error: {Error}", errorDetails);
+                    return false;
+                }
+                _logger.LogInformation("[TELEGRAM] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
+                return true;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Telegram Exception");
+                return false;
+            }
         }
     }
 }
