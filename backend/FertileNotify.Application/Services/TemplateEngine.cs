@@ -1,47 +1,38 @@
-﻿using Mjml.Net;
-using FertileNotify.Domain.ValueObjects;
+﻿using FertileNotify.Domain.ValueObjects;
+using Mjml.Net;
 
 namespace FertileNotify.Application.Services
 {
     public class TemplateEngine
     {
-        private readonly IMjmlRenderer _mjmlRenderer = new MjmlRenderer();
+        private readonly IMjmlRenderer _mjmlRenderer;
+
+        public TemplateEngine(IMjmlRenderer mjmlRenderer)
+        {
+            _mjmlRenderer = mjmlRenderer;
+        }
 
         public string Render(string template, NotificationChannel channel, Dictionary<string, string> parameters)
         {
-            if (string.IsNullOrWhiteSpace(template))
-                return string.Empty;
+            if (string.IsNullOrEmpty(template)) return string.Empty;
 
-            string processedText = template;
-            if (parameters != null && parameters.Any())
+            string rendered = template;
+            if (parameters != null)
             {
                 foreach (var param in parameters)
                 {
-                    processedText = processedText.Replace($"{{{param.Key}}}", param.Value);
+                    rendered = rendered.Replace($"{{{param.Key}}}", param.Value);
                 }
             }
 
             if (channel.Equals(NotificationChannel.Email))
             {
-                var result = _mjmlRenderer.Render(processedText, new MjmlOptions
-                {
-                    Beautify = false
-                });
-
+                var result = _mjmlRenderer.Render(rendered);
                 return result.Html;
             }
 
-            if (channel.Equals(NotificationChannel.SMS))
-            {
-                return processedText;
-            }
-
-            if (channel.Equals(NotificationChannel.Console))
-            {
-                return processedText;
-            }
-
-            return string.Empty;
+            // Telegram, Console ve SMS buradan geçer ve değişkenleri dolmuş halde döner.
+            return rendered;
         }
     }
 }
