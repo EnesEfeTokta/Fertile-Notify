@@ -206,7 +206,6 @@ builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
 builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
 builder.Services.AddScoped<INotificationSender, WhatsAppNotificationSender>();
-builder.Services.AddScoped<INotificationSender, SignalNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
