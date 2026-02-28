@@ -19,6 +19,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using Mjml.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -204,17 +205,18 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
 builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
-builder.Services.AddScoped<INotificationSender, DiscordNotificationSender>();
 builder.Services.AddScoped<INotificationSender, WhatsAppNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SignalNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
-builder.Services.AddScoped<TemplateEngine>();
+builder.Services.AddScoped<TemplateEngine>(); 
+builder.Services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
 
 // --- HTTP CLIENT ---
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<INotificationSender, TelegramNotificationSender>();
+builder.Services.AddHttpClient<INotificationSender, DiscordNotificationSender>();
 
 var app = builder.Build();
 

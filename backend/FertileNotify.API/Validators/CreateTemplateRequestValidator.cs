@@ -36,6 +36,7 @@ namespace FertileNotify.API.Validators
             try { Domain.Events.EventType.From(eventType); return true; }
             catch { return false; }
         }
+
         private bool ChannelValid(string channel)
         {
             try { NotificationChannel.From(channel); return true; }

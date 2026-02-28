@@ -30,7 +30,7 @@ namespace FertileNotify.API.Controllers
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Channel = NotificationChannel.From(request.Channel.Trim().ToLower()),
-                Recipient = request.Recipient.Trim().ToLower(),
+                Recipient = request.Recipient.Trim(),
                 EventType = EventType.From(request.EventType),
                 Parameters = request.Parameters
             };
