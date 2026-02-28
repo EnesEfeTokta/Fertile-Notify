@@ -2,15 +2,21 @@
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
+using System.Text;
+using System.Text.Json;
 
 namespace FertileNotify.Infrastructure.Notifications
 {
     public class DiscordNotificationSender : INotificationSender
     {
-        private readonly ILogger _logger;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<DiscordNotificationSender> _logger;
 
-        public DiscordNotificationSender(ILogger<DiscordNotificationSender> logger)
+        public DiscordNotificationSender(
+            HttpClient httpClient,
+            ILogger<DiscordNotificationSender> logger)
         {
+            _httpClient = httpClient;
             _logger = logger;
         }
 
@@ -20,16 +26,35 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                _logger.LogInformation(
-                    "[Discord] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
-                    recipient,
-                    subject,
-                    body
-                );
-                await Task.Delay(1); // TEST
+                if (providerSettings == null || !providerSettings.TryGetValue("DiscordWebhookUrl", out var webhookUrl))
+                    return false;
+
+                var payload = new
+                {
+                    content = $"_**Contact Person: {recipient}**_\n+--------------------------+\n**{subject}**\n{body}"
+                };
+
+                var json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(webhookUrl, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("[DISCORD] Send failed: {Error}", error);
+                    throw new Exception($"Discord send failed: {response.StatusCode}");
+                }
+                _logger.LogInformation("[DISCORD] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
                 return true;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, 
+                    "[DISCORD] -> Exception while sending Discord notification to {Recipient} for subscriber {SubscriberId} and event {EventType}", 
+                    recipient, subscriberId, eventType);
+                return false; 
+            }
         }
     }
 }

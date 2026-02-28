@@ -23,7 +23,7 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                if (providerSettings == null || !providerSettings.TryGetValue("BotToken", out var botToken))
+                if (providerSettings == null || !providerSettings.TryGetValue("TelegramBotToken", out var botToken))
                     return false;
 
                 var url = $"https://api.telegram.org/bot{botToken}/sendMessage";
@@ -37,16 +37,18 @@ namespace FertileNotify.Infrastructure.Notifications
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorDetails = await response.Content.ReadAsStringAsync();
-                    _logger.LogError("Telegram API Error: {Error}", errorDetails);
-                    return false;
+                    var error = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Telegram API Error: {Error}", error);
+                    throw new Exception($"Telegram send failed: {response.StatusCode}");
                 }
                 _logger.LogInformation("[TELEGRAM] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Telegram Exception");
+                _logger.LogError(ex, 
+                    "[TELEGRAM] -> Exception while sending Telegram notification to {Recipient} for subscriber {SubscriberId} and event {EventType}", 
+                    recipient, subscriberId, eventType);
                 return false;
             }
         }

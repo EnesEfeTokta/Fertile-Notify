@@ -187,16 +187,15 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's API Key has been decommissioned."));
         }
 
-        [HttpPost("settings/telegram")]
-        public async Task<IActionResult> SetTelegramSettings([FromBody] string botToken)
+        [HttpPost("settings/channel-setting")]
+        public async Task<IActionResult> SetChannelSetting([FromBody] ChannelSettingRequest request)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-
-            var settings = new Dictionary<string, string> { { "BotToken", botToken } };
-            var channelSetting = new SubscriberChannelSetting(subscriberId, NotificationChannel.Telegram, settings);
+            var channel = NotificationChannel.From(request.Channel);
+            var channelSetting = new SubscriberChannelSetting(subscriberId, channel, request.Settings);
 
             await _subscriberChannelRepository.SaveAsync(channelSetting);
-            return Ok(new { message = "Telegram bot configured successfully." });
+            return Ok(new { message = $"{channel} configured successfully." });
         }
 
         [NonAction]
