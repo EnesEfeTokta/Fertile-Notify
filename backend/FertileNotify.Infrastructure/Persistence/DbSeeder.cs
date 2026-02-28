@@ -27,8 +27,7 @@ namespace FertileNotify.Infrastructure.Persistence
                         NotificationChannel.Console,
                         NotificationChannel.Discord,
                         NotificationChannel.Telegram,
-                        NotificationChannel.WhatsApp,
-                        NotificationChannel.Signal
+                        NotificationChannel.WhatsApp
                     };
 
                     foreach (var channel in channels)
