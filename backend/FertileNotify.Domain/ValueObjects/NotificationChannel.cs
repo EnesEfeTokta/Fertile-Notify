@@ -10,22 +10,32 @@ namespace FertileNotify.Domain.ValueObjects
         }
 
         public static readonly NotificationChannel Console = new("console");
-        public static readonly NotificationChannel SMS = new("sms");
         public static readonly NotificationChannel Email = new("email");
+        public static readonly NotificationChannel SMS = new("sms");
+        public static readonly NotificationChannel WhatsApp = new("whatsapp");
         public static readonly NotificationChannel Telegram = new("telegram");
         public static readonly NotificationChannel Discord = new("discord");
-        public static readonly NotificationChannel WhatsApp = new("whatsapp");
+        public static readonly NotificationChannel Slack = new("slack");
+        public static readonly NotificationChannel MSTeams = new("msteams");
+        public static readonly NotificationChannel FirebasePush = new("firebasepush");
+        public static readonly NotificationChannel WebPush = new("webpush");
+        public static readonly NotificationChannel Webhook = new("webhook");
 
         public static NotificationChannel From(string value)
         {
             return value switch
             {
                 "console" => Console,
-                "sms" => SMS,
                 "email" => Email,
+                "sms" => SMS,
+                "whatsapp" => WhatsApp,
                 "telegram" => Telegram,
                 "discord" => Discord,
-                "whatsapp" => WhatsApp,
+                "slack" => Slack,
+                "msteams" => MSTeams,
+                "firebasepush" => FirebasePush,
+                "webpush" => WebPush,
+                "webhook" => Webhook,
                 _ => throw new ArgumentException($"Unknown notification channel: {value}")
             };
         }
