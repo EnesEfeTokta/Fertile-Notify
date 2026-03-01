@@ -205,6 +205,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
 builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
+builder.Services.AddScoped<INotificationSender, SlackNotificationSender>();
+builder.Services.AddScoped<INotificationSender, MSTeamsNotificationSender>();
+builder.Services.AddScoped<INotificationSender, FirebasePushNotificationSender>();
+builder.Services.AddScoped<INotificationSender, WebPushNotificationSender>();
+builder.Services.AddScoped<INotificationSender, WebhookNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
