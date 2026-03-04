@@ -21,10 +21,7 @@ namespace FertileNotify.Domain.Entities
             foreach (var s in settings) _settings.Add(s.Key, s.Value);
         }
 
-        public void UpdateSettings(Dictionary<string, string> newSettings)
-        {
-            _settings.Clear();
-            foreach (var s in newSettings) _settings.Add(s.Key, s.Value);
-        }
+        public void UpdateSetting(string key, string value)
+            => _settings[key] = value;
     }
 }

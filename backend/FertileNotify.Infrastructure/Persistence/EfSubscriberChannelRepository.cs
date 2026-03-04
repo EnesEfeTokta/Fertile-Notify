@@ -16,13 +16,16 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public async Task SaveAsync(SubscriberChannelSetting setting)
         {
-            var existing = await _context.SubscriberChannelSettings
+            var existingSetting = await _context.SubscriberChannelSettings
                 .FirstOrDefaultAsync(s => s.SubscriberId == setting.SubscriberId && s.Channel == setting.Channel);
 
-            if (existing != null)
+            if (existingSetting != null)
             {
-                existing.UpdateSettings(setting.Settings as Dictionary<string, string> ?? default!);
-                _context.SubscriberChannelSettings.Update(existing);
+                foreach (var keyValuePair in setting.Settings)
+                {
+                    existingSetting.UpdateSetting(keyValuePair.Key, keyValuePair.Value);
+                }
+                _context.SubscriberChannelSettings.Update(existingSetting);
             }
             else
             {
