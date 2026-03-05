@@ -25,7 +25,12 @@ namespace FertileNotify.API.Validators
 
         private bool SettingsValid(Dictionary<string, string> settings)
         {
-            var usebleKeys = new[] { "TelegramBotToken", "DiscordWebhookUrl", "TwilioSid", "TwilioToken", "TwilioFrom", "SlackAccessToken", "MSTeamsWebhookUrl" };
+            var usebleKeys = new[] 
+            { 
+                "TelegramBotToken", "DiscordWebhookUrl", "TwilioSid", 
+                "TwilioToken", "TwilioFrom", "SlackAccessToken", 
+                "MSTeamsWebhookUrl", "FirebaseServiceAccountJson" 
+            };
             return settings.Keys.All(k => usebleKeys.Contains(k));
         }
     }
