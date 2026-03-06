@@ -208,7 +208,6 @@ builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SlackNotificationSender>();
 builder.Services.AddScoped<INotificationSender, FirebasePushNotificationSender>();
 builder.Services.AddScoped<INotificationSender, WebPushNotificationSender>();
-builder.Services.AddScoped<INotificationSender, WebhookNotificationSender>();
 
 builder.Services.AddScoped<ProcessEventHandler>();
 builder.Services.AddScoped<RegisterSubscriberHandler>();
@@ -221,6 +220,7 @@ builder.Services.AddHttpClient<INotificationSender, TelegramNotificationSender>(
 builder.Services.AddHttpClient<INotificationSender, DiscordNotificationSender>();
 builder.Services.AddHttpClient<INotificationSender, WhatsAppNotificationSender>();
 builder.Services.AddHttpClient<INotificationSender, MSTeamsNotificationSender>();
+builder.Services.AddHttpClient<INotificationSender, WebhookNotificationSender>();
 
 var app = builder.Build();
 
