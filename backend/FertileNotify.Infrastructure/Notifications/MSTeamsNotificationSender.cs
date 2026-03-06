@@ -24,7 +24,7 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                if (providerSettings == null || !providerSettings.TryGetValue("MSTeamsWebhookUrl", out var url))
+                if (providerSettings == null || !providerSettings.TryGetValue("MSTeams_WebhookUrl", out var url))
                 {
                     _logger.LogWarning("[MSTEAMS] Webhook URL not found for subscriber {SubId}", subscriberId);
                     return false;

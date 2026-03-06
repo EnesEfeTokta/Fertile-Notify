@@ -23,7 +23,7 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                if (providerSettings == null || !providerSettings.TryGetValue("TelegramBotToken", out var botToken))
+                if (providerSettings == null || !providerSettings.TryGetValue("Telegram_BotToken", out var botToken))
                     return false;
 
                 var url = $"https://api.telegram.org/bot{botToken}/sendMessage";
