@@ -27,9 +27,12 @@ namespace FertileNotify.API.Validators
         {
             var usebleKeys = new[] 
             { 
-                "TelegramBotToken", "DiscordWebhookUrl", "TwilioSid", 
-                "TwilioToken", "TwilioFrom", "SlackAccessToken", 
-                "MSTeamsWebhookUrl", "FirebaseServiceAccountJson" 
+                "Telegram_BotToken", "Discord_WebhookUrl", "WhatsApp_TwilioSid",
+                "WhatsApp_TwilioToken", "WhatsApp_TwilioFrom", "Slack_AccessToken", 
+                "MSTeams_WebhookUrl", "Firebase_ServiceAccountJson",
+                "WebPush_VapidPublicKey", "WebPush_VapidPrivateKey",
+                "WebPush_OwnerEmail", "WebPush_Icon", "WebPush_WebUrl",
+                "Webhook_Secret"
             };
             return settings.Keys.All(k => usebleKeys.Contains(k));
         }
