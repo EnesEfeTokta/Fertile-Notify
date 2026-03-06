@@ -9,12 +9,22 @@ namespace FertileNotify.API.Validators
     {
         public SendNotificationRequestValidator()
         {
-            RuleFor(x => x.Channel)
-                .NotEmpty().WithMessage("Channel is required.")
-                .Must(ChannelValid).WithMessage("Invalid Channel.");
+            RuleFor(x => x.To)
+                .NotEmpty().WithMessage("Recipient list ('To') cannot be empty.")
+                .Must(to => to.Sum(group => group.Recipients.Count) <= 1000)
+                .WithMessage("Total recipients across all channels cannot exceed 1000 in a single request.");
 
-            RuleFor(x => x.Recipient)
-                .NotEmpty().WithMessage("Recipient is required.");
+            RuleForEach(x => x.To).ChildRules(group =>
+            {
+                group.RuleFor(g => g.Channel)
+                    .NotEmpty().WithMessage("Channel name is required.")
+                    .Must(ChannelValid).WithMessage("Invalid Channel: '{PropertyValue}'.");
+
+                group.RuleFor(g => g.Recipients)
+                    .NotEmpty().WithMessage("Recipient list for channel '{ParentContext.InstanceToValidate.Channel}' cannot be empty.")
+                    .Must(r => r.All(addr => !string.IsNullOrWhiteSpace(addr)))
+                    .WithMessage("Recipient addresses cannot be empty or whitespace.");
+            });
 
             RuleFor(x => x.EventType)
                 .NotEmpty().WithMessage("EventType is required.")
@@ -26,7 +36,7 @@ namespace FertileNotify.API.Validators
         }
 
         private bool ChannelValid(string channel)
-        {
+        { 
             try { NotificationChannel.From(channel); return true; }
             catch { return false; }
         }
@@ -38,6 +48,9 @@ namespace FertileNotify.API.Validators
         }
 
         private bool CheckParameters(Dictionary<string, string> parameters)
-            => !parameters.Any(p => string.IsNullOrWhiteSpace(p.Key) || string.IsNullOrWhiteSpace(p.Value));
+        {
+            if (parameters == null) return true;
+            return !parameters.Any(p => string.IsNullOrWhiteSpace(p.Key) || string.IsNullOrWhiteSpace(p.Value));
+        }
     }
 }

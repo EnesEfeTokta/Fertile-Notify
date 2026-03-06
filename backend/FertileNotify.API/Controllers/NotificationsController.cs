@@ -26,43 +26,40 @@ namespace FertileNotify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
-            var command = new ProcessEventCommand
+            var subscriberId = GetSubscriberIdFromClaims();
+
+            var eventType = EventType.From(request.EventType);
+            var parameters = request.Parameters;
+
+            int totalQueued = 0;
+
+            foreach (var group in request.To)
             {
-                SubscriberId = GetSubscriberIdFromClaims(),
-                Channel = NotificationChannel.From(request.Channel.Trim().ToLower()),
-                Recipient = request.Recipient.Trim(),
-                EventType = EventType.From(request.EventType),
-                Parameters = request.Parameters
-            };
-
-            await _queue.QueueBackgroundWorkItemAsync(command);
-            return Accepted(ApiResponse<object>.SuccessResult(new { status = "Queued" }, "The notification has been added to the queue."));
-        }
-
-        [HttpPost("bulk")]
-        public async Task<IActionResult> BulkSend([FromBody] SendBulkNotificationRequest request)
-        {
-            Guid id = GetSubscriberIdFromClaims();
-
-            foreach (var recipient in request.Recipients)
-            {
-                var command = new ProcessEventCommand
+                var channel = NotificationChannel.From(group.Channel);
+                foreach (var recipientAddress in group.Recipients)
                 {
-                    SubscriberId = id,
-                    Channel = NotificationChannel.From(request.Channel),
-                    Recipient = recipient,
-                    EventType = EventType.From(request.EventType),
-                    Parameters = request.Parameters
-                };
+                    var command = new ProcessEventCommand
+                    {
+                        SubscriberId = subscriberId,
+                        Channel = channel,
+                        Recipient = recipientAddress.Trim(),
+                        EventType = eventType,
+                        Parameters = parameters
+                    };
 
-                await _queue.QueueBackgroundWorkItemAsync(command);
+                    await _queue.QueueBackgroundWorkItemAsync(command);
+                    totalQueued++;
+                }
             }
 
-            return Accepted(ApiResponse<object>.SuccessResult(new
-            {
-                status = "Queued",
-                totalRequested = request.Recipients.Count
-            }, $"{request.Recipients.Count} notifications have been added to the queue."));
+            return Accepted(ApiResponse<object>.SuccessResult(
+                new
+                {
+                    status = "Queued",
+                    count = totalQueued
+                },
+                $"Total {totalQueued} notifications have been added to the queue.")
+            );
         }
 
         [NonAction]

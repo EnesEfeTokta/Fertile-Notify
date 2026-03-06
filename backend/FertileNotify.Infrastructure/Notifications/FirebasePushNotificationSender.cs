@@ -23,7 +23,7 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                if (providerSettings == null || !providerSettings.TryGetValue("FirebaseServiceAccountJson", out var jsonKey))
+                if (providerSettings == null || !providerSettings.TryGetValue("Firebase_ServiceAccountJson", out var jsonKey))
                 {
                     _logger.LogWarning("[FIREBASE] Access Token not found for subscriber {SubId}", subscriberId);
                     return false;

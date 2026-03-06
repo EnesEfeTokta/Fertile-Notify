@@ -25,9 +25,9 @@ namespace FertileNotify.Infrastructure.Notifications
             try
             {
                 if (providerSettings == null ||
-                    !providerSettings.TryGetValue("TwilioSid", out var sid) ||
-                    !providerSettings.TryGetValue("TwilioToken", out var token) ||
-                    !providerSettings.TryGetValue("TwilioFrom", out var fromNumber))
+                    !providerSettings.TryGetValue("WhatsApp_TwilioSid", out var sid) ||
+                    !providerSettings.TryGetValue("WhatsApp_TwilioToken", out var token) ||
+                    !providerSettings.TryGetValue("WhatsApp_TwilioFrom", out var fromNumber))
                 {
                     return false;
                 }

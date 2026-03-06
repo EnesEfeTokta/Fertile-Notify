@@ -27,7 +27,7 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                if (providerSettings == null || !providerSettings.TryGetValue("SlackAccessToken", out var token))
+                if (providerSettings == null || !providerSettings.TryGetValue("Slack_AccessToken", out var token))
                 {
                     _logger.LogWarning("[SLACK] Access Token not found for subscriber {SubId}", subscriberId);
                     return false;

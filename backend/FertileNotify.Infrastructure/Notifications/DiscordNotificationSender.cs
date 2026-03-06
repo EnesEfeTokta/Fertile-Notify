@@ -26,7 +26,7 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                if (providerSettings == null || !providerSettings.TryGetValue("DiscordWebhookUrl", out var webhookUrl))
+                if (providerSettings == null || !providerSettings.TryGetValue("Discord_WebhookUrl", out var webhookUrl))
                     return false;
 
                 var payload = new
