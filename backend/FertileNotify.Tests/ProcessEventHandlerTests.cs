@@ -18,6 +18,7 @@ namespace FertileNotify.Tests
         private readonly Mock<ISubscriberRepository> _mockSubscriberRepo;
         private readonly Mock<ITemplateRepository> _mockTemplateRepo;
         private readonly Mock<ISubscriberChannelRepository> _mockSubscriberChannelRepo;
+        private readonly Mock<IStatsRepository> _mockStatsRepo;
         private readonly Mock<INotificationSender> _mockEmailSender;
         private readonly Mock<ILogger<ProcessEventHandler>> _mockLogger;
         private readonly Mock<IMjmlRenderer> _mockMjmlRenderer;
@@ -31,6 +32,7 @@ namespace FertileNotify.Tests
             _mockSubscriberRepo = new Mock<ISubscriberRepository>();
             _mockTemplateRepo = new Mock<ITemplateRepository>();
             _mockSubscriberChannelRepo = new Mock<ISubscriberChannelRepository>();
+            _mockStatsRepo = new Mock<IStatsRepository>();
             _mockEmailSender = new Mock<INotificationSender>();
             _mockLogger = new Mock<ILogger<ProcessEventHandler>>();
             _mockMjmlRenderer = new Mock<IMjmlRenderer>();
@@ -50,6 +52,7 @@ namespace FertileNotify.Tests
                 _mockTemplateRepo.Object,
                 _mockSubscriberChannelRepo.Object,
                 _templateEngine,
+                _mockStatsRepo.Object,
                 _mockLogger.Object
             );
         }

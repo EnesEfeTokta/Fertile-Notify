@@ -24,14 +24,28 @@ namespace FertileNotify.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStats([FromQuery] string period = "daily")
         {
+            string normalizedPeriod = period.ToLower();
             var subscriberId = GetSubscriberIdFromClaims();
 
             var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriberId)
                 ?? throw new NotFoundException("Subscription not found.");
 
-            var stats = await _statisticsService.GetSubscriberStatsAsync(subscriberId, period.ToLower(), subscription.Plan);
+            var stats = await _statisticsService.GetSubscriberStatsAsync(subscriberId, normalizedPeriod, subscription.Plan);
 
-            return Ok(ApiResponse<object>.SuccessResult(stats, "Statistics retrieved successfully."));
+            var result = new
+            {
+                UsageStats = stats,
+                SubscriptionSummary = new
+                {
+                    Plan = subscription.Plan.ToString(),
+                    Limit = subscription.MonthlyLimit,
+                    Used = subscription.UsedThisMonth,
+                    Remaining = subscription.MonthlyLimit - subscription.UsedThisMonth,
+                    ExpiresAt = subscription.ExpiresAt
+                }
+            };
+
+            return Ok(ApiResponse<object>.SuccessResult(result, "Statistics retrieved successfully."));
         }
 
         [NonAction]

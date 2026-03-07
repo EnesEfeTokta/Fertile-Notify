@@ -8,27 +8,39 @@ namespace FertileNotify.Application.Services
     public class StatisticsService : IStatisticsService
     {
         private readonly INotificationLogRepository _logRepository;
+        private readonly IStatsRepository _statsRepository;
 
-        public StatisticsService(INotificationLogRepository logRepository)
+        public StatisticsService(INotificationLogRepository logRepository, IStatsRepository statsRepository)
         {
             _logRepository = logRepository;
+            _statsRepository = statsRepository;
         }
 
         public async Task<StatisticsDto> GetSubscriberStatsAsync(Guid subscriberId, string period, SubscriptionPlan plan)
         {
             ValidatePeriodAccess(period, plan);
-
             DateTime startDate = CalculateStartDate(period);
-
-            var logs = await _logRepository.GetLogsForStatsAsync(subscriberId, startDate);
+            var statsData = await _statsRepository.GetStatsAsync(subscriberId, startDate, DateTime.UtcNow);
 
             return new StatisticsDto
             {
-                TotalUsage = logs.Count,
-                SuccessCount = logs.Count(l => l.Status == DeliveryStatus.Success),
-                FailedCount = logs.Count(l => l.Status == DeliveryStatus.Failed),
-                StatsByChannel = logs.GroupBy(l => l.Channel).ToDictionary(g => g.Key.Name, g => g.Count()),
-                StatsByEventType = logs.GroupBy(l => l.EventType).ToDictionary(g => g.Key.Name, g => g.Count())
+                TotalUsage = statsData.Sum(s => s.SuccessCount + s.FailedCount),
+                SuccessCount = statsData.Sum(s => s.SuccessCount),
+                FailedCount = statsData.Sum(s => s.FailedCount),
+
+                StatsByChannel = statsData
+                    .GroupBy(s => s.Channel)
+                    .ToDictionary(
+                        g => g.Key.Name,
+                        g => g.Sum(s => s.SuccessCount + s.FailedCount)
+                    ),
+
+                StatsByEventType = statsData
+                    .GroupBy(s => s.EventType)
+                    .ToDictionary(
+                        g => g.Key.Name,
+                        g => g.Sum(s => s.SuccessCount + s.FailedCount)
+                    )
             };
         }
 

@@ -148,6 +148,7 @@ builder.Services.AddScoped<ITemplateRepository, EfTemplateRepository>();
 builder.Services.AddScoped<IApiKeyRepository, EfApiKeyRepository>();
 builder.Services.AddScoped<INotificationLogRepository, EfNotificationLogRepository>();
 builder.Services.AddScoped<ISubscriberChannelRepository, EfSubscriberChannelRepository>();
+builder.Services.AddScoped<IStatsRepository, EfStatsRepository>();
 
 // --- NOTIFICATION LOG ---
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
