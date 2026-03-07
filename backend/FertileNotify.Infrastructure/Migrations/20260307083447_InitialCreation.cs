@@ -29,6 +29,23 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DailyStats",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    EventType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    SuccessCount = table.Column<int>(type: "integer", nullable: false),
+                    FailedCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DailyStats", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NotificationLogs",
                 columns: table => new
                 {
@@ -117,6 +134,11 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_DailyStats_SubscriberId_Channel",
+                table: "DailyStats",
+                columns: new[] { "SubscriberId", "Channel" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubscriberChannelSettings_SubscriberId_Channel",
                 table: "SubscriberChannelSettings",
                 columns: new[] { "SubscriberId", "Channel" });
@@ -127,6 +149,9 @@ namespace FertileNotify.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ApiKeys");
+
+            migrationBuilder.DropTable(
+                name: "DailyStats");
 
             migrationBuilder.DropTable(
                 name: "NotificationLogs");

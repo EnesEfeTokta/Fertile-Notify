@@ -1,6 +1,8 @@
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Services;
+using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Exceptions;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.UseCases.ProcessEvent
@@ -9,10 +11,11 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ISubscriberRepository _subscriberRepository;
-        private readonly IEnumerable<INotificationSender> _senders;
         private readonly ITemplateRepository _templateRepository;
         private readonly ISubscriberChannelRepository _subscriberChannelRepository;
-        private readonly TemplateEngine templateEngine;
+        private readonly IEnumerable<INotificationSender> _senders;
+        private readonly TemplateEngine _templateEngine;
+        private readonly IStatsRepository _statsRepository;
         private readonly ILogger<ProcessEventHandler> _logger;
 
         public ProcessEventHandler(
@@ -22,27 +25,44 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             ITemplateRepository templateRepository,
             ISubscriberChannelRepository subscriberChannelRepository,
             TemplateEngine templateEngine,
-            ILogger<ProcessEventHandler> logger
-        )
+            IStatsRepository statsRepository,
+            ILogger<ProcessEventHandler> logger)
         {
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
             _senders = senders;
             _templateRepository = templateRepository;
             _subscriberChannelRepository = subscriberChannelRepository;
-            this.templateEngine = templateEngine;
+            _templateEngine = templateEngine;
+            _statsRepository = statsRepository;
             _logger = logger;
         }
 
         public async Task HandleAsync(ProcessEventCommand command)
         {
-            _logger.LogInformation(
-                "Processing event {EventType} for Subscriber: {SubscriberId}. Channel: {Channel}",
-                command.EventType.Name,
-                command.SubscriberId,
-                command.Channel
-            );
+            _logger.LogInformation("[HANDLING] Event: {Event}, Channel: {Channel}, Sub: {SubId}",
+                command.EventType.Name, command.Channel.Name, command.SubscriberId);
 
+            var (subscriber, subscription) = await GetAndValidateEntities(command);
+
+            var (subject, body) = await PrepareContent(command);
+
+            var sender = GetSender(command.Channel);
+            var channelSetting = await _subscriberChannelRepository.GetSettingAsync(command.SubscriberId, command.Channel);
+
+            bool isSuccess = await sender.SendAsync(
+                command.SubscriberId,
+                command.Recipient,
+                command.EventType,
+                subject,
+                body,
+                channelSetting?.Settings);
+
+            await FinalizeProcess(command, subscription, isSuccess);
+        }
+
+        private async Task<(Subscriber, Subscription)> GetAndValidateEntities(ProcessEventCommand command)
+        {
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found");
 
@@ -50,54 +70,59 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
                 ?? throw new NotFoundException("Subscription not found");
 
             if (!subscription.CanHandle(command.EventType))
-                throw new BusinessRuleException($"Subscription plan does not support event type: {command.EventType.Name}");
+                throw new BusinessRuleException($"Plan does not support event: {command.EventType.Name}");
 
             if (!subscriber.ActiveChannels.Contains(command.Channel))
-                throw new BusinessRuleException($"Subscriber is not enabled for channel: {command.Channel}");
+                throw new BusinessRuleException($"Channel {command.Channel.Name} is not enabled for this subscriber.");
 
             subscription.EnsureCanSendNotification();
 
+            return (subscriber, subscription);
+        }
+
+        private async Task<(string Subject, string Body)> PrepareContent(ProcessEventCommand command)
+        {
             var template = await _templateRepository.GetTemplateAsync(command.EventType, command.Channel, command.SubscriberId)
-                ?? throw new NotFoundException($"No template found for {command.EventType.Name} on channel {command.Channel.Name}");
+                ?? throw new NotFoundException($"No template for {command.EventType.Name} on {command.Channel.Name}");
 
-            string subject = command.EventType.Name;
-            string body = string.Join(", ", command.Parameters.Select(kv => $"{kv.Key}: {kv.Value}"));
+            var subject = _templateEngine.Render(template.SubjectTemplate, command.Channel, command.Parameters);
+            var body = _templateEngine.Render(template.BodyTemplate, command.Channel, command.Parameters);
 
-            if (template != null)
-            {
-                var renderedSubject = templateEngine.Render(template.SubjectTemplate, command.Channel, command.Parameters);
-                var renderedBody = templateEngine.Render(template.BodyTemplate, command.Channel, command.Parameters);
+            return (subject, body);
+        }
 
-                if (!string.IsNullOrWhiteSpace(renderedSubject)) subject = renderedSubject;
-                if (!string.IsNullOrWhiteSpace(renderedBody)) body = renderedBody;
-            }
-
-            var channelSetting = await _subscriberChannelRepository.GetSettingAsync(command.SubscriberId, command.Channel);
-
-            var sender = _senders.FirstOrDefault(s => s.Channel.Equals(command.Channel));
-
+        private INotificationSender GetSender(NotificationChannel channel)
+        {
+            var sender = _senders.FirstOrDefault(s => s.Channel.Equals(channel));
             if (sender == null)
             {
-                _logger.LogError("No implementation found for channel: {Channel}", command.Channel);
-                throw new Exception($"System configuration error: No sender found for {command.Channel}");
+                _logger.LogError("Sender not implemented for: {Channel}", channel.Name);
+                throw new Exception($"System Error: No sender for {channel.Name}");
             }
+            return sender;
+        }
 
-            _logger.LogInformation(
-                "Sending notification via {Channel} to Recipient: {Recipient}",
+        private async Task FinalizeProcess(ProcessEventCommand command, Subscription subscription, bool isSuccess)
+        {
+            await _statsRepository.IncrementAsync(
+                command.SubscriberId,
                 command.Channel,
-                command.Recipient
+                command.EventType,
+                isSuccess
             );
 
-            await sender.SendAsync(command.SubscriberId, command.Recipient, command.EventType, subject, body, channelSetting?.Settings);
+            if (isSuccess)
+            {
+                subscription.IncreaseUsage();
+                await _subscriptionRepository.SaveAsync(command.SubscriberId, subscription);
 
-            subscription.IncreaseUsage();
-            await _subscriptionRepository.SaveAsync(command.SubscriberId, subscription);
-
-            _logger.LogInformation(
-                "Notification sent successfully. Used: {Used}/{Limit}",
-                subscription.UsedThisMonth,
-                subscription.MonthlyLimit
-            );
+                _logger.LogInformation("[SUCCESS] Notification processed. Usage: {Used}/{Limit}",
+                    subscription.UsedThisMonth, subscription.MonthlyLimit);
+            }
+            else
+            {
+                _logger.LogWarning("[FAILED] Notification could not be sent to {Recipient}", command.Recipient);
+            }
         }
     }
 }

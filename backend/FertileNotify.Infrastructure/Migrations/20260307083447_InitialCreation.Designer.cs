@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FertileNotify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260301090553_InitialCreation")]
+    [Migration("20260307083447_InitialCreation")]
     partial class InitialCreation
     {
         /// <inheritdoc />
@@ -207,6 +207,41 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.HasIndex("SubscriberId", "Channel");
 
                     b.ToTable("SubscriberChannelSettings");
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.SubscriberDailyStats", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("FailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SubscriberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SuccessCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriberId", "Channel");
+
+                    b.ToTable("DailyStats");
                 });
 
             modelBuilder.Entity("FertileNotify.Domain.Entities.Subscription", b =>
