@@ -1,10 +1,12 @@
 ﻿using FertileNotify.API.Models.Requests;
 using FertileNotify.API.Models.Responses;
+using FertileNotify.Application.Contracts;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -16,11 +18,11 @@ namespace FertileNotify.API.Controllers
     [Route("api/notifications")]
     public class NotificationsController : ControllerBase
     {
-        private readonly INotificationQueue _queue;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public NotificationsController(INotificationQueue queue)
+        public NotificationsController(IPublishEndpoint publishEndpoint)
         {
-            _queue = queue;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpPost]
@@ -38,16 +40,14 @@ namespace FertileNotify.API.Controllers
                 var channel = NotificationChannel.From(group.Channel);
                 foreach (var recipientAddress in group.Recipients)
                 {
-                    var command = new ProcessEventCommand
+                    await _publishEndpoint.Publish<ProcessNotificationMessage>(new
                     {
                         SubscriberId = subscriberId,
                         Channel = channel,
-                        Recipient = recipientAddress.Trim(),
-                        EventType = eventType,
-                        Parameters = parameters
-                    };
-
-                    await _queue.QueueBackgroundWorkItemAsync(command);
+                        Recipient = recipientAddress,
+                        EventType = request.EventType,
+                        Parameters = request.Parameters
+                    });
                     totalQueued++;
                 }
             }
