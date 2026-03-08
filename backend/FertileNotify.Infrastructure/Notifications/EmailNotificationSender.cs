@@ -1,8 +1,10 @@
 ﻿using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Logging;
-using System.Net.Mail;
+using MimeKit;
 
 namespace FertileNotify.Infrastructure.Notifications
 {
@@ -21,25 +23,36 @@ namespace FertileNotify.Infrastructure.Notifications
         {
             try
             {
-                // Connects to the mailpit service inside Docker
-                // When testing locally, use 'localhost', but inside Docker, use 'mailpit'
-                using var client = new SmtpClient("localhost", 1025);
-
-                var mailMessage = new MailMessage
+                if (providerSettings == null ||
+                    !providerSettings.TryGetValue("SMTP_Host", out var host) ||
+                    !providerSettings.TryGetValue("SMTP_Port", out var port) ||
+                    !providerSettings.TryGetValue("SMTP_Email", out var email) ||
+                    !providerSettings.TryGetValue("SMTP_Password", out var password))
                 {
-                    From = new MailAddress("test@fertilenotify.local"),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true
-                };
-                mailMessage.To.Add(recipient);
+                    return false;
+                }
 
-                await client.SendMailAsync(mailMessage);
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(providerSettings.GetValueOrDefault("SMTP_OwnerName", "Fertile Notify"), email));
+                message.To.Add(MailboxAddress.Parse(recipient));
+                message.Subject = subject;
+
+                var bodyBuilder = new BodyBuilder { HtmlBody = body };
+                message.Body = bodyBuilder.ToMessageBody();
+
+                using var client = new SmtpClient();
+
+                await client.ConnectAsync(host, int.Parse(port), SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync(email, password.Trim());
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
+                _logger.LogInformation("[EMAIL] Sent successfully via MailKit to {Recipient}", recipient);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[MAILPIT ERROR] Connection failed.");
+                _logger.LogError(ex, "[MAILKIT ERROR] Sending failed for {SubId}", subscriberId);
                 return false;
             }
         }

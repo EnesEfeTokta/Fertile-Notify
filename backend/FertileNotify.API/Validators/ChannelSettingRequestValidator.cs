@@ -32,7 +32,8 @@ namespace FertileNotify.API.Validators
                 "MSTeams_WebhookUrl", "Firebase_ServiceAccountJson",
                 "WebPush_VapidPublicKey", "WebPush_VapidPrivateKey",
                 "WebPush_OwnerEmail", "WebPush_Icon", "WebPush_WebUrl",
-                "Webhook_Secret"
+                "Webhook_Secret", "SMTP_Host", "SMTP_Port", "SMTP_Email", 
+                "SMTP_Password", "SMTP_OwnerName"
             };
             return settings.Keys.All(k => usebleKeys.Contains(k));
         }

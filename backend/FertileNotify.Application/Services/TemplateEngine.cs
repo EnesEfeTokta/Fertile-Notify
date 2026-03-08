@@ -17,21 +17,24 @@ namespace FertileNotify.Application.Services
             if (string.IsNullOrEmpty(template)) return string.Empty;
 
             string rendered = template;
+
             if (parameters != null)
             {
                 foreach (var param in parameters)
                 {
-                    rendered = rendered.Replace($"{{{param.Key}}}", param.Value);
+                    rendered = rendered.Replace($"{{{param.Key}}}", param.Value ?? string.Empty);
                 }
             }
 
             if (channel.Equals(NotificationChannel.Email))
             {
-                var result = _mjmlRenderer.Render(rendered);
-                return result.Html;
+                var mjmlResult = _mjmlRenderer.Render(rendered.Trim());
+
+                if (string.IsNullOrEmpty(mjmlResult.Html)) 
+                    return rendered;
+                return mjmlResult.Html;
             }
 
-            // Telegram, Console ve SMS buradan geçer ve değişkenleri dolmuş halde döner.
             return rendered;
         }
     }
