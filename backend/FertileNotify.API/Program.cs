@@ -8,18 +8,18 @@ using FertileNotify.Infrastructure.Authentication;
 using FertileNotify.Infrastructure.BackgroundJobs;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Mjml.Net;
 using Serilog;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
-using Mjml.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -154,8 +154,22 @@ builder.Services.AddScoped<IStatsRepository, EfStatsRepository>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 // --- BACKGROUND JOBS ---
-builder.Services.AddSingleton<INotificationQueue, InMemoryNotificationQueue>();
-builder.Services.AddHostedService<NotificationWorker>();
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<NotificationConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h => {
+            h.Username(builder.Configuration["RabbitMQ:Username"] ?? string.Empty);
+            h.Password(builder.Configuration["RabbitMQ:Password"] ?? string.Empty);
+        });
+
+        cfg.ReceiveEndpoint("notification-queue", e => {
+            e.ConfigureConsumer<NotificationConsumer>(context);
+        });
+    });
+});
 
 // --- VALIDATION ---
 builder.Services.AddFluentValidationAutoValidation();
@@ -203,6 +217,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 // --- SERVICES ---
+builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<INotificationSender, ConsoleNotificationSender>();
 builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
 builder.Services.AddScoped<INotificationSender, SMSNotificationSender>();
@@ -215,15 +231,21 @@ builder.Services.AddScoped<RegisterSubscriberHandler>();
 builder.Services.AddScoped<TemplateEngine>(); 
 builder.Services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
 
-// --- HTTP CLIENT ---
-builder.Services.AddHttpClient();
-builder.Services.AddHttpClient<INotificationSender, TelegramNotificationSender>();
-builder.Services.AddHttpClient<INotificationSender, DiscordNotificationSender>();
-builder.Services.AddHttpClient<INotificationSender, WhatsAppNotificationSender>();
-builder.Services.AddHttpClient<INotificationSender, MSTeamsNotificationSender>();
-builder.Services.AddHttpClient<INotificationSender, WebhookNotificationSender>();
+builder.Services.AddScoped<INotificationSender, TelegramNotificationSender>();
+builder.Services.AddScoped<INotificationSender, DiscordNotificationSender>();
+builder.Services.AddScoped<INotificationSender, WhatsAppNotificationSender>();
+builder.Services.AddScoped<INotificationSender, MSTeamsNotificationSender>();
+builder.Services.AddScoped<INotificationSender, WebhookNotificationSender>();
+
+// --- PROXY HEADERS ---
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+});
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // --- SWAGGER ---
 app.UseSwagger();

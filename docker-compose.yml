@@ -25,6 +25,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - RabbitMQ__Host=rabbitmq
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
       - Redis__ConnectionString=redis:6379,abortConnect=false
       - JwtSettings__SecretKey=${JWT_SECRET}
@@ -41,6 +42,18 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - fertile-network
+      
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fertile-notify-rabbitmq
+    ports:
+      - "${RABBITMQ_CONNECTION_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
     networks:
       - fertile-network
 
