@@ -1,20 +1,66 @@
-name: Remote Deploy
+name: Build and Deploy
 
 on:
   push:
     branches: [ "main" ]
 
+env:
+  REGISTRY: ghcr.io
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository }}-frontend
+  API_IMAGE: ghcr.io/${{ github.repository }}-api
+
 jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build Frontend
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}:latest
+          build-args: |
+            VITE_API_URL=https://fertile-notify-api.enesefetokta.shop/api
+
+      # Build API
+      - name: Build and push API
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ env.API_IMAGE }}:latest
+
   deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to VPS
+      - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
             cd ~/Fertile-Notify
-            git pull origin main
+            git pull origin mai
+            
+            docker-compose pull
             docker-compose --profile prod up -d
+            docker image prune -f
