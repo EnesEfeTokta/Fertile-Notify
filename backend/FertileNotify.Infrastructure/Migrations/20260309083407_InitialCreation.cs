@@ -90,7 +90,7 @@ namespace FertileNotify.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
                     Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Settings = table.Column<string>(type: "jsonb", nullable: false)
+                    Settings = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
