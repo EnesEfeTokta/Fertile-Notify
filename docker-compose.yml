@@ -111,6 +111,7 @@ services:
 
   tunnel:
     image: cloudflare/cloudflared:latest
+    profiles: ["prod"]
     container_name: tunnel
     command: tunnel --no-autoupdate run
     volumes:
