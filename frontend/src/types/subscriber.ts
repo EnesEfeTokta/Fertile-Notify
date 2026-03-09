@@ -33,6 +33,11 @@ export interface UpdatePassword {
     newPassword: string;
 }
 
+export interface ChannelSetting {
+    channel: string;
+    settings: Record<string, string>;
+}
+
 export interface CreateApiKey {
     name: string;
 }

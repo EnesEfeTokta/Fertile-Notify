@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { subscriberService } from '../api/subscriberService';
 import type { SubscriberProfile, ApiKey } from '../types/subscriber';
 import ConsoleLogsModal from '../components/ConsoleLogsModal';
+import ChannelSettingsModal from '../components/ChannelSettingsModal';
+import { NOTIFICATION_CHANNELS } from '../constants/channels';
 
 export default function DashboardPage() {
     const [profile, setProfile] = useState<SubscriberProfile | null>(null);
@@ -14,6 +16,7 @@ export default function DashboardPage() {
     const [newApiKey, setNewApiKey] = useState<string | null>(null);
     const [copied, setCopied] = useState<boolean>(false);
     const [showConsoleModal, setShowConsoleModal] = useState<boolean>(false);
+    const [configChannel, setConfigChannel] = useState<string | null>(null);
 
     const fetchProfile = React.useCallback(async () => {
         try {
@@ -392,29 +395,48 @@ export default function DashboardPage() {
                                 Notification Channels
                             </h2>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {['email', 'sms', 'console'].map((channel) => {
-                                    const isActive = profile.activeChannels.includes(channel);
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                                {NOTIFICATION_CHANNELS.map((channel) => {
+                                    const isActive = profile.activeChannels.includes(channel.id);
                                     return (
-                                        <button
-                                            key={channel}
-                                            className={`p-4 rounded-md font-medium transition-colors text-sm border ${isActive
+                                        <div
+                                            key={channel.id}
+                                            className={`group relative p-3 rounded-md font-medium transition-all text-xs border flex flex-col items-center justify-center gap-1 ${isActive
                                                 ? 'bg-green-500/10 text-green-400 border-green-500/20'
                                                 : 'bg-tertiary text-tertiary border-secondary hover:border-hover'
                                                 } disabled:opacity-50`}
-                                            onClick={() => updateChannel(channel, !isActive)}
-                                            disabled={updating}
                                         >
-                                            <div className="text-2xl mb-2">
-                                                {channel === 'email' && '📧'}
-                                                {channel === 'sms' && '💬'}
-                                                {channel === 'console' && '🖥️'}
-                                            </div>
-                                            <div className="capitalize">{channel}</div>
-                                            <div className="text-xs mt-1">
-                                                {isActive ? 'Active' : 'Inactive'}
-                                            </div>
-                                        </button>
+                                            <button
+                                                className="w-full flex flex-col items-center justify-center gap-1"
+                                                onClick={() => updateChannel(channel.id, !isActive)}
+                                                disabled={updating}
+                                            >
+                                                <div className="text-xl">
+                                                    {channel.icon}
+                                                </div>
+                                                <div className="font-semibold text-[10px] uppercase tracking-wider truncate w-full text-center">
+                                                    {channel.name}
+                                                </div>
+                                                <div className={`text-[9px] px-1.5 py-0.5 rounded ${isActive ? 'bg-green-500/20 text-green-300' : 'bg-primary/20 text-tertiary'}`}>
+                                                    {isActive ? 'ACTIVE' : 'INACTIVE'}
+                                                </div>
+                                            </button>
+
+                                            {/* Settings Icon - Only visible on hover or if active */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setConfigChannel(channel.id);
+                                                }}
+                                                className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary-500"
+                                                title={`Configure ${channel.name}`}
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -559,6 +581,11 @@ export default function DashboardPage() {
                     </div>
                 )}
             </main>
+            <ChannelSettingsModal
+                isOpen={!!configChannel}
+                onClose={() => setConfigChannel(null)}
+                channelId={configChannel || ''}
+            />
             <ConsoleLogsModal
                 isOpen={showConsoleModal}
                 onClose={() => setShowConsoleModal(false)}
