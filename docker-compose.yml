@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     container_name: fertile-notify-frontend
@@ -14,6 +12,16 @@ services:
       - api
     networks:
       - fertile-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    logging: &default-logging
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   api:
     container_name: fertile-notify-api
@@ -32,21 +40,37 @@ services:
     depends_on:
       - db
       - redis
+      - rabbitmq
     networks:
       - fertile-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      <<: *default-logging
 
   redis:
     container_name: fertile-notify-redis
     image: redis:7-alpine
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
       - fertile-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    logging:
+      <<: *default-logging
       
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3-management-alpine 
     container_name: fertile-notify-rabbitmq
     ports:
       - "${RABBITMQ_CONNECTION_PORT}:5672"
@@ -56,6 +80,13 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
     networks:
       - fertile-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      <<: *default-logging
 
   db:
     container_name: fertile-notify-db
@@ -70,6 +101,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - fertile-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+    logging:
+      <<: *default-logging
 
   tunnel:
     image: cloudflare/cloudflared:latest
@@ -80,15 +118,12 @@ services:
     networks:
       - fertile-network
     restart: unless-stopped
-
-  mailpit:
-    image: axllent/mailpit
-    container_name: mailpit-for-testing
-    ports:
-      - "8025:8025" # Web UI for viewing emails
-      - "1025:1025" # SMTP server for sending emails
-    networks:
-      - fertile-network
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    logging:
+      <<: *default-logging
 
 networks:
   fertile-network:
