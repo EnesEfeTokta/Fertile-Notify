@@ -6,7 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import EmailDesignAdvancedPanelPage from './pages/EmailDesignAdvancedPanelPage';
 import EmailDesignVisualPanelPage from './pages/EmailDesignVisualPanelPage';
 import PricingPlanPage from './pages/PricingPlanPage';
-import SmsDesignPanelPage from './pages/SmsDesignPanelPage';
+import ChannelDesignPanelPage from './pages/ChannelDesignPanelPage';
 import TemplatesPage from './pages/TemplatesPage';
 import StatisticsPage from './pages/StatisticsPage';
 
@@ -17,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/email-advanced-editor" element={<EmailDesignAdvancedPanelPage />} />
         <Route path="/email-visual-editor" element={<EmailDesignVisualPanelPage />} />
-        <Route path="/sms-editor" element={<SmsDesignPanelPage />} />
+        <Route path="/channel-editor" element={<ChannelDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/login" element={<LoginPage />} />

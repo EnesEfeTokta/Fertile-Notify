@@ -198,6 +198,19 @@ namespace FertileNotify.API.Controllers
             return Ok(new { message = $"{channel} configured successfully." });
         }
 
+        [HttpGet("settings/channel-setting")]
+        public async Task<IActionResult> GetChannelSetting([FromQuery] string channel)
+        {
+            var subscriberId = GetSubscriberIdFromClaims();
+            var channelEnum = NotificationChannel.From(channel);
+            var setting = await _subscriberChannelRepository.GetSettingAsync(subscriberId, channelEnum);
+
+            if (setting == null)
+                return NotFound(new { message = $"No settings found for {channel}." });
+
+            return Ok(ApiResponse<SubscriberChannelSetting>.SuccessResult(setting, $"{channel} settings retrieved successfully."));
+        }
+
         [NonAction]
         private Guid GetSubscriberIdFromClaims()
         {
