@@ -21,7 +21,43 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
+DotNetEnv.Env.Load();
+
+var envValues = new Dictionary<string, string?>();
+
+// --- JWT Mapping ---
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_SECRET")))
+    envValues["JwtSettings:SecretKey"] = Environment.GetEnvironmentVariable("JWT_SECRET");
+
+// --- Database Mapping ---
+var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+var dbPass = Environment.GetEnvironmentVariable("DB_PASS");
+if (!string.IsNullOrEmpty(dbUser) && !string.IsNullOrEmpty(dbPass))
+{
+    var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+    var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+    var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "FertileNotifyDb";
+    envValues["ConnectionStrings:DefaultConnection"] = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass};";
+}
+
+// --- Redis Mapping ---
+var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
+if (!string.IsNullOrEmpty(redisHost))
+{
+    var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
+    envValues["Redis:ConnectionString"] = $"{redisHost}:{redisPort},abortConnect=false";
+}
+
+// --- RabbitMQ Mapping ---
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RABBITMQ_HOST")))
+    envValues["RabbitMQ:Host"] = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RABBITMQ_USER")))
+    envValues["RabbitMQ:Username"] = Environment.GetEnvironmentVariable("RABBITMQ_USER");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RABBITMQ_PASS")))
+    envValues["RabbitMQ:Password"] = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddInMemoryCollection(envValues);
 
 // --- LOGGING ---
 Log.Logger = new LoggerConfiguration()
@@ -36,13 +72,19 @@ builder.Host.UseSerilog();
 // --- CORS ---
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy =>
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("https://fertile-notify.enesefetokta.shop");
+
+        if (builder.Environment.IsDevelopment())
         {
-            policy.WithOrigins("https://fertile-notify.enesefetokta.shop")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+            policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+                  .AllowCredentials();
+        }
+
+        policy.AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 // --- RATE LIMITER ---
@@ -161,8 +203,8 @@ builder.Services.AddMassTransit(x =>
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h => {
-            h.Username(builder.Configuration["RabbitMQ:Username"] ?? string.Empty);
-            h.Password(builder.Configuration["RabbitMQ:Password"] ?? string.Empty);
+            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "guest");
+            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "guest");
         });
 
         cfg.ReceiveEndpoint("notification-queue", e => {

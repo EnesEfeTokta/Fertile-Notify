@@ -1,11 +1,11 @@
 services:
   frontend:
-    container_name: fertile-notify-frontend
+    container_name: frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=https://fertile-notify-api.enesefetokta.shop/api
+        - VITE_API_URL=${VITE_API_URL}
     ports:
       - "3000:80"
     depends_on:
@@ -24,19 +24,26 @@ services:
         max-file: "3"
 
   api:
-    container_name: fertile-notify-api
+    container_name: api
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Production}
       - ASPNETCORE_URLS=http://+:8080
-      - RabbitMQ__Host=rabbitmq
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
-      - Redis__ConnectionString=redis:6379,abortConnect=false
-      - JwtSettings__SecretKey=${JWT_SECRET}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASS=${RABBITMQ_PASS}
+      - RABBITMQ_HOST=rabbitmq
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - db
       - redis
@@ -52,7 +59,7 @@ services:
       <<: *default-logging
 
   redis:
-    container_name: fertile-notify-redis
+    container_name: redis
     image: redis:7-alpine
     command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
     ports:
@@ -68,16 +75,16 @@ services:
           memory: 100M
     logging:
       <<: *default-logging
-      
+
   rabbitmq:
-    image: rabbitmq:3-management-alpine 
-    container_name: fertile-notify-rabbitmq
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
     ports:
-      - "${RABBITMQ_CONNECTION_PORT}:5672"
-      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-guest}
     networks:
       - fertile-network
     restart: always
@@ -89,12 +96,12 @@ services:
       <<: *default-logging
 
   db:
-    container_name: fertile-notify-db
+    container_name: db
     image: postgres:15-alpine
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -111,7 +118,7 @@ services:
 
   tunnel:
     image: cloudflare/cloudflared:latest
-    profiles: ["prod"]
+    profiles: [ "prod" ]
     container_name: tunnel
     command: tunnel --no-autoupdate run
     volumes:
