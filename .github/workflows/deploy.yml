@@ -4,10 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_BASE: ghcr.io/enesefetokta/fertile-notify
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -22,27 +18,27 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: enesefetokta
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build Frontend
+      # Frontend Build & Push
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ env.IMAGE_BASE }}-frontend:latest
+          tags: ghcr.io/enesefetokta/fertile-notify-frontend:latest
           build-args: |
             VITE_API_URL=https://fertile-notify-api.enesefetokta.shop/api
 
-      # Build API
+      # API Build & Push
       - name: Build and push API
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
-          tags: ${{ env.IMAGE_BASE }}-api:latest
+          tags: ghcr.io/enesefetokta/fertile-notify-api:latest
 
   deploy:
     needs: build-and-push
