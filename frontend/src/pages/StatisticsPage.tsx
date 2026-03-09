@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { statisticService } from '../api/statisticService';
-import { subscriberService } from '../api/subscriberService';
-import type { Statistic } from '../types/statistic';
-import type { SubscriberProfile } from '../types/subscriber';
+import type { StatisticsResponse } from '../types/statistic';
 
 type Period = 'Daily' | 'Weekly' | '1Month' | '3Months' | '6Months' | '1Year';
 
@@ -33,13 +31,10 @@ function getAllowedPeriods(plan: string | undefined): Period[] {
     }
 }
 
+import { getChannelMetadata } from '../constants/channels';
+
 function getChannelColor(channel: string): string {
-    const map: Record<string, string> = {
-        console: '#3b82f6',
-        email: '#8b5cf6',
-        sms: '#f59e0b',
-    };
-    return map[channel.toLowerCase()] || '#6b7280';
+    return getChannelMetadata(channel).color;
 }
 
 function getEventColor(index: number): string {
@@ -49,22 +44,12 @@ function getEventColor(index: number): string {
 
 export default function StatisticsPage() {
     const navigate = useNavigate();
-    const [profile, setProfile] = useState<SubscriberProfile | null>(null);
-    const [stats, setStats] = useState<Statistic | null>(null);
+    const [stats, setStats] = useState<StatisticsResponse | null>(null);
     const [selectedPeriod, setSelectedPeriod] = useState<Period>('Daily');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const allowedPeriods = getAllowedPeriods(profile?.subscription?.plan);
-
-    const fetchProfile = React.useCallback(async () => {
-        try {
-            const data = await subscriberService.getProfile();
-            setProfile(data);
-        } catch {
-            console.error('Failed to fetch profile');
-        }
-    }, []);
+    const allowedPeriods = getAllowedPeriods(stats?.subscriptionSummary?.plan);
 
     const fetchStats = React.useCallback(async (period: Period) => {
         try {
@@ -80,10 +65,6 @@ export default function StatisticsPage() {
     }, []);
 
     useEffect(() => {
-        fetchProfile();
-    }, [fetchProfile]);
-
-    useEffect(() => {
         fetchStats(selectedPeriod);
     }, [selectedPeriod, fetchStats]);
 
@@ -93,20 +74,22 @@ export default function StatisticsPage() {
         }
     };
 
-    const successRate = stats && stats.totalUsage > 0
-        ? ((stats.successCount / stats.totalUsage) * 100).toFixed(1)
+    const usageStats = stats?.usageStats;
+
+    const successRate = usageStats && usageStats.totalUsage > 0
+        ? ((usageStats.successCount / usageStats.totalUsage) * 100).toFixed(1)
         : '0.0';
 
-    const failRate = stats && stats.totalUsage > 0
-        ? ((stats.failedCount / stats.totalUsage) * 100).toFixed(1)
+    const failRate = usageStats && usageStats.totalUsage > 0
+        ? ((usageStats.failedCount / usageStats.totalUsage) * 100).toFixed(1)
         : '0.0';
 
-    const maxChannelValue = stats
-        ? Math.max(...Object.values(stats.statsByChannel), 1)
+    const maxChannelValue = usageStats
+        ? Math.max(...Object.values(usageStats.statsByChannel), 1)
         : 1;
 
-    const maxEventValue = stats
-        ? Math.max(...Object.values(stats.statsByEventType), 1)
+    const maxEventValue = usageStats
+        ? Math.max(...Object.values(usageStats.statsByEventType), 1)
         : 1;
 
     return (
@@ -131,9 +114,9 @@ export default function StatisticsPage() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                        {profile?.subscription?.plan && (
+                        {stats?.subscriptionSummary?.plan && (
                             <span className="badge text-xs">
-                                {profile.subscription.plan} Plan
+                                {stats.subscriptionSummary.plan} Plan
                             </span>
                         )}
                     </div>
@@ -152,10 +135,10 @@ export default function StatisticsPage() {
                                 onClick={() => handlePeriodChange(p.key)}
                                 disabled={!isAllowed}
                                 className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 flex items-center gap-1.5 ${isActive
-                                        ? 'bg-[var(--accent-primary)] text-white shadow-lg shadow-blue-500/20'
-                                        : isAllowed
-                                            ? 'text-secondary hover:text-primary hover:bg-[var(--bg-tertiary)]'
-                                            : 'text-tertiary opacity-50 cursor-not-allowed'
+                                    ? 'bg-[var(--accent-primary)] text-white shadow-lg shadow-blue-500/20'
+                                    : isAllowed
+                                        ? 'text-secondary hover:text-primary hover:bg-[var(--bg-tertiary)]'
+                                        : 'text-tertiary opacity-50 cursor-not-allowed'
                                     }`}
                                 title={!isAllowed ? `Upgrade to access ${p.label} statistics` : p.label}
                             >
@@ -193,7 +176,7 @@ export default function StatisticsPage() {
                 )}
 
                 {/* Stats Content */}
-                {stats && !loading && !error && (
+                {stats && usageStats && !loading && !error && (
                     <>
                         {/* KPI Overview Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -208,7 +191,7 @@ export default function StatisticsPage() {
                                     </div>
                                 </div>
                                 <div className="text-3xl font-bold text-primary font-display">
-                                    {stats.totalUsage.toLocaleString()}
+                                    {usageStats.totalUsage.toLocaleString()}
                                 </div>
                                 <div className="text-xs text-tertiary">
                                     notifications sent in this period
@@ -227,7 +210,7 @@ export default function StatisticsPage() {
                                 </div>
                                 <div className="flex items-baseline gap-3">
                                     <span className="text-3xl font-bold text-green-400 font-display">
-                                        {stats.successCount.toLocaleString()}
+                                        {usageStats.successCount.toLocaleString()}
                                     </span>
                                     <span className="text-sm font-medium text-green-400/60">
                                         {successRate}%
@@ -253,7 +236,7 @@ export default function StatisticsPage() {
                                 </div>
                                 <div className="flex items-baseline gap-3">
                                     <span className="text-3xl font-bold text-red-400 font-display">
-                                        {stats.failedCount.toLocaleString()}
+                                        {usageStats.failedCount.toLocaleString()}
                                     </span>
                                     <span className="text-sm font-medium text-red-400/60">
                                         {failRate}%
@@ -276,9 +259,7 @@ export default function StatisticsPage() {
                             </div>
 
                             <div className="space-y-4">
-                                {Object.entries(stats.statsByChannel).map(([channel, total]) => {
-                                    const success = stats.successByChannel?.[channel] ?? total;
-                                    const failed = stats.failedByChannel?.[channel] ?? 0;
+                                {Object.entries(usageStats.statsByChannel).map(([channel, total]) => {
                                     const barWidth = (total / maxChannelValue) * 100;
                                     const color = getChannelColor(channel);
 
@@ -298,53 +279,22 @@ export default function StatisticsPage() {
                                                     <span className="text-secondary">
                                                         Total: <span className="font-bold text-primary">{total.toLocaleString()}</span>
                                                     </span>
-                                                    {stats.successByChannel && (
-                                                        <span className="text-green-400/80">
-                                                            ✓ {success.toLocaleString()}
-                                                        </span>
-                                                    )}
-                                                    {stats.failedByChannel && (
-                                                        <span className="text-red-400/80">
-                                                            ✕ {failed.toLocaleString()}
-                                                        </span>
-                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="w-full h-3 bg-[var(--bg-tertiary)] rounded-full overflow-hidden flex">
-                                                {stats.successByChannel ? (
-                                                    <>
-                                                        <div
-                                                            className="h-full rounded-l-full transition-all duration-700 ease-out"
-                                                            style={{
-                                                                width: `${(success / maxChannelValue) * 100}%`,
-                                                                backgroundColor: color,
-                                                                opacity: 0.9,
-                                                            }}
-                                                        ></div>
-                                                        <div
-                                                            className="h-full transition-all duration-700 ease-out"
-                                                            style={{
-                                                                width: `${(failed / maxChannelValue) * 100}%`,
-                                                                backgroundColor: '#ef4444',
-                                                                opacity: 0.6,
-                                                            }}
-                                                        ></div>
-                                                    </>
-                                                ) : (
-                                                    <div
-                                                        className="h-full rounded-full transition-all duration-700 ease-out"
-                                                        style={{
-                                                            width: `${barWidth}%`,
-                                                            backgroundColor: color,
-                                                        }}
-                                                    ></div>
-                                                )}
+                                            <div className="w-full h-3 bg-[var(--bg-tertiary)] rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full rounded-full transition-all duration-700 ease-out"
+                                                    style={{
+                                                        width: `${barWidth}%`,
+                                                        backgroundColor: color,
+                                                    }}
+                                                ></div>
                                             </div>
                                         </div>
                                     );
                                 })}
 
-                                {Object.keys(stats.statsByChannel).length === 0 && (
+                                {Object.keys(usageStats.statsByChannel).length === 0 && (
                                     <p className="text-sm text-tertiary text-center py-4">No channel data for this period.</p>
                                 )}
                             </div>
@@ -358,9 +308,7 @@ export default function StatisticsPage() {
                             </div>
 
                             <div className="space-y-3">
-                                {Object.entries(stats.statsByEventType).map(([eventType, total], idx) => {
-                                    const success = stats.successByEventType?.[eventType] ?? total;
-                                    const failed = stats.failedByEventType?.[eventType] ?? 0;
+                                {Object.entries(usageStats.statsByEventType).map(([eventType, total], idx) => {
                                     const barWidth = (total / maxEventValue) * 100;
                                     const color = getEventColor(idx);
 
@@ -386,62 +334,29 @@ export default function StatisticsPage() {
                                                         <div className="text-secondary font-medium">Total</div>
                                                         <div className="font-bold text-primary text-sm">{total.toLocaleString()}</div>
                                                     </div>
-                                                    {stats.successByEventType && (
-                                                        <div className="text-center">
-                                                            <div className="text-green-400/60 font-medium">Success</div>
-                                                            <div className="font-bold text-green-400 text-sm">{success.toLocaleString()}</div>
-                                                        </div>
-                                                    )}
-                                                    {stats.failedByEventType && (
-                                                        <div className="text-center">
-                                                            <div className="text-red-400/60 font-medium">Failed</div>
-                                                            <div className="font-bold text-red-400 text-sm">{failed.toLocaleString()}</div>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="w-full h-2 bg-[var(--bg-primary)] rounded-full overflow-hidden flex">
-                                                {stats.successByEventType ? (
-                                                    <>
-                                                        <div
-                                                            className="h-full rounded-l-full transition-all duration-700 ease-out"
-                                                            style={{
-                                                                width: `${(success / maxEventValue) * 100}%`,
-                                                                backgroundColor: color,
-                                                                opacity: 0.85,
-                                                            }}
-                                                        ></div>
-                                                        <div
-                                                            className="h-full transition-all duration-700 ease-out"
-                                                            style={{
-                                                                width: `${(failed / maxEventValue) * 100}%`,
-                                                                backgroundColor: '#ef4444',
-                                                                opacity: 0.5,
-                                                            }}
-                                                        ></div>
-                                                    </>
-                                                ) : (
-                                                    <div
-                                                        className="h-full rounded-full transition-all duration-700 ease-out"
-                                                        style={{
-                                                            width: `${barWidth}%`,
-                                                            backgroundColor: color,
-                                                        }}
-                                                    ></div>
-                                                )}
+                                            <div className="w-full h-2 bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full rounded-full transition-all duration-700 ease-out"
+                                                    style={{
+                                                        width: `${barWidth}%`,
+                                                        backgroundColor: color,
+                                                    }}
+                                                ></div>
                                             </div>
                                         </div>
                                     );
                                 })}
 
-                                {Object.keys(stats.statsByEventType).length === 0 && (
+                                {Object.keys(usageStats.statsByEventType).length === 0 && (
                                     <p className="text-sm text-tertiary text-center py-4">No event type data for this period.</p>
                                 )}
                             </div>
                         </div>
 
                         {/* Upgrade Banner for restricted plans */}
-                        {profile?.subscription?.plan && profile.subscription.plan.toLowerCase() !== 'enterprise' && (
+                        {stats.subscriptionSummary.plan && stats.subscriptionSummary.plan.toLowerCase() !== 'enterprise' && (
                             <div className="card p-6 border-dashed flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
@@ -452,7 +367,7 @@ export default function StatisticsPage() {
                                     <div>
                                         <p className="text-sm font-semibold text-primary">Unlock more time periods</p>
                                         <p className="text-xs text-tertiary">
-                                            Upgrade your plan to access {profile.subscription.plan.toLowerCase() === 'free' ? '1M, 3M, 6M, and 1Y' : '6M and 1Y'} statistics.
+                                            Upgrade your plan to access {stats.subscriptionSummary.plan.toLowerCase() === 'free' ? '1M, 3M, 6M, and 1Y' : '6M and 1Y'} statistics.
                                         </p>
                                     </div>
                                 </div>

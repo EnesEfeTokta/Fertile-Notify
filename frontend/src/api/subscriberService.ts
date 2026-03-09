@@ -1,5 +1,5 @@
-import axiosClient  from "./axiosClient";
-import type { SubscriberProfile, UpdateCompanyName, UpdateContactInfo, UpdateChannel, UpdatePassword, CreateApiKey, ApiKeyResponse, ApiKey } from "../types/subscriber";
+import axiosClient from "./axiosClient";
+import type { SubscriberProfile, UpdateCompanyName, UpdateContactInfo, UpdateChannel, UpdatePassword, CreateApiKey, ApiKeyResponse, ApiKey, ChannelSetting } from "../types/subscriber";
 
 export const subscriberService = {
     getProfile: async (): Promise<SubscriberProfile> => {
@@ -28,5 +28,14 @@ export const subscriberService = {
     },
     deleteApiKey: async (key: string): Promise<void> => {
         await axiosClient.delete(`/subscribers/api-keys/${key}`);
+    },
+    setChannelSetting: async (data: ChannelSetting): Promise<void> => {
+        await axiosClient.post("/subscribers/settings/channel-setting", data);
+    },
+    getChannelSetting: async (channel: string): Promise<ChannelSetting> => {
+        const response = await axiosClient.get<{ data: ChannelSetting }>("/subscribers/settings/channel-setting", {
+            params: { channel }
+        });
+        return response.data.data;
     }
 };
