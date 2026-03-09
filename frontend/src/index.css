@@ -206,4 +206,55 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
+
+    /* Vercel Grid Background */
+    .bg-grid {
+        background-image: 
+            linear-gradient(to right, #ffffff05 1px, transparent 1px),
+            linear-gradient(to bottom, #ffffff05 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    /* Glow Effect */
+    .glow-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 50% -20%, var(--accent-primary) 0%, transparent 70%);
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    /* Hover Reveal */
+    .hover-reveal-border {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hover-reveal-border::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border: 1px solid var(--accent-primary);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        border-radius: inherit;
+    }
+
+    .hover-reveal-border:hover::after {
+        opacity: 0.3;
+    }
+
+    /* Section Label */
+    .section-label {
+        @apply inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium border border-primary bg-secondary text-secondary mb-4;
+    }
+
+    /* Hero Text */
+    .hero-text {
+        @apply text-5xl md:text-8xl font-display font-bold tracking-tighter leading-[0.9] text-primary;
+    }
 }
