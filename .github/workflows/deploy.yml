@@ -6,8 +6,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  FRONTEND_IMAGE: ghcr.io/${{ github.repository }}-frontend
-  API_IMAGE: ghcr.io/${{ github.repository }}-api
+  FRONTEND_IMAGE: ghcr.io/enesefetokta/fertile-notify-frontend
+  API_IMAGE: ghcr.io/enesefetokta/fertile-notify-api
 
 jobs:
   build-and-push:
@@ -56,11 +56,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u enesefetokta --password-stdin
             
             cd ~/Fertile-Notify
-            git pull origin mai
+            git pull origin main
             
             docker-compose pull
             docker-compose --profile prod up -d
+            
             docker image prune -f
