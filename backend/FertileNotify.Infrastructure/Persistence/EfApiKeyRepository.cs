@@ -20,13 +20,13 @@ namespace FertileNotify.Infrastructure.Persistence
                 _context.ApiKeys.Add(apiKey);
             else
                 _context.ApiKeys.Update(apiKey);
-            return _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ApiKey?> GetByKeyHashAsync(string keyHash)
             => await _context.ApiKeys.AsNoTracking().FirstOrDefaultAsync(k => k.KeyHash == keyHash);
 
-        public Task<List<ApiKey>> GetBySubscriberIdAsync(Guid subscriberId)
-            => _context.ApiKeys.AsNoTracking().Where(k => k.SubscriberId == subscriberId).OrderByDescending(k => k.CreatedAt).ToListAsync();
+        public async Task<List<ApiKey>> GetBySubscriberIdAsync(Guid subscriberId)
+            => await _context.ApiKeys.AsNoTracking().Where(k => k.SubscriberId == subscriberId).OrderByDescending(k => k.CreatedAt).ToListAsync();
     }
 }
