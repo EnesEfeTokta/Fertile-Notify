@@ -15,16 +15,13 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public async Task SaveAsync(Guid userId, Subscription subscription)
         {
-            if (!_context.Subscriptions.Local.Any(s => s.Id == subscription.Id))
-            {
-                 var exists = await _context.Subscriptions.AnyAsync(s => s.Id == subscription.Id);
-                 if(!exists) await _context.Subscriptions.AddAsync(subscription);
-                 else _context.Subscriptions.Update(subscription);
-            }
+            var exists = await _context.Subscriptions.AnyAsync(s => s.Id == subscription.Id);
+            if (!exists) await _context.Subscriptions.AddAsync(subscription);
+            else _context.Subscriptions.Update(subscription);
             await _context.SaveChangesAsync();
         }
 
         public async Task<Subscription?> GetBySubscriberIdAsync(Guid subscriberId)
-            => await _context.Subscriptions.FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
+            => await _context.Subscriptions.AsNoTracking().FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
     }
 }

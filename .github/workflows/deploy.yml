@@ -69,7 +69,9 @@ jobs:
 
             docker-compose --profile prod pull
 
-            docker-compose --profile prod up -d --remove-orphans
+            docker-compose --profile prod down --remove-orphans
+            docker-compose --profile prod up -d
+
             docker image prune -f
 
             echo "✅ Deploy tamamlandı."

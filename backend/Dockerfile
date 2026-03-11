@@ -17,6 +17,11 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
+# GC: memory-conserving workstation mode, hard heap cap ~143MB, tiered PGO for hot paths
+ENV DOTNET_GCConserveMemory=7
+ENV DOTNET_GCHeapHardLimit=150000000
+ENV DOTNET_TieredPGO=1
+
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "FertileNotify.API.dll"]

@@ -28,36 +28,37 @@ namespace FertileNotify.Infrastructure.Persistence
             if (subscriberId.HasValue)
             {
                 var customTemplate = await _context.NotificationTemplates
-                    .FirstOrDefaultAsync(t => 
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t =>
                         t.SubscriberId == subscriberId && t.EventType == eventType && t.Channel == channel);
 
                 if (customTemplate != null) return customTemplate;
             }
 
+            // Bug fix: include channel filter on global fallback to avoid wrong-channel template
             return await _context.NotificationTemplates
-                .FirstOrDefaultAsync(t => t.SubscriberId == null && t.EventType == eventType);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.SubscriberId == null && t.EventType == eventType && t.Channel == channel);
         }
 
         public async Task<NotificationTemplate?> GetGlobalTemplateAsync(EventType eventType, NotificationChannel channel)
-            => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
-                    t.SubscriberId == null && t.EventType == eventType && t.Channel == channel);
+            => await _context.NotificationTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.SubscriberId == null && t.EventType == eventType && t.Channel == channel);
 
         public async Task<NotificationTemplate?> GetCustomTemplateAsync(
             EventType eventType, NotificationChannel channel, Guid subscriberId)
-            => await _context.NotificationTemplates.FirstOrDefaultAsync(t =>
-                    t.SubscriberId == subscriberId && t.EventType == eventType && t.Channel == channel);
+            => await _context.NotificationTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.SubscriberId == subscriberId && t.EventType == eventType && t.Channel == channel);
 
         public async Task<List<NotificationTemplate>> GetAllTemplatesAsync(Guid subscriberId)
         {
-            var globalTemplates = await _context.NotificationTemplates
-                .Where(t => t.SubscriberId == null)
+            // Single query instead of two separate roundtrips
+            return await _context.NotificationTemplates
+                .AsNoTracking()
+                .Where(t => t.SubscriberId == null || t.SubscriberId == subscriberId)
                 .ToListAsync();
-
-            var customTemplates = await _context.NotificationTemplates
-                .Where(t => t.SubscriberId == subscriberId)
-                .ToListAsync();
-
-            return globalTemplates.Concat(customTemplates).ToList();
         }
     }
 }
