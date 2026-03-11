@@ -16,32 +16,29 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public async Task SaveAsync(Subscriber subscriber)
         {
-            if (!_context.Subscribers.Local.Any(u => u.Id == subscriber.Id || u.CompanyName == subscriber.CompanyName))
-            {
-                var exists = await _context.Subscribers.AnyAsync(u => u.Id == subscriber.Id);
-                if (!exists)
-                    await _context.Subscribers.AddAsync(subscriber);
-                else
-                    _context.Subscribers.Update(subscriber);
-            }
-            
+            var exists = await _context.Subscribers.AnyAsync(u => u.Id == subscriber.Id);
+            if (!exists)
+                await _context.Subscribers.AddAsync(subscriber);
+            else
+                _context.Subscribers.Update(subscriber);
+
             await _context.SaveChangesAsync();
         }
 
         public async Task<Subscriber?> GetByIdAsync(Guid id)
-            => await _context.Subscribers.FirstOrDefaultAsync(u => u.Id == id);
+            => await _context.Subscribers.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 
         public async Task<List<Guid>> GetExistingIdsAsync(List<Guid> ids)
-            => await _context.Subscribers.Where(u => ids.Contains(u.Id)).Select(u => u.Id).ToListAsync();
+            => await _context.Subscribers.AsNoTracking().Where(u => ids.Contains(u.Id)).Select(u => u.Id).ToListAsync();
 
         public async Task<Subscriber?> GetByEmailAsync(EmailAddress email)
-            => await _context.Subscribers.FirstOrDefaultAsync(u => u.Email == email);
+            => await _context.Subscribers.AsNoTracking().FirstOrDefaultAsync(u => u.Email == email);
 
         public async Task<Subscriber?> GetByPhoneNumberAsync(PhoneNumber phoneNumber)
-            => await _context.Subscribers.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+            => await _context.Subscribers.AsNoTracking().FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
 
         public async Task<Subscriber?> GetByRefreshTokenAsync(string refreshToken)
-            => await _context.Subscribers.FirstOrDefaultAsync(u => u.RefreshToken!.Token == refreshToken);
+            => await _context.Subscribers.AsNoTracking().FirstOrDefaultAsync(u => u.RefreshToken!.Token == refreshToken);
 
         public async Task<bool> ExistsAsync(Guid id)
             => await _context.Subscribers.AnyAsync(u => u.Id == id);

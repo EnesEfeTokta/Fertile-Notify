@@ -13,7 +13,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ITemplateRepository _templateRepository;
         private readonly ISubscriberChannelRepository _subscriberChannelRepository;
-        private readonly IEnumerable<INotificationSender> _senders;
+        private readonly Dictionary<NotificationChannel, INotificationSender> _senderMap;
         private readonly TemplateEngine _templateEngine;
         private readonly IStatsRepository _statsRepository;
         private readonly ILogger<ProcessEventHandler> _logger;
@@ -30,7 +30,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         {
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
-            _senders = senders;
+            _senderMap = senders.ToDictionary(s => s.Channel);
             _templateRepository = templateRepository;
             _subscriberChannelRepository = subscriberChannelRepository;
             _templateEngine = templateEngine;
@@ -93,8 +93,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
 
         private INotificationSender GetSender(NotificationChannel channel)
         {
-            var sender = _senders.FirstOrDefault(s => s.Channel.Equals(channel));
-            if (sender == null)
+            if (!_senderMap.TryGetValue(channel, out var sender))
             {
                 _logger.LogError("Sender not implemented for: {Channel}", channel.Name);
                 throw new Exception($"System Error: No sender for {channel.Name}");

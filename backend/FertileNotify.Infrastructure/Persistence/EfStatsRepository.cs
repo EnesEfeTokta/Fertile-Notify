@@ -1,4 +1,4 @@
-﻿using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
@@ -38,6 +38,9 @@ namespace FertileNotify.Infrastructure.Persistence
         }
 
         public async Task<List<SubscriberDailyStats>> GetStatsAsync(Guid subscriberId, DateTime startDate, DateTime endDate)
-            => await _context.DailyStats.Where(x => x.SubscriberId == subscriberId && x.Date >= startDate && x.Date <= endDate).ToListAsync();
+            => await _context.DailyStats
+                .AsNoTracking()
+                .Where(x => x.SubscriberId == subscriberId && x.Date >= startDate && x.Date <= endDate)
+                .ToListAsync();
     }
 }

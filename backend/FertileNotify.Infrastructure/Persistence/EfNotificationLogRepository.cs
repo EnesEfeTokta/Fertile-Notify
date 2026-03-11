@@ -1,4 +1,4 @@
-﻿using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +22,7 @@ namespace FertileNotify.Infrastructure.Persistence
         public async Task<List<NotificationLog>> GetLatestBySubscriberIdAsync(Guid subscriberId, int count)
         {
             return await _context.Set<NotificationLog>()
+                .AsNoTracking()
                 .Where(l => l.SubscriberId == subscriberId)
                 .OrderByDescending(l => l.CreatedAt)
                 .Take(count)

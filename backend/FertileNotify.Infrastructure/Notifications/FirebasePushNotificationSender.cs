@@ -1,4 +1,4 @@
-﻿using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using FirebaseAdmin;
@@ -61,7 +61,7 @@ namespace FertileNotify.Infrastructure.Notifications
                 };
 
                 var result = await messaging.SendAsync(message);
-                Console.WriteLine(result + "");
+                _logger.LogDebug("[FIREBASE] Message sent, result: {Result}", result);
 
                 _logger.LogInformation("[FIREBASE] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
                 return true;
