@@ -1,0 +1,14 @@
+name: Dependency Review
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Her Pazartesi 09:00
+  pull_request:
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
