@@ -64,6 +64,9 @@ jobs:
 
             cd ~/Fertile-Notify
 
+              git fetch origin main
+              git reset --hard origin/main
+
             docker-compose --profile prod pull
 
             docker-compose --profile prod up -d --remove-orphans
