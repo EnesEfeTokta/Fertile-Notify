@@ -134,6 +134,14 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 
 ## Tech Stack
 
+### Frontend
+- **Framework**: React 19 with TypeScript 5
+- **Build Tool**: Vite (Rolldown)
+- **Routing**: React Router 7
+- **Styling**: Tailwind CSS 3
+- **Email Design**: GrapesJS + MJML (visual editor), Monaco Editor (code editor)
+- **HTTP Client**: Axios (with automatic token refresh)
+
 ### Backend
 - **Framework**: ASP.NET Core 9.0
 - **Language**: C# 13
@@ -161,7 +169,6 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
 - **Containerization**: Docker & Docker Compose
 
 ### Planned Integrations
-- **Frontend**: React (planned)
 - **Caching**: Redis (planned)
 - **Message Broker**: RabbitMQ or Azure Service Bus (planned)
 
@@ -203,6 +210,16 @@ Fertile-Notify/
 │   │
 │   ├── Dockerfile                      # Docker configuration
 │   └── FertileNotify.sln               # Solution file
+│
+├── frontend/                           # React + TypeScript frontend application
+│   ├── src/
+│   │   ├── api/                        # API service layer
+│   │   ├── components/                 # Reusable UI components
+│   │   ├── constants/                  # Shared constants (channels, event types)
+│   │   ├── pages/                      # Page components
+│   │   └── types/                      # TypeScript type definitions
+│   ├── Dockerfile                      # Docker configuration
+│   └── README.md                       # Frontend documentation
 │
 ├── docs/                               # Documentation
 │   └── architecture.md                 # Architecture documentation
@@ -472,8 +489,8 @@ Current development priorities:
 - Core event processing and notification delivery ✅ (Completed)
 - JWT authentication implementation ✅ (Completed)
 - PostgreSQL database integration with EF Core ✅ (Completed)
+- React-based subscriber frontend ✅ (Completed)
 - Unit and integration tests ✅ (In Progress)
-- React-based admin dashboard (Planned)
 - Analytics and reporting features (Planned)
 - Advanced notification scheduling (Planned)
 

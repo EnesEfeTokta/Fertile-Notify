@@ -14,15 +14,15 @@ This project contains the user-facing web interface for the Fertile Notify notif
   - Update company name and contact information
   - Manage email and phone number
   - View and update account details
-  
-- **Notification Channel Management**
-  - Enable/disable Email notifications
-  - Enable/disable SMS notifications
-  - Enable/disable Console/In-App notifications
+
+- **Multi-Channel Notification Management**
+  - Enable/disable any supported notification channel
+  - Configure per-channel settings (API keys, tokens, webhook URLs)
+  - Supported channels: Email, SMS, Console/In-App, WhatsApp, Telegram, Discord, Slack, MS Teams, Firebase Push, Web Push, Webhook
   - Real-time channel status updates
 
 - **Subscription Information**
-  - View current subscription plan (Free, Basic, Premium)
+  - View current subscription plan (Free, Pro, Enterprise)
   - Monitor monthly notification limit
   - Track current month's usage
   - Check subscription expiry date
@@ -35,10 +35,18 @@ This project contains the user-facing web interface for the Fertile Notify notif
 
 - **Security**
   - Password update functionality
-  - JWT-based authentication
+  - JWT-based authentication with access and refresh tokens
+  - OTP (one-time password) verification on login
+  - Automatic token refresh on expiry
   - Secure API communication
 
-### Email Template Design
+### Notification Template Management
+
+- **Templates Page**
+  - Browse all available notification templates (Default and Custom)
+  - Filter templates by channel and event type
+  - Create and update custom templates per channel and event type
+  - Test templates by sending a notification query
 
 - **Visual Email Editor**
   - Drag-and-drop email template builder with GrapesJS
@@ -54,12 +62,31 @@ This project contains the user-facing web interface for the Fertile Notify notif
   - Split-pane view with code and preview
   - Advanced code editing features (IntelliSense, error detection)
 
+- **Channel Design Panel**
+  - Dedicated text-based template editor for non-email channels (SMS, WhatsApp, Telegram, Discord, Slack, MS Teams, etc.)
+  - Per-channel character limits and constraints
+  - Event-type selection for template assignment
+  - Title and message body editing with live character count
+
+### Statistics & Analytics
+
+- **Statistics Page**
+  - View notification usage statistics by period (daily, weekly, monthly)
+  - Breakdown of successful vs. failed notifications
+  - Usage breakdown by channel and event type
+  - Subscription usage summary (limit, used, remaining, expiry)
+
 ### User Experience
 
 - **Home Page**: Modern landing page with feature highlights
+- **Pricing Page**: Transparent subscription plan comparison (Free, Pro, Enterprise)
 - **Registration**: New subscriber sign-up with subscription plan selection
-- **Login**: Secure authentication with JWT tokens
+- **Login**: Secure authentication with OTP verification and JWT tokens
+- **Templates Management**: Browse, create, and test notification templates
+- **Statistics Dashboard**: Usage analytics and subscription tracking
 - **Email Template Editors**: Visual and advanced code-based email design tools
+- **Channel Design Panel**: Text template editor for all non-email channels
+- **Console Logs Viewer**: In-app modal for viewing notification delivery logs
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 - **Modern UI**: Gradient backgrounds, animations, and polished components
 
@@ -97,25 +124,42 @@ This project contains the user-facing web interface for the Fertile Notify notif
 frontend/
 ├── src/
 │   ├── api/                    # API service layer
-│   │   ├── axiosClient.ts      # Configured Axios instance
-│   │   ├── authService.ts      # Authentication API calls
-│   │   └── subscriberService.ts # Subscriber management API calls
+│   │   ├── axiosClient.ts      # Configured Axios instance (with token refresh)
+│   │   ├── authService.ts      # Authentication API calls (login, OTP, register)
+│   │   ├── subscriberService.ts # Subscriber management API calls
+│   │   ├── statisticService.ts # Statistics & analytics API calls
+│   │   └── templateSevice.ts   # Template management API calls
+│   │
+│   ├── components/             # Reusable UI components
+│   │   ├── ChannelSettingsModal.tsx # Per-channel configuration modal
+│   │   └── ConsoleLogsModal.tsx     # In-app notification log viewer
+│   │
+│   ├── constants/              # Shared constants
+│   │   ├── channels.ts         # Notification channel metadata and routes
+│   │   └── eventTypes.ts       # Event type definitions (must match backend)
 │   │
 │   ├── pages/                  # Page components
-│   │   ├── HomePage.tsx        # Landing page
-│   │   ├── LoginPage.tsx       # Login page
-│   │   ├── RegisterPage.tsx    # Registration page
-│   │   ├── DashboardPage.tsx   # Subscriber dashboard
+│   │   ├── HomePage.tsx                     # Landing page
+│   │   ├── LoginPage.tsx                    # Login page with OTP verification
+│   │   ├── RegisterPage.tsx                 # Registration page
+│   │   ├── DashboardPage.tsx                # Subscriber dashboard
+│   │   ├── PricingPlanPage.tsx              # Subscription plan comparison
+│   │   ├── TemplatesPage.tsx                # Notification template management
+│   │   ├── StatisticsPage.tsx               # Usage statistics & analytics
+│   │   ├── ChannelDesignPanelPage.tsx       # Text template editor for non-email channels
 │   │   ├── EmailDesignVisualPanelPage.tsx   # Visual email editor (GrapesJS)
 │   │   └── EmailDesignAdvancedPanelPage.tsx # Advanced email editor (Monaco)
 │   │
 │   ├── types/                  # TypeScript type definitions
+│   │   ├── api.ts              # Generic API response wrapper types
 │   │   ├── auth.ts             # Authentication types
 │   │   ├── subscriber.ts       # Subscriber-related types
+│   │   ├── statistic.ts        # Statistics and usage types
+│   │   ├── template.ts         # Template and notification log types
 │   │   └── mjml-browser.d.ts   # MJML browser type declarations
 │   │
 │   ├── assets/                 # Static assets
-│   ├── App.tsx                 # Main application component
+│   ├── App.tsx                 # Main application component with routing
 │   ├── main.tsx                # Application entry point
 │   ├── App.css                 # Application styles
 │   └── index.css               # Global styles with Tailwind
@@ -152,16 +196,12 @@ frontend/
    ```
 
 3. **Configure API endpoint**
-   
-   Update the base URL in `src/api/axiosClient.ts` if your backend API is running on a different host/port:
-   ```typescript
-   const axiosClient = axios.create({
-     baseURL: 'http://localhost:5080/api',  // Update this URL
-     headers: {
-       'Content-Type': 'application/json',
-     }
-   });
+
+   The frontend reads the API base URL from the `VITE_API_URL` environment variable. Create a `.env` file in the `frontend/` directory:
+   ```env
+   VITE_API_URL=http://localhost:8080/api
    ```
+   Update the URL to match the host and port where your Fertile Notify backend API is running.
 
 ### Running the Application
 
@@ -206,26 +246,41 @@ npm run lint
 The frontend communicates with the Fertile Notify backend API through the following services:
 
 ### Authentication Service (`authService.ts`)
-- `login(email, password)`: Authenticate subscriber and receive JWT token
-- `register(data)`: Register new subscriber with subscription plan
+- `login(data)`: Initiate login; backend sends an OTP to the subscriber's email
+- `verifyOtp(data)`: Verify OTP code and receive access + refresh tokens
+- `register(data)`: Register new subscriber with a subscription plan
 
 ### Subscriber Service (`subscriberService.ts`)
 - `getProfile()`: Retrieve authenticated subscriber's profile
 - `setCompanyName(data)`: Update company name
 - `setContactInfo(data)`: Update email and phone number
-- `setChannel(data)`: Enable/disable notification channels
+- `setChannel(data)`: Enable/disable a notification channel
 - `setPassword(data)`: Update account password
 - `setApikey(data)`: Create new API key
 - `getApiKeys()`: List all API keys
 - `deleteApiKey(key)`: Delete an API key
+- `setChannelSetting(data)`: Save per-channel configuration (API tokens, webhook URLs, etc.)
+- `getChannelSetting(channel)`: Retrieve per-channel configuration
+
+### Statistics Service (`statisticService.ts`)
+- `getStatistics(period)`: Retrieve usage statistics for a given period (e.g. `"monthly"`, `"weekly"`)
+
+### Template Service (`templateSevice.ts`)
+- `getAllTemplates()`: Retrieve all available templates (Default and Custom)
+- `createOrUpdateTemplate(data)`: Create or update a custom notification template
+- `queryTemplate(data)`: Test a template by submitting a notification query
+- `getNotificationLogs()`: Retrieve notification delivery log entries
 
 ### Authentication Flow
 
-1. User logs in via `/login` page
-2. Backend returns JWT token
-3. Token is stored in `localStorage`
-4. Token is automatically included in subsequent API requests via Axios interceptor
-5. Protected routes require valid token
+1. User submits email and password on the `/login` page
+2. Backend validates credentials and sends an OTP to the subscriber's email
+3. User enters the OTP on the verification screen
+4. Backend validates the OTP and returns an `accessToken` and a `refreshToken`
+5. Tokens are stored in `localStorage` (`accessToken`, `refreshToken`)
+6. The access token is automatically included in subsequent API requests via Axios interceptor
+7. When the access token expires, the Axios interceptor automatically requests a new one using the refresh token
+8. If the refresh also fails, the user is redirected to `/login`
 
 ## Available Scripts
 
@@ -266,13 +321,29 @@ The frontend is the presentation layer in the Fertile Notify architecture:
 - Form validation and user input handling
 - State management for UI components
 - API communication via HTTP requests
-- JWT token management
+- Access token and refresh token management
 - Responsive design and accessibility
 
 **Does NOT contain:**
 - Business logic (handled by backend Application layer)
 - Data persistence (managed by backend Infrastructure layer)
 - Authentication logic (delegated to backend API)
+
+## Application Routes
+
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/` | Redirect | Redirects to `/home` |
+| `/home` | `HomePage` | Landing page with feature highlights |
+| `/login` | `LoginPage` | Login with OTP verification |
+| `/register` | `RegisterPage` | New subscriber sign-up |
+| `/pricing` | `PricingPlanPage` | Subscription plan comparison |
+| `/dashboard` | `DashboardPage` | Subscriber management dashboard |
+| `/templates` | `TemplatesPage` | Notification template management |
+| `/statistics` | `StatisticsPage` | Usage analytics and subscription tracking |
+| `/channel-editor` | `ChannelDesignPanelPage` | Text template editor for non-email channels |
+| `/email-visual-editor` | `EmailDesignVisualPanelPage` | Visual email editor (GrapesJS + MJML) |
+| `/email-advanced-editor` | `EmailDesignAdvancedPanelPage` | Advanced email editor (Monaco Editor) |
 
 ## Development Guidelines
 
@@ -304,15 +375,12 @@ The application is built with modern web standards and supports:
 ## Future Enhancements
 
 Planned features for future releases:
-- Email template library and management
 - Template versioning and history
 - Real-time notification preview
-- Advanced analytics dashboard
-- Notification history and logs
-- Multi-language support
 - Dark/light theme toggle
 - Notification scheduling UI
 - Team collaboration features
+- Multi-language support
 
 ## Contributing
 

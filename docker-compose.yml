@@ -1,11 +1,7 @@
 services:
   frontend:
     container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=${VITE_API_URL}
+    image: ghcr.io/enesefetokta/fertile-notify-frontend:latest
     ports:
       - "3000:80"
     depends_on:
@@ -25,9 +21,7 @@ services:
 
   api:
     container_name: api
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/enesefetokta/fertile-notify-api:latest
     ports:
       - "8080:8080"
     environment:
@@ -53,23 +47,26 @@ services:
       - SYSTEM_SMTP_PASS=${SYSTEM_SMTP_PASS}
       - SYSTEM_SMTP_FROM=${SYSTEM_SMTP_FROM}
     depends_on:
-      - db
-      - redis
-      - rabbitmq
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - fertile-network
     restart: always
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 400M
     logging:
       <<: *default-logging
 
   redis:
     container_name: redis
     image: redis:7-alpine
-    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+    command: redis-server --maxmemory 50mb --maxmemory-policy allkeys-lru
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -77,29 +74,40 @@ services:
     networks:
       - fertile-network
     restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
-          memory: 100M
+          memory: 80M
     logging:
       <<: *default-logging
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3-alpine
     container_name: rabbitmq
     ports:
       - "5672:5672"
-      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - fertile-network
     restart: always
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 300M
     logging:
       <<: *default-logging
 
@@ -110,6 +118,8 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
       - POSTGRES_DB=${DB_NAME}
+    command: >
+      postgres -c shared_buffers=64MB -c effective_cache_size=128MB -c work_mem=4MB -c maintenance_work_mem=32MB
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
@@ -117,10 +127,15 @@ services:
     networks:
       - fertile-network
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
-          memory: 400M
+          memory: 300M
     logging:
       <<: *default-logging
 
@@ -148,3 +163,4 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  rabbitmq_data:
