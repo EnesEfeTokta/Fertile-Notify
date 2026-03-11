@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { templateSevice } from '../api/templateSevice';
 import type { Template as ApiTemplate } from '../types/template';
 import { NOTIFICATION_CHANNELS, getChannelMetadata } from '../constants/channels';
+import AppShell from '../components/AppShell';
 
 interface Template {
     id: string;
@@ -17,9 +18,7 @@ interface Template {
     body: string;
 }
 
-const capitalizeChannel = (channel: string): string => {
-    return getChannelMetadata(channel).name;
-};
+const capitalizeChannel = (channel: string): string => getChannelMetadata(channel).name;
 
 export default function TemplatesPage() {
     const navigate = useNavigate();
@@ -30,16 +29,14 @@ export default function TemplatesPage() {
     const [templates, setTemplates] = useState<Template[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
+    const [expandedId, setExpandedId] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchTemplates = async () => {
+        (async () => {
             try {
                 setLoading(true);
-                setError(null);
                 const data = await templateSevice.getAllTemplates();
-
-                const mappedTemplates: Template[] = data.map((t: ApiTemplate) => ({
+                setTemplates(data.map((t: ApiTemplate) => ({
                     id: t.id,
                     name: t.name,
                     description: t.description || 'No description available',
@@ -49,290 +46,233 @@ export default function TemplatesPage() {
                     source: t.source,
                     updatedAt: new Date().toISOString().split('T')[0],
                     subject: t.subject || '',
-                    body: t.body || ''
-                }));
-
-                setTemplates(mappedTemplates);
-            } catch (err) {
-                console.error('Failed to fetch templates:', err);
-                setError('Failed to load templates. Please try again later.');
+                    body: t.body || '',
+                })));
+            } catch {
+                setError('Failed to load templates.');
             } finally {
                 setLoading(false);
             }
-        };
-
-        fetchTemplates();
+        })();
     }, []);
 
-    const toggleTemplate = (id: string) => {
-        setExpandedTemplateId(expandedTemplateId === id ? null : id);
-    };
-
-    const filteredTemplates = templates.filter(t => {
-        const matchesSearch = t.name.toLowerCase().includes(search.toLowerCase()) ||
-            t.description.toLowerCase().includes(search.toLowerCase());
-        const matchesType = filterType === 'All' || t.type === filterType;
-        const matchesSource = filterSource === 'All' || t.source === filterSource;
-        return matchesSearch && matchesType && matchesSource;
+    const filtered = templates.filter(t => {
+        const q = search.toLowerCase();
+        return (t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
+            && (filterType === 'All' || t.type === filterType)
+            && (filterSource === 'All' || t.source === filterSource);
     });
 
-    return (
-        <div className="min-h-screen bg-primary text-primary flex flex-col items-center py-12 px-4 animate-fade-in relative">
-            {/* Back Button */}
-            <button
-                onClick={() => navigate("/dashboard")}
-                className="absolute top-8 left-8 text-secondary hover:text-primary transition-smooth flex items-center gap-2 text-sm"
-            >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    const topBarActions = (
+        <div className="flex items-center gap-2">
+            <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Dashboard
-            </button>
-
-            <div className="max-w-6xl w-full space-y-8 pt-8">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-2">
-                        <h1 className="text-3xl font-display font-bold tracking-tight text-primary">Templates</h1>
-                        <p className="text-secondary text-sm">Manage and customize your notification blueprints.</p>
-                    </div>
-
-                    <div className="relative">
-                        <button
-                            className="btn-primary flex items-center gap-2 text-sm px-6"
-                            onClick={() => setShowCreateDropdown(!showCreateDropdown)}
-                        >
-                            <span>Create New</span>
-                            <svg className={`w-4 h-4 transition-transform ${showCreateDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-
-                        {showCreateDropdown && (
-                            <div className="absolute right-0 mt-2 w-64 card-elevated z-50 overflow-hidden animate-slide-up shadow-2xl max-h-[70vh] overflow-y-auto">
-                                <div className="px-4 py-2 bg-tertiary/50 border-b border-primary">
-                                    <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Email Editors</span>
-                                </div>
-                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3"
-                                    onClick={() => navigate("/email-visual-editor")}
-                                >
-                                    <span className="text-primary-400">🎨</span> Visual Designer
-                                </button>
-                                <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3"
-                                    onClick={() => navigate("/email-advanced-editor")}
-                                >
-                                    <span className="text-primary-400">⌨️</span> Advanced (HTML)
-                                </button>
-
-                                <div className="px-4 py-2 bg-tertiary/50 border-y border-primary">
-                                    <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Other Channels</span>
-                                </div>
-                                {NOTIFICATION_CHANNELS.filter(c => c.id !== 'email').map(channel => (
-                                    <button
-                                        key={channel.id}
-                                        className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary transition-colors flex items-center gap-3 border-b border-primary/5 last:border-0"
-                                        onClick={() => navigate(channel.editorRoute, { state: { channel: channel.id } })}
-                                    >
-                                        <span className="text-xl w-6 text-center">{channel.icon}</span>
-                                        <div className="flex flex-col">
-                                            <span className="font-medium">{channel.name}</span>
-                                            <span className="text-[10px] text-tertiary">Dedicated editor</span>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Filters Row */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="md:col-span-2">
-                        <input
-                            type="text"
-                            placeholder="Search templates..."
-                            className="input-modern w-full"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <select
-                        className="input-modern cursor-pointer"
-                        value={filterType}
-                        onChange={(e) => setFilterType(e.target.value)}
-                    >
-                        <option value="All">All Methods</option>
-                        {NOTIFICATION_CHANNELS.map(c => (
-                            <option key={c.id} value={c.name}>{c.name}</option>
-                        ))}
-                    </select>
-                    <select
-                        className="input-modern cursor-pointer"
-                        value={filterSource}
-                        onChange={(e) => setFilterSource(e.target.value)}
-                    >
-                        <option value="All">All Creators</option>
-                        <option value="Default">Default (System)</option>
-                        <option value="Custom">Custom (User)</option>
-                    </select>
-                </div>
-
-                {/* Loading State */}
-                {loading && (
-                    <div className="card p-12 text-center space-y-4">
-                        <div className="flex justify-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
+                <input
+                    type="text"
+                    placeholder="Search…"
+                    className="input-modern text-xs py-1.5 pl-7 pr-3 w-36"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+            </div>
+            <select
+                className="input-modern text-xs py-1.5 cursor-pointer w-32 bg-secondary"
+                value={filterType}
+                onChange={e => setFilterType(e.target.value)}
+            >
+                <option value="All">All channels</option>
+                {NOTIFICATION_CHANNELS.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+            </select>
+            <select
+                className="input-modern text-xs py-1.5 cursor-pointer w-28 bg-secondary"
+                value={filterSource}
+                onChange={e => setFilterSource(e.target.value)}
+            >
+                <option value="All">All sources</option>
+                <option value="Default">System</option>
+                <option value="Custom">Custom</option>
+            </select>
+            <div className="relative">
+                <button className="btn-primary text-xs px-3.5 py-1.5 flex items-center gap-1.5 whitespace-nowrap" onClick={() => setShowCreateDropdown(v => !v)}>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    New Template
+                    <svg className={`w-3 h-3 transition-transform ${showCreateDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                {showCreateDropdown && (
+                    <div className="absolute right-0 mt-2 w-60 card-elevated z-50 overflow-hidden shadow-2xl animate-slide-up">
+                        <div className="px-3 py-2 border-b border-primary">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Email editors</p>
                         </div>
-                        <p className="text-secondary text-sm">Loading templates...</p>
-                    </div>
-                )}
-
-                {/* Error State */}
-                {error && !loading && (
-                    <div className="card p-12 text-center space-y-4 border-red-500/30">
-                        <h3 className="text-red-400 font-medium">Error Loading Templates</h3>
-                        <p className="text-secondary text-sm max-w-xs mx-auto">{error}</p>
-                        <button
-                            className="btn-secondary text-sm"
-                            onClick={() => window.location.reload()}
-                        >
-                            Retry
+                        <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary flex items-center gap-3 transition-colors"
+                            onClick={() => { navigate("/email-visual-editor"); setShowCreateDropdown(false); }}>
+                            <span>🎨</span> Visual Designer
                         </button>
-                    </div>
-                )}
-
-                {/* Templates Grid */}
-                {!loading && !error && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredTemplates.map(template => (
-                            <div key={template.id} className="card p-6 flex flex-col justify-between group hover:border-hover transition-smooth relative overflow-hidden">
-                                {template.source === 'Default' && (
-                                    <div className="absolute top-0 right-0 p-2 opacity-50">
-                                        <svg className="w-16 h-16 text-primary-500/5 -rotate-12 transform translate-x-4 -translate-y-4 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                    </div>
-                                )}
-
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-start relative z-10">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xl">
-                                                {getChannelMetadata(template.type).icon}
-                                            </span>
-                                            <span className={`badge ${template.source === 'Default' ? 'text-blue-400 border-blue-500/20' : 'text-purple-400 border-purple-500/20'}`}>
-                                                {template.source}
-                                            </span>
-                                        </div>
-                                        <span className="text-[10px] text-tertiary uppercase font-medium tracking-widest">{template.updatedAt}</span>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-primary group-hover:text-primary-400 transition-colors uppercase tracking-tight">
-                                            {template.name}
-                                        </h3>
-                                        <p className="text-secondary text-sm mt-1 line-clamp-2 leading-relaxed">
-                                            {template.description}
-                                        </p>
-                                    </div>
-
-                                    <div className="pt-2 flex items-center justify-between">
-                                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-tertiary border border-primary rounded text-[11px] text-primary-400 font-mono">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                            {template.eventType}
-                                        </div>
-                                        <button
-                                            onClick={() => toggleTemplate(template.id)}
-                                            className="text-xs text-secondary hover:text-primary-400 transition-colors flex items-center gap-1 font-medium"
-                                        >
-                                            {expandedTemplateId === template.id ? 'Hide Details' : 'View Details'}
-                                            <svg className={`w-3 h-3 transition-transform ${expandedTemplateId === template.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    {/* Collapsible Details */}
-                                    {expandedTemplateId === template.id && (
-                                        <div className="mt-4 p-4 bg-tertiary/50 rounded-lg animate-fade-in border border-primary-500/10 relative z-10 transition-all">
-                                            <div className="mb-3">
-                                                <h4 className="text-[10px] font-bold text-primary-400 uppercase mb-1 tracking-wider">Subject / Title</h4>
-                                                <p className="text-xs text-primary font-medium p-2 bg-primary/50 rounded border border-primary-500/10">
-                                                    {template.subject || <span className="text-secondary italic">No subject defined</span>}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <h4 className="text-[10px] font-bold text-primary-400 uppercase mb-1 tracking-wider">Content Template</h4>
-                                                <div className="text-xs text-secondary bg-primary/50 p-3 rounded border border-primary-500/10 max-h-32 overflow-y-auto whitespace-pre-wrap font-mono relative">
-                                                    {template.description.length > 500 ? (
-                                                        template.body || <span className="text-secondary italic">No content template defined</span>
-                                                    ) : (
-                                                        template.body || <span className="text-secondary italic">No content template defined</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
+                        <button className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary flex items-center gap-3 transition-colors border-b border-primary"
+                            onClick={() => { navigate("/email-advanced-editor"); setShowCreateDropdown(false); }}>
+                            <span>⌨️</span> Advanced (HTML)
+                        </button>
+                        <div className="px-3 py-2 border-b border-primary">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Other channels</p>
+                        </div>
+                        {NOTIFICATION_CHANNELS.filter(c => c.id !== 'email').map(channel => (
+                            <button key={channel.id}
+                                className="w-full px-4 py-3 text-left text-sm hover:bg-tertiary flex items-center gap-3 border-b border-primary/5 last:border-0 transition-colors"
+                                onClick={() => { navigate(channel.editorRoute, { state: { channel: channel.id } }); setShowCreateDropdown(false); }}>
+                                <span className="w-5 text-center">{channel.icon}</span>
+                                <div>
+                                    <p className="font-medium">{channel.name}</p>
+                                    <p className="text-[10px] text-tertiary">Dedicated editor</p>
                                 </div>
-
-                                <div className="flex flex-col gap-2 mt-8 pt-4 border-t border-primary relative z-10">
-                                    {template.source === 'Custom' ? (
-                                        <div className="flex flex-col gap-2">
-                                            {template.type === "Email" ? (
-                                                <div className="flex gap-2 w-full">
-                                                    <button
-                                                        className="btn-secondary flex-1 text-[10px] py-2 h-auto"
-                                                        onClick={() => navigate("/email-visual-editor", { state: { template } })}
-                                                    >
-                                                        Visual Editor
-                                                    </button>
-                                                    <button
-                                                        className="btn-secondary flex-1 text-[10px] py-2 h-auto"
-                                                        onClick={() => navigate("/email-advanced-editor", { state: { template } })}
-                                                    >
-                                                        Advanced
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    className="btn-secondary flex-1 text-xs py-2 h-auto"
-                                                    onClick={() => navigate(getChannelMetadata(template.channelId).editorRoute, { state: { template } })}
-                                                >
-                                                    Edit {template.type} Template
-                                                </button>
-                                            )}
-                                            <button className="btn-secondary text-xs py-2 h-auto px-3 hover:text-red-400 hover:border-red-500/30 flex items-center justify-center gap-2">
-                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                <span className="text-[10px] uppercase font-bold tracking-wider">Delete</span>
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center justify-center p-3 text-[10px] font-bold text-tertiary bg-primary/30 rounded border border-primary-500/5 select-none uppercase tracking-widest gap-2">
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                            </svg>
-                                            System Template
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                            </button>
                         ))}
-                    </div>
-                )}
-
-                {!loading && !error && filteredTemplates.length === 0 && (
-                    <div className="card p-12 text-center space-y-4">
-                        <h3 className="text-primary font-medium">No templates found</h3>
-                        <p className="text-secondary text-sm max-w-xs mx-auto text-balance">
-                            We couldn't find any templates matching your search or filters. Try adjusting them!
-                        </p>
                     </div>
                 )}
             </div>
-        </div >
+        </div>
+    );
+
+    return (
+        <AppShell title="Templates" actions={topBarActions}>
+            {/* Close dropdown on outside click */}
+            {showCreateDropdown && <div className="fixed inset-0 z-30" onClick={() => setShowCreateDropdown(false)} />}
+
+            {/* Loading */}
+            {loading && (
+                <div className="flex items-center gap-3 py-16">
+                    <div className="spinner" />
+                    <span className="text-secondary text-sm">Loading templates…</span>
+                </div>
+            )}
+
+            {/* Error */}
+            {error && !loading && (
+                <div className="card p-8 text-center space-y-3 border-red-500/20">
+                    <p className="text-red-400 font-medium text-sm">{error}</p>
+                    <button className="btn-secondary text-sm" onClick={() => window.location.reload()}>Retry</button>
+                </div>
+            )}
+
+            {/* Template grid */}
+            {!loading && !error && (
+                <>
+                    {filtered.length === 0 ? (
+                        <div className="card p-12 text-center space-y-2">
+                            <p className="font-semibold text-primary">No templates found</p>
+                            <p className="text-sm text-tertiary">Try adjusting your search or filters.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                            {filtered.map(template => {
+                                const chMeta = getChannelMetadata(template.channelId);
+                                const isExpanded = expandedId === template.id;
+                                return (
+                                    <div key={template.id} className="card p-5 flex flex-col gap-4 hover:border-hover transition-all group">
+                                        {/* Header */}
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-center gap-2.5">
+                                                <div
+                                                    className="w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0"
+                                                    style={{ background: `${chMeta.color}18`, border: `1px solid ${chMeta.color}25` }}
+                                                >
+                                                    {chMeta.icon}
+                                                </div>
+                                                <div>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${template.source === 'Default'
+                                                        ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                        : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                                        }`}>
+                                                        {template.source === 'Default' ? 'System' : 'Custom'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <span className="text-[10px] text-muted font-mono">{template.updatedAt}</span>
+                                        </div>
+
+                                        {/* Name + desc */}
+                                        <div>
+                                            <h3 className="font-bold text-primary tracking-tight mb-1">{template.name}</h3>
+                                            <p className="text-xs text-secondary line-clamp-2 leading-relaxed">{template.description}</p>
+                                        </div>
+
+                                        {/* Event tag */}
+                                        <div className="flex items-center justify-between">
+                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-tertiary border border-primary rounded-md text-[10px] font-mono text-accent-light">
+                                                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                {template.eventType}
+                                            </span>
+                                            <button
+                                                onClick={() => setExpandedId(isExpanded ? null : template.id)}
+                                                className="text-[11px] text-tertiary hover:text-primary-400 font-medium flex items-center gap-1 transition-colors"
+                                            >
+                                                {isExpanded ? 'Hide' : 'Preview'}
+                                                <svg className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        {/* Collapsible preview */}
+                                        {isExpanded && (
+                                            <div className="space-y-3 border-t border-primary pt-4 animate-fade-in">
+                                                <div>
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted mb-1.5">Subject</p>
+                                                    <p className="text-xs text-primary bg-elevated p-2.5 rounded-lg border border-primary font-mono">
+                                                        {template.subject || <span className="text-muted italic">No subject</span>}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted mb-1.5">Body</p>
+                                                    <div className="text-xs text-secondary bg-elevated p-2.5 rounded-lg border border-primary font-mono max-h-28 overflow-y-auto whitespace-pre-wrap">
+                                                        {template.body || <span className="text-muted italic">No body content</span>}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Actions */}
+                                        <div className="mt-auto pt-4 border-t border-primary">
+                                            {template.source === 'Custom' ? (
+                                                <div className="flex gap-2">
+                                                    {template.type === 'Email' ? (
+                                                        <>
+                                                            <button className="btn-secondary flex-1 text-xs py-1.5 h-auto" onClick={() => navigate('/email-visual-editor', { state: { template } })}>Visual</button>
+                                                            <button className="btn-secondary flex-1 text-xs py-1.5 h-auto" onClick={() => navigate('/email-advanced-editor', { state: { template } })}>HTML</button>
+                                                        </>
+                                                    ) : (
+                                                        <button className="btn-secondary flex-1 text-xs py-1.5 h-auto" onClick={() => navigate(getChannelMetadata(template.channelId).editorRoute, { state: { template } })}>
+                                                            Edit {template.type}
+                                                        </button>
+                                                    )}
+                                                    <button className="btn-secondary px-3 py-1.5 h-auto text-red-400 hover:border-red-500/30">
+                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-center gap-2 py-2 text-[10px] font-bold uppercase tracking-widest text-muted">
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                    </svg>
+                                                    System Template
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </>
+            )}
+        </AppShell>
     );
 }

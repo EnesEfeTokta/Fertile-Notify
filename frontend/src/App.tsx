@@ -9,7 +9,16 @@ import PricingPlanPage from './pages/PricingPlanPage';
 import ChannelDesignPanelPage from './pages/ChannelDesignPanelPage';
 import TemplatesPage from './pages/TemplatesPage';
 import StatisticsPage from './pages/StatisticsPage';
+import AccountPage from './pages/AccountPage';
+import ApiKeysPage from './pages/ApiKeysPage';
 
+// Info Pages
+import AboutUsPage from './pages/info/AboutUsPage';
+import ContactPage from './pages/info/ContactPage';
+import PrivacyPage from './pages/info/PrivacyPage';
+import DocumentationPage from './pages/info/DocumentationPage';
+import ChangelogPage from './pages/info/ChangelogPage';
+import ApiReferencePage from './pages/info/ApiReferencePage';
 
 function App() {
   return (
@@ -20,11 +29,22 @@ function App() {
         <Route path="/channel-editor" element={<ChannelDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/statistics" element={<StatisticsPage />} />
+        <Route path="/account" element={<AccountPage />} />
+        <Route path="/api-keys" element={<ApiKeysPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/pricing" element={<PricingPlanPage />} />
+
+        {/* Info Routes */}
+        <Route path="/about" element={<AboutUsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/documentation" element={<DocumentationPage />} />
+        <Route path="/changelog" element={<ChangelogPage />} />
+        <Route path="/api-reference" element={<ApiReferencePage />} />
+
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>

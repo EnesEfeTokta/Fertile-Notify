@@ -56,6 +56,26 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RABBITMQ_USER")))
 if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RABBITMQ_PASS")))
     envValues["RabbitMQ:Password"] = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
 
+// --- OTP Mapping ---
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OTP_LENGTH")))
+    envValues["OTPSettings:Length"] = Environment.GetEnvironmentVariable("OTP_LENGTH");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OTP_EXPIRY_IN_MINUTES")))
+    envValues["OTPSettings:ExpiryInMinutes"] = Environment.GetEnvironmentVariable("OTP_EXPIRY_IN_MINUTES");
+
+// --- SMTP Mapping ---
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYSTEM_SMTP_HOST")))
+    envValues["SystemSmtp:Host"] = Environment.GetEnvironmentVariable("SYSTEM_SMTP_HOST");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYSTEM_SMTP_PORT")))
+    envValues["SystemSmtp:Port"] = Environment.GetEnvironmentVariable("SYSTEM_SMTP_PORT");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYSTEM_SMTP_USER")))
+    envValues["SystemSmtp:Username"] = Environment.GetEnvironmentVariable("SYSTEM_SMTP_USER");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYSTEM_SMTP_PASS")))
+    envValues["SystemSmtp:Password"] = Environment.GetEnvironmentVariable("SYSTEM_SMTP_PASS");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYSTEM_SMTP_FROM")))
+    envValues["SystemSmtp:From"] = Environment.GetEnvironmentVariable("SYSTEM_SMTP_FROM");
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYSTEM_SMTP_DISPLAY_NAME")))
+    envValues["SystemSmtp:DisplayName"] = Environment.GetEnvironmentVariable("SYSTEM_SMTP_DISPLAY_NAME");
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddInMemoryCollection(envValues);
 
@@ -192,6 +212,9 @@ builder.Services.AddScoped<IStatsRepository, EfStatsRepository>();
 
 // --- NOTIFICATION LOG ---
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+
+// --- EMAIL ---
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 // --- BACKGROUND JOBS ---
 builder.Services.AddMassTransit(x =>

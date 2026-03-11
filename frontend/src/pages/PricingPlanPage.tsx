@@ -180,6 +180,80 @@ const PricingPlanPage = () => {
                     </div>
                 </div>
 
+                {/* Comparison Table Section */}
+                <div className="pt-20 space-y-12">
+                    <div className="text-center">
+                        <h2 className="text-3xl font-display font-semibold text-primary">Compare Features</h2>
+                        <p className="text-secondary mt-2">Find the perfect balance for your growth.</p>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse border-t border-primary/20">
+                            <thead>
+                                <tr className="border-b border-primary/20">
+                                    <th className="py-6 px-4 text-sm font-semibold text-tertiary uppercase tracking-wider w-1/4">Capability</th>
+                                    <th className="py-6 px-4 text-lg font-bold text-primary w-1/4">Free</th>
+                                    <th className="py-6 px-4 text-lg font-bold text-accent-light w-1/4">Pro</th>
+                                    <th className="py-6 px-4 text-lg font-bold text-primary w-1/4">Enterprise</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-primary/10">
+                                {/* Notifications */}
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Console Notifications</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">2,000 / mo</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">10,000 / mo</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold">Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Email Notifications</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">150 / mo</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">500 / mo</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">5,000 / mo</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">SMS Support</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">---</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">250 / mo</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">1,000 / mo</td>
+                                </tr>
+                                {/* Channels */}
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Slack & Discord</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Limited (1 ea)</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Unlimited</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold">Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Push Notifications</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">---</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold text-accent-light">✓ Included</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold text-primary">✓ Advanced</td>
+                                </tr>
+                                {/* Platform */}
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Stat Retention</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">7 Days</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">3 Months</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold">History Export</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Rate Limits</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">20 req / min</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">100 req / min</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">1,000+ req / min</td>
+                                </tr>
+                                <tr>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Support</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Documentation</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Email Support</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold text-accent-primary">24/7 Priority</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 {/* FAQ Section */}
                 <div className="pt-20 space-y-10">
                     <h2 className="text-3xl font-display font-semibold text-center text-primary">Frequently Asked Questions</h2>
