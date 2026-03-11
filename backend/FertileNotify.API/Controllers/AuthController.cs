@@ -16,17 +16,20 @@ namespace FertileNotify.API.Controllers
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ITokenService _tokenService;
         private readonly IOtpService _otpService;
+        private readonly IEmailService _emailService;
 
         public AuthController(
             ISubscriberRepository subscriberRepository,
             ISubscriptionRepository subscriptionRepository,
             ITokenService tokenService, 
-            IOtpService otpService)
+            IOtpService otpService,
+            IEmailService emailService)
         {
             _subscriberRepository = subscriberRepository;
             _subscriptionRepository = subscriptionRepository;
             _tokenService = tokenService;
             _otpService = otpService;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -38,6 +41,7 @@ namespace FertileNotify.API.Controllers
                 throw new UnauthorizedException("Invalid credentials");
 
             var otpCode = await _otpService.GenerateOtpAsync(subscriber.Id);
+            await _emailService.SendEmailAsync(subscriber.Email.ToString(), "OTP Verification", $"Your OTP is: {otpCode}.");
 
             return Ok(ApiResponse<object>.SuccessResult(default!, "A special 6-character code valid for 5 minutes has been sent to your email address. Please enter this code."));
 
