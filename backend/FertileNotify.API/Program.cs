@@ -232,7 +232,7 @@ builder.Services.AddMassTransit(x =>
         cfg.ReceiveEndpoint("notification-queue", e => 
         {
             e.PrefetchCount = 16;
-
+            e.EnablePriority(10);
             e.UseMessageRetry(r => r.Intervals(
                 TimeSpan.FromSeconds(5),
                 TimeSpan.FromSeconds(15),
