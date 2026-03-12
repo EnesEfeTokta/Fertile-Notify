@@ -223,12 +223,21 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h => {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h => 
+        {
             h.Username(builder.Configuration["RabbitMQ:Username"] ?? "guest");
             h.Password(builder.Configuration["RabbitMQ:Password"] ?? "guest");
         });
 
-        cfg.ReceiveEndpoint("notification-queue", e => {
+        cfg.ReceiveEndpoint("notification-queue", e => 
+        {
+            e.PrefetchCount = 16;
+
+            e.UseMessageRetry(r => r.Intervals(
+                TimeSpan.FromSeconds(5),
+                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(30)));
+
             e.ConfigureConsumer<NotificationConsumer>(context);
         });
     });
