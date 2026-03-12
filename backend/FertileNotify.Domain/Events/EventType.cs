@@ -1,4 +1,4 @@
-﻿namespace FertileNotify.Domain.Events
+namespace FertileNotify.Domain.Events
 {
     public sealed class EventType
     {
@@ -54,6 +54,9 @@
                 "MonthlyNewsletter" => MonthlyNewsletter,
                 "SupportTicketUpdated" => SupportTicketUpdated,
 
+                // For Test
+                "TestForDevelop" => TestForDevelop,
+
                 _ => throw new Exception($"Unknown event type: {name}")
             };
         }
@@ -61,5 +64,39 @@
         public override string ToString() => Name;
         public override bool Equals(object? obj) => obj is EventType other && Name == other.Name;
         public override int GetHashCode() => Name.GetHashCode();
+
+        public byte GetPriority()
+        {
+            return Name switch
+            {
+                // Critical Level
+                "SubscriberRegistered" => 10,
+                "PasswordReset" => 10,
+                "AccountLocked" => 9,
+                "PaymentFailed" => 9,
+
+                // Important Level
+                "LoginAlert" => 8,
+                "EmailVerified" => 7,
+                "OrderCreated" => 7,
+                "OrderCancelled" => 6,
+
+                // Normal Level
+                "SubscriptionRenewed" => 5,
+                "OrderShipped" => 5,
+                "SupportTicketUpdated" => 5,
+                "OrderDelivered" => 4,
+
+                // Low Level
+                "Campaign" => 1,
+                "MonthlyNewsletter" => 0,
+
+                // For Test
+                "TestForDevelop" => 10,
+
+                // Default
+                _ => 1
+            };
+        }
     }
 }

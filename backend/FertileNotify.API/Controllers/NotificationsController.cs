@@ -31,6 +31,7 @@ namespace FertileNotify.API.Controllers
             var subscriberId = GetSubscriberIdFromClaims();
 
             var eventType = EventType.From(request.EventType);
+            byte priority = eventType.GetPriority();
             var parameters = request.Parameters;
 
             int totalQueued = 0;
@@ -47,6 +48,8 @@ namespace FertileNotify.API.Controllers
                         Recipient = recipientAddress,
                         EventType = request.EventType,
                         Parameters = request.Parameters
+                    }, context => {
+                        context.SetPriority(priority);
                     });
                     totalQueued++;
                 }
