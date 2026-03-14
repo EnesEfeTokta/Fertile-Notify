@@ -12,6 +12,7 @@ import TemplatesPage from './pages/TemplatesPage';
 import StatisticsPage from './pages/StatisticsPage';
 import AccountPage from './pages/AccountPage';
 import ApiKeysPage from './pages/ApiKeysPage';
+import BlacklistPage from './pages/BlacklistPage';
 
 // Info Pages
 import AboutUsPage from './pages/info/AboutUsPage';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />
+        <Route path="/blacklist" element={<BlacklistPage />} />
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
