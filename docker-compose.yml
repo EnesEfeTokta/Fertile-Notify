@@ -1,6 +1,10 @@
 services:
   frontend:
     container_name: frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8080/api}
     image: ghcr.io/enesefetokta/fertile-notify-frontend:latest
     ports:
       - "3000:80"
@@ -21,6 +25,8 @@ services:
 
   api:
     container_name: api
+    build:
+      context: ./backend
     image: ghcr.io/enesefetokta/fertile-notify-api:latest
     ports:
       - "8080:8080"
@@ -87,10 +93,11 @@ services:
       <<: *default-logging
 
   rabbitmq:
-    image: rabbitmq:3-alpine
+    image: rabbitmq:3-management-alpine
     container_name: rabbitmq
     ports:
       - "5672:5672"
+      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-guest}

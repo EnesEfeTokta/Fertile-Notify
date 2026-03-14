@@ -46,6 +46,22 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ForbiddenRecipients",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UnwantedSubscriber = table.Column<Guid>(type: "uuid", nullable: false),
+                    RecipientAddress = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    UnwantedChannels = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ForbiddenRecipients", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NotificationLogs",
                 columns: table => new
                 {
@@ -152,6 +168,9 @@ namespace FertileNotify.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "DailyStats");
+
+            migrationBuilder.DropTable(
+                name: "ForbiddenRecipients");
 
             migrationBuilder.DropTable(
                 name: "NotificationLogs");

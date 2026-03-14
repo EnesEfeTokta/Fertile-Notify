@@ -1,10 +1,11 @@
-﻿using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Services;
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
+using Microsoft.Extensions.Configuration;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Mjml.Net;
@@ -22,6 +23,7 @@ namespace FertileNotify.Tests
         private readonly Mock<INotificationSender> _mockEmailSender;
         private readonly Mock<ILogger<ProcessEventHandler>> _mockLogger;
         private readonly Mock<IMjmlRenderer> _mockMjmlRenderer;
+        private readonly Mock<ISecurityService> _mockSecurityService;
         private readonly TemplateEngine _templateEngine;
 
         private readonly ProcessEventHandler _handler;
@@ -36,6 +38,7 @@ namespace FertileNotify.Tests
             _mockEmailSender = new Mock<INotificationSender>();
             _mockLogger = new Mock<ILogger<ProcessEventHandler>>();
             _mockMjmlRenderer = new Mock<IMjmlRenderer>();
+            _mockSecurityService = new Mock<ISecurityService>();
 
             _mockEmailSender.Setup(x => x.Channel).Returns(NotificationChannel.Email);
             var senders = new List<INotificationSender> { _mockEmailSender.Object };
@@ -53,7 +56,9 @@ namespace FertileNotify.Tests
                 _mockSubscriberChannelRepo.Object,
                 _templateEngine,
                 _mockStatsRepo.Object,
-                _mockLogger.Object
+                _mockLogger.Object,
+                _mockSecurityService.Object
+
             );
         }
 

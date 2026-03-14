@@ -15,6 +15,7 @@ namespace FertileNotify.Infrastructure.Persistence
         public DbSet<NotificationLog> NotificationLogs { get; set; }
         public DbSet<SubscriberChannelSetting> SubscriberChannelSettings { get; set; }
         public DbSet<SubscriberDailyStats> DailyStats { get; set; }
+        public DbSet<ForbiddenRecipient> ForbiddenRecipients { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
