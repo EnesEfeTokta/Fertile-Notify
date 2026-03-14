@@ -3,6 +3,7 @@ using FertileNotify.Application.Services;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.UseCases.ProcessEvent
@@ -16,6 +17,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
         private readonly Dictionary<NotificationChannel, INotificationSender> _senderMap;
         private readonly TemplateEngine _templateEngine;
         private readonly IStatsRepository _statsRepository;
+        private readonly ISecurityService _securityService;
         private readonly ILogger<ProcessEventHandler> _logger;
 
         public ProcessEventHandler(
@@ -26,7 +28,8 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             ISubscriberChannelRepository subscriberChannelRepository,
             TemplateEngine templateEngine,
             IStatsRepository statsRepository,
-            ILogger<ProcessEventHandler> logger)
+            ILogger<ProcessEventHandler> logger,
+            ISecurityService securityService)
         {
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
@@ -36,6 +39,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             _templateEngine = templateEngine;
             _statsRepository = statsRepository;
             _logger = logger;
+            _securityService = securityService;
         }
 
         public async Task HandleAsync(ProcessEventCommand command)
@@ -44,6 +48,13 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
                 command.EventType.Name, command.Channel.Name, command.SubscriberId);
 
             var (subscriber, subscription) = await GetAndValidateEntities(command);
+
+            var unsubscribeToken = _securityService.GenerateUnsubscribeToken(command.Recipient, command.SubscriberId);
+            if (!command.Parameters.ContainsKey("UnsubscribeLink"))
+            {
+                command.Parameters["UnsubscribeLink"] = 
+                    $"http://localhost:3000/unsubscribe?recipient={command.Recipient}&subId={command.SubscriberId}&token={unsubscribeToken}";
+            }
 
             var (subject, body) = await PrepareContent(command);
 

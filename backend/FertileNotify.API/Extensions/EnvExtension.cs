@@ -49,6 +49,9 @@ public static class EnvExtension
         MapEnv(envValues, "SYSTEM_SMTP_FROM", "SystemSmtp:From");
         MapEnv(envValues, "SYSTEM_SMTP_DISPLAY_NAME", "SystemSmtp:DisplayName");
 
+        // SECURITY Mapping
+        MapEnv(envValues, "SECURITY_UNSUBSCRIBE_SECRET", "Security:UnsubscribeSecret");
+
         configuration.AddInMemoryCollection(envValues);
     }
 

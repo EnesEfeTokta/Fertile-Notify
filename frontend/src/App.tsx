@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
+import UnsubscribePage from './pages/UnsubscribePage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
@@ -31,6 +32,7 @@ function App() {
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />

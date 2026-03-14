@@ -1,4 +1,5 @@
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Security;
 using FertileNotify.Application.Services;
 using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
@@ -20,10 +21,12 @@ public static class ApplicationServiceExtension
         services.AddScoped<INotificationLogRepository, EfNotificationLogRepository>();
         services.AddScoped<ISubscriberChannelRepository, EfSubscriberChannelRepository>();
         services.AddScoped<IStatsRepository, EfStatsRepository>();
+        services.AddScoped<IBlacklistRepository, EfBlacklistRepository>();
 
         // Application Services
         services.AddScoped<IStatisticsService, StatisticsService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddScoped<ISecurityService, SecurityService>();
         services.AddScoped<TemplateEngine>();
         services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
         services.AddHttpClient();
