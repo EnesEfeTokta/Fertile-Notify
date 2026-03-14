@@ -53,7 +53,7 @@ namespace FertileNotify.Application.UseCases.ProcessEvent
             if (!command.Parameters.ContainsKey("UnsubscribeLink"))
             {
                 command.Parameters["UnsubscribeLink"] = 
-                    $"http://localhost:3000/unsubscribe?recipient={command.Recipient}&subId={command.SubscriberId}&token={unsubscribeToken}";
+                    $"http://fertile-notify.enesefetokta.shop/unsubscribe?recipient={command.Recipient}&subId={command.SubscriberId}&token={unsubscribeToken}";
             }
 
             var (subject, body) = await PrepareContent(command);

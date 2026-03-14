@@ -57,7 +57,7 @@ namespace FertileNotify.Tests
                 _templateEngine,
                 _mockStatsRepo.Object,
                 _mockLogger.Object,
-                _mockSecurityService.Object,
+                _mockSecurityService.Object
 
             );
         }
