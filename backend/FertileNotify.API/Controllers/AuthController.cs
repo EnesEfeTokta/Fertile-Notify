@@ -4,6 +4,7 @@ using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FertileNotify.API.Controllers
@@ -33,7 +34,7 @@ namespace FertileNotify.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
             var subscriber = await GetSubscriber(request.Email);
 
@@ -88,6 +89,27 @@ namespace FertileNotify.API.Controllers
             await _subscriberRepository.SaveAsync(subscriber);
 
             return Ok(ApiResponse<object>.SuccessResult(new { AccessToken = newAccessToken, RefreshToken = newRefreshToken }, "Token refreshed successfully."));
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            var subscriber = await GetSubscriber(email);
+            var otpCode = await _otpService.GenerateOtpAsync(subscriber.Id);
+            await _emailService.SendEmailAsync(subscriber.Email.ToString(), "Password Reset OTP", $"Your OTP for password reset is: {otpCode}.");
+            return Ok(ApiResponse<object>.SuccessResult(default!, "A special 6-character code valid for 5 minutes has been sent to your email address. Please enter this code to reset your password."));
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordRequest request)
+        {
+            var subscriber = await GetSubscriber(request.Email);
+            var isValid = await _otpService.VerifyOtpAsync(subscriber.Id, request.OtpCode);
+            if (!isValid)
+                throw new UnauthorizedException("Invalid or expired OTP code");
+            subscriber.UpdatePassword(Password.Create(request.NewPassword));
+            await _subscriberRepository.SaveAsync(subscriber);
+            return Ok(ApiResponse<object>.SuccessResult(default!, "Password reset successful."));
         }
 
         [NonAction]

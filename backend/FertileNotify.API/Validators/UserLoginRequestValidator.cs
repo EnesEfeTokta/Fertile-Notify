@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace FertileNotify.API.Validators
 {
-    public class LoginRequestValidator : AbstractValidator<LoginRequest>
+    public class UserLoginRequestValidator : AbstractValidator<UserLoginRequest>
     {
-        public LoginRequestValidator() 
+        public UserLoginRequestValidator() 
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is a required field.")
