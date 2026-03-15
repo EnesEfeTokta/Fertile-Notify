@@ -1,12 +1,9 @@
 using FertileNotify.API.Models.Requests;
 using FertileNotify.API.Models.Responses;
-using FertileNotify.Application.Contracts;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Events;
+using FertileNotify.Application.Services;
+using FertileNotify.Application.UseCases.SendNotification;
+using FertileNotify.Application.UseCases.Unsubscribe;
 using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -18,15 +15,13 @@ namespace FertileNotify.API.Controllers
     [Route("api/notifications")]
     public class NotificationsController : ControllerBase
     {
-        private readonly IPublishEndpoint _publishEndpoint;
-        private readonly IBlacklistRepository _blacklistRepository;
-        private readonly ISecurityService _securityService;
+        private readonly SendNotificationHandler _sendNotificationHandler;
+        private readonly UnsubscribeHandler _unsubscribeHandler;
 
-        public NotificationsController(IPublishEndpoint publishEndpoint, IBlacklistRepository blacklistRepository, ISecurityService securityService)
+        public NotificationsController(SendNotificationHandler sendNotificationHandler, UnsubscribeHandler unsubscribeHandler)
         {
-            _publishEndpoint = publishEndpoint;
-            _blacklistRepository = blacklistRepository;
-            _securityService = securityService;
+            _sendNotificationHandler = sendNotificationHandler;
+            _unsubscribeHandler = unsubscribeHandler;
         }
 
         [HttpPost]
@@ -34,44 +29,19 @@ namespace FertileNotify.API.Controllers
         {
             var subscriberId = GetSubscriberIdFromClaims();
 
-            var eventType = EventType.From(request.EventType);
-            byte priority = eventType.GetPriority();
-            var parameters = request.Parameters;
-
-            var allAddresses = request.To.SelectMany(g => g.Recipients).Distinct().ToList();
-            var blacklistedItems = await _blacklistRepository.GetForRecipientsAsync(subscriberId, allAddresses);
-
-            int totalQueued = 0;
-
-            foreach (var group in request.To)
+            var command = new SendNotificationCommand
             {
-                var channel = NotificationChannel.From(group.Channel);
-                foreach (var recipientAddress in group.Recipients)
+                SubscriberId = subscriberId,
+                EventType = request.EventType,
+                Parameters = request.Parameters,
+                To = request.To.Select(g => new ChannelRecipientCommandGroup
                 {
-                    var blacklistEntry = blacklistedItems.FirstOrDefault(b => b.RecipientAddress == recipientAddress);
+                    Channel = g.Channel,
+                    Recipients = g.Recipients
+                }).ToList()
+            };
 
-                    if (blacklistEntry != null)
-                    {
-                        if (blacklistEntry.UnwantedChannels.Count == 0 ||
-                            blacklistEntry.UnwantedChannels.Contains(channel))
-                        {
-                            continue;
-                        }
-                    }
-
-                    await _publishEndpoint.Publish<ProcessNotificationMessage>(new
-                    {
-                        SubscriberId = subscriberId,
-                        Channel = channel,
-                        Recipient = recipientAddress,
-                        EventType = request.EventType,
-                        Parameters = request.Parameters
-                    }, context => {
-                        context.SetPriority(priority);
-                    });
-                    totalQueued++;
-                }
-            }
+            int totalQueued = await _sendNotificationHandler.HandleAsync(command);
 
             return Accepted(ApiResponse<object>.SuccessResult(
                 new
@@ -87,17 +57,18 @@ namespace FertileNotify.API.Controllers
         [HttpPost("unsubscribe")]
         public async Task<IActionResult> PublicUnsubscribe([FromBody] UnsubscribeRequest request)
         {
-            bool isValid = _securityService.VerifyUnsubscribeToken(request.Recipient, request.SubscriberId, request.Token);
+            var command = new UnsubscribeCommand
+            {
+                SubscriberId = request.SubscriberId,
+                Recipient = request.Recipient,
+                Token = request.Token,
+                Channels = request.Channels
+            };
 
-            if (!isValid)
+            bool success = await _unsubscribeHandler.HandleAsync(command);
+
+            if (!success)
                 return BadRequest(ApiResponse<object>.FailureResult(new List<string> { "Invalid unsubscribe token." }, "Failed to unsubscribe."));
-
-            var forbiddenRecipient = new ForbiddenRecipient(
-                request.SubscriberId, 
-                request.Recipient,
-                request.Channels?.Select(NotificationChannel.From).ToList() ?? new List<NotificationChannel>()
-            );
-            await _blacklistRepository.AddOrUpdateAsync(forbiddenRecipient);
 
             return Ok(ApiResponse<object>.SuccessResult(null!, "You have been successfully unsubscribed."));
         }

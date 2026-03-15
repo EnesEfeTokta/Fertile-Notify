@@ -9,153 +9,146 @@ namespace FertileNotify.Infrastructure.Persistence
 {
     public static class DbSeeder
     {
-        public static async Task SeedAsync(IApplicationBuilder app)
+        public static async Task SeedAsync(ApplicationDbContext context)
         {
-            using (var scope = app.ApplicationServices.CreateScope())
+            if (!await context.NotificationTemplates.AnyAsync(t => t.SubscriberId == null))
             {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var globalTemplates = new List<NotificationTemplate>();
 
-                await context.Database.MigrateAsync();
+                var channels = new[] {
+                    NotificationChannel.Email,
+                    NotificationChannel.SMS,
+                    NotificationChannel.Console,
+                    NotificationChannel.Discord,
+                    NotificationChannel.Telegram,
+                    NotificationChannel.WhatsApp,
+                    NotificationChannel.MSTeams,
+                    NotificationChannel.FirebasePush,
+                    NotificationChannel.Slack,
+                    NotificationChannel.WebPush,
+                    NotificationChannel.Webhook
+                };
 
-                if (!await context.NotificationTemplates.AnyAsync(t => t.SubscriberId == null))
+                foreach (var channel in channels)
                 {
-                    var globalTemplates = new List<NotificationTemplate>();
+                    bool isEmail = channel.Equals(NotificationChannel.Email);
 
-                    var channels = new[] {
-                        NotificationChannel.Email,
-                        NotificationChannel.SMS,
-                        NotificationChannel.Console,
-                        NotificationChannel.Discord,
-                        NotificationChannel.Telegram,
-                        NotificationChannel.WhatsApp,
-                        NotificationChannel.MSTeams,
-                        NotificationChannel.FirebasePush,
-                        NotificationChannel.Slack,
-                        NotificationChannel.WebPush,
-                        NotificationChannel.Webhook
-                    };
+                    // --- AUTH EVENTS ---
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "User Welcome Message",
+                        "Sent to new subscribers immediately after registration to welcome them to the platform.",
+                        EventType.SubscriberRegistered,
+                        channel,
+                        "Welcome to {AppName}!",
+                        isEmail ? WrapInMjml("Hi {Name}, thank you for joining us. We are excited to have you on board.")
+                                : "Hi {Name}, welcome to {AppName}! We are excited to have you on board."
+                    ));
 
-                    foreach (var channel in channels)
-                    {
-                        bool isEmail = channel.Equals(NotificationChannel.Email);
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Password Reset Request",
+                        "Contains the security code or link required for a user to reset their forgotten password.",
+                        EventType.PasswordReset,
+                        channel,
+                        "Reset Your Password",
+                        isEmail ? WrapInMjml("Hello {Name}, use this code to reset your password: <b>{Code}</b>")
+                                : "Hello {Name}, your password reset code is: {Code}"
+                    ));
 
-                        // --- AUTH EVENTS ---
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "User Welcome Message",
-                            "Sent to new subscribers immediately after registration to welcome them to the platform.",
-                            EventType.SubscriberRegistered,
-                            channel,
-                            "Welcome to {AppName}!",
-                            isEmail ? WrapInMjml("Hi {Name}, thank you for joining us. We are excited to have you on board.")
-                                    : "Hi {Name}, welcome to {AppName}! We are excited to have you on board."
-                        ));
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Email Verification Success",
+                        "Confirmation sent once the user successfully verifies their email address.",
+                        EventType.EmailVerified,
+                        channel,
+                        "Email Verified Successfully",
+                        isEmail ? WrapInMjml("Hi {Name}, your email address has been verified. You can now access all features.")
+                                : "Hi {Name}, your email address has been verified. You can now access all features."
+                    ));
 
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Password Reset Request",
-                            "Contains the security code or link required for a user to reset their forgotten password.",
-                            EventType.PasswordReset,
-                            channel,
-                            "Reset Your Password",
-                            isEmail ? WrapInMjml("Hello {Name}, use this code to reset your password: <b>{Code}</b>")
-                                    : "Hello {Name}, your password reset code is: {Code}"
-                        ));
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Security Login Alert",
+                        "Notifies the user when a login occurs from a new device or unrecognized location.",
+                        EventType.LoginAlert,
+                        channel,
+                        "New Login Detected",
+                        isEmail ? WrapInMjml("Hello {Name}, we detected a new login to your account from <b>{Device}</b> at <b>{Time}</b>.")
+                                : "Hello {Name}, we detected a new login to your account from {Device} at {Time}."
+                    ));
 
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Email Verification Success",
-                            "Confirmation sent once the user successfully verifies their email address.",
-                            EventType.EmailVerified,
-                            channel,
-                            "Email Verified Successfully",
-                            isEmail ? WrapInMjml("Hi {Name}, your email address has been verified. You can now access all features.")
-                                    : "Hi {Name}, your email address has been verified. You can now access all features."
-                        ));
+                    // --- E-COMMERCE EVENTS ---
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Order Confirmation",
+                        "Sent after a successful purchase, providing the customer with an order summary.",
+                        EventType.OrderCreated,
+                        channel,
+                        "Order Confirmation #{OrderId}",
+                        isEmail ? WrapInMjml("Dear {Name}, thank you for your order. Total amount: <b>{Amount}</b>.")
+                                : "Hi {Name}, order #{OrderId} for {Amount} is received."
+                    ));
 
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Security Login Alert",
-                            "Notifies the user when a login occurs from a new device or unrecognized location.",
-                            EventType.LoginAlert,
-                            channel,
-                            "New Login Detected",
-                            isEmail ? WrapInMjml("Hello {Name}, we detected a new login to your account from <b>{Device}</b> at <b>{Time}</b>.")
-                                    : "Hello {Name}, we detected a new login to your account from {Device} at {Time}."
-                        ));
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Shipping Notification",
+                        "Alerts the customer when their order has been dispatched and provides tracking info.",
+                        EventType.OrderShipped,
+                        channel,
+                        "Your Order Has Shipped! #{OrderId}",
+                        isEmail ? WrapInMjml("Great news {Name}! Your order is on its way. Tracking: {TrackingNumber}")
+                                : "Hi {Name}, order #{OrderId} is shipped! Tracking: {TrackingNumber}"
+                    ));
 
-                        // --- E-COMMERCE EVENTS ---
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Order Confirmation",
-                            "Sent after a successful purchase, providing the customer with an order summary.",
-                            EventType.OrderCreated,
-                            channel,
-                            "Order Confirmation #{OrderId}",
-                            isEmail ? WrapInMjml("Dear {Name}, thank you for your order. Total amount: <b>{Amount}</b>.")
-                                    : "Hi {Name}, order #{OrderId} for {Amount} is received."
-                        ));
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Delivery Confirmation",
+                        "Sent to the customer once the courier marks the package as delivered.",
+                        EventType.OrderDelivered,
+                        channel,
+                        "Order Delivered",
+                        isEmail ? WrapInMjml("Hi {Name}, your order #{OrderId} has been delivered. Enjoy!")
+                                : "Hi {Name}, your order #{OrderId} has been delivered. Enjoy!"
+                    ));
 
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Shipping Notification",
-                            "Alerts the customer when their order has been dispatched and provides tracking info.",
-                            EventType.OrderShipped,
-                            channel,
-                            "Your Order Has Shipped! #{OrderId}",
-                            isEmail ? WrapInMjml("Great news {Name}! Your order is on its way. Tracking: {TrackingNumber}")
-                                    : "Hi {Name}, order #{OrderId} is shipped! Tracking: {TrackingNumber}"
-                        ));
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Payment Failure Notice",
+                        "Urgent notification sent when a transaction fails, asking the user to update payment info.",
+                        EventType.PaymentFailed,
+                        channel,
+                        "Payment Failed for Order #{OrderId}",
+                        isEmail ? WrapInMjml("Hello {Name}, we couldn't process your payment. Please update your payment method to proceed.")
+                                : "Hello {Name}, we couldn't process your payment. Please update your payment method to proceed."
+                    ));
 
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Delivery Confirmation",
-                            "Sent to the customer once the courier marks the package as delivered.",
-                            EventType.OrderDelivered,
-                            channel,
-                            "Order Delivered",
-                            isEmail ? WrapInMjml("Hi {Name}, your order #{OrderId} has been delivered. Enjoy!")
-                                    : "Hi {Name}, your order #{OrderId} has been delivered. Enjoy!"
-                        ));
+                    // --- GENERAL EVENTS ---
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Marketing Campaign",
+                        "A versatile template used for promotional offers, discounts, and announcements.",
+                        EventType.Campaign,
+                        channel,
+                        "{CampaignTitle}",
+                        isEmail ? WrapInMjml("Hi {Name}, check out our latest offer: {CampaignDetails}. Don't miss out!")
+                                : "Hi {Name}, check out our latest offer: {CampaignDetails}. Don't miss out!"
+                    ));
 
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Payment Failure Notice",
-                            "Urgent notification sent when a transaction fails, asking the user to update payment info.",
-                            EventType.PaymentFailed,
-                            channel,
-                            "Payment Failed for Order #{OrderId}",
-                            isEmail ? WrapInMjml("Hello {Name}, we couldn't process your payment. Please update your payment method to proceed.")
-                                    : "Hello {Name}, we couldn't process your payment. Please update your payment method to proceed."
-                        ));
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Monthly Newsletter",
+                        "Sent monthly to keep users informed about platform updates and news.",
+                        EventType.MonthlyNewsletter,
+                        channel,
+                        "{Month} Newsletter",
+                        isEmail ? WrapInMjml("Hi {Name}, here are the updates for this month: <b>{Updates}.</b>")
+                                : "Hi {Name}, here are the updates for this month: {Updates}."
+                    ));
 
-                        // --- GENERAL EVENTS ---
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Marketing Campaign",
-                            "A versatile template used for promotional offers, discounts, and announcements.",
-                            EventType.Campaign,
-                            channel,
-                            "{CampaignTitle}",
-                            isEmail ? WrapInMjml("Hi {Name}, check out our latest offer: {CampaignDetails}. Don't miss out!")
-                                    : "Hi {Name}, check out our latest offer: {CampaignDetails}. Don't miss out!"
-                        ));
-
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Monthly Newsletter",
-                            "Sent monthly to keep users informed about platform updates and news.",
-                            EventType.MonthlyNewsletter,
-                            channel,
-                            "{Month} Newsletter",
-                            isEmail ? WrapInMjml("Hi {Name}, here are the updates for this month: <b>{Updates}.</b>")
-                                    : "Hi {Name}, here are the updates for this month: {Updates}."
-                        ));
-
-                        globalTemplates.Add(NotificationTemplate.CreateGlobal(
-                            "Support Ticket Update",
-                            "Notifies the user when there is a new response or status change on their support ticket.",
-                            EventType.SupportTicketUpdated,
-                            channel,
-                            "Update on Ticket #{TicketId}",
-                            isEmail ? WrapInMjml("Hello {Name}, your support ticket has been updated. <b>Status: {Status}. Reply: {Message}.</b>")
-                                    : "Hello {Name}, your support ticket has been updated. Status: {Status}. Reply: {Message}."
-                        ));
-                    }
-
-                    await context.NotificationTemplates.AddRangeAsync(globalTemplates);
-                    await context.SaveChangesAsync();
+                    globalTemplates.Add(NotificationTemplate.CreateGlobal(
+                        "Support Ticket Update",
+                        "Notifies the user when there is a new response or status change on their support ticket.",
+                        EventType.SupportTicketUpdated,
+                        channel,
+                        "Update on Ticket #{TicketId}",
+                        isEmail ? WrapInMjml("Hello {Name}, your support ticket has been updated. <b>Status: {Status}. Reply: {Message}.</b>")
+                                : "Hello {Name}, your support ticket has been updated. Status: {Status}. Reply: {Message}."
+                    ));
                 }
+
+                await context.NotificationTemplates.AddRangeAsync(globalTemplates);
+                await context.SaveChangesAsync();
             }
         }
 

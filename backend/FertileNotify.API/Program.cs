@@ -32,9 +32,36 @@ var app = builder.Build();
 
 // --- MIDDLEWARE PIPELINE ---
 
-// Initial Tools
+// --- INITIALIZATION TOOLS ---
 app.UseForwardedHeaders();
-await DbSeeder.SeedAsync(app); // Seeder
+
+// --- DATABASE MIGRATION & SEEDING ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        
+        Log.Information(" >> Starting database migration... << ");
+        
+        if (context.Database.GetPendingMigrations().Any())
+        {
+            await context.Database.MigrateAsync();
+            Log.Information(" >> The database has been successfully updated. << ");
+        }
+        
+        Log.Information(" >> Starting database seeding... << ");
+        await DbSeeder.SeedAsync(context);
+        Log.Information(" >> Database seeding completed. << ");
+
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, " >> An error occurred during database migration or seeding. << ");
+    }
+}
+
 
 // Security & Optimization
 app.UseCors("AllowFrontend");
@@ -54,26 +81,5 @@ app.MapHealthChecks("/health");
 
 // Endpoints
 app.MapControllers();
-
-// --- AUTOMATIC MIGRATION ---
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-
-        if (context.Database.GetPendingMigrations().Any())
-        {
-            await context.Database.MigrateAsync();
-            Console.WriteLine(" >> The database has been successfully updated. << ");
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, " >> An error occurred during database migration. << ");
-    }
-}
 
 app.Run();
