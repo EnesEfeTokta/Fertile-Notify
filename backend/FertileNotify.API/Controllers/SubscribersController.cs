@@ -1,9 +1,15 @@
-﻿using FertileNotify.API.Models.Requests;
+using FertileNotify.API.Models.Requests;
 using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.DTOs;
 using FertileNotify.Application.Interfaces;
-using FertileNotify.Application.Services;
+using FertileNotify.Application.UseCases.CreateApiKey;
+using FertileNotify.Application.UseCases.ManageChannels;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
+using FertileNotify.Application.UseCases.RevokeApiKey;
+using FertileNotify.Application.UseCases.SetChannelSetting;
+using FertileNotify.Application.UseCases.UpdateCompanyName;
+using FertileNotify.Application.UseCases.UpdateContactInfo;
+using FertileNotify.Application.UseCases.UpdatePassword;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Exceptions;
@@ -11,7 +17,6 @@ using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace FertileNotify.API.Controllers
 {
@@ -20,39 +25,61 @@ namespace FertileNotify.API.Controllers
     public class SubscriberController : ControllerBase
     {
         private readonly RegisterSubscriberHandler _registerSubscriberHandler;
+        private readonly UpdateContactInfoHandler _updateContactInfoHandler;
+        private readonly UpdateCompanyNameHandler _updateCompanyNameHandler;
+        private readonly ManageChannelsHandler _manageChannelsHandler;
+        private readonly UpdatePasswordHandler _updatePasswordHandler;
+        private readonly CreateApiKeyHandler _createApiKeyHandler;
+        private readonly RevokeApiKeyHandler _revokeApiKeyHandler;
+        private readonly SetChannelSettingHandler _setChannelSettingHandler;
+
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IApiKeyRepository _apiKeyRepository;
         private readonly ISubscriberChannelRepository _subscriberChannelRepository;
-        private readonly ApiKeyService _apiKeyService;
 
         public SubscriberController(
             RegisterSubscriberHandler registerSubscriberHandler,
+            UpdateContactInfoHandler updateContactInfoHandler,
+            UpdateCompanyNameHandler updateCompanyNameHandler,
+            ManageChannelsHandler manageChannelsHandler,
+            UpdatePasswordHandler updatePasswordHandler,
+            CreateApiKeyHandler createApiKeyHandler,
+            RevokeApiKeyHandler revokeApiKeyHandler,
+            SetChannelSettingHandler setChannelSettingHandler,
             ISubscriptionRepository subscriptionRepository,
             ISubscriberRepository subscriberRepository,
             IApiKeyRepository apiKeyRepository,
-            ISubscriberChannelRepository subscriberChannelRepository,
-            ApiKeyService apiKeyService)
+            ISubscriberChannelRepository subscriberChannelRepository)
         {
             _registerSubscriberHandler = registerSubscriberHandler;
+            _updateContactInfoHandler = updateContactInfoHandler;
+            _updateCompanyNameHandler = updateCompanyNameHandler;
+            _manageChannelsHandler = manageChannelsHandler;
+            _updatePasswordHandler = updatePasswordHandler;
+            _createApiKeyHandler = createApiKeyHandler;
+            _revokeApiKeyHandler = revokeApiKeyHandler;
+            _setChannelSettingHandler = setChannelSettingHandler;
+
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
             _apiKeyRepository = apiKeyRepository;
             _subscriberChannelRepository = subscriberChannelRepository;
-            _apiKeyService = apiKeyService;
         }
 
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
         {
-            var subscriber = await GetSubscriberAsync();
+            var subscriberId = GetSubscriberIdFromClaims();
+            var subscriber = await _subscriberRepository.GetByIdAsync(subscriberId)
+                ?? throw new NotFoundException("Subscriber not found.");
 
             var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriber.Id);
 
-            var respone = new SubscriberDto
+            var response = new SubscriberDto
             {
-                Id = GetSubscriberIdFromClaims(),
+                Id = subscriberId,
                 CompanyName = subscriber.CompanyName.Name,
                 Email = subscriber.Email.Value,
                 PhoneNumber = subscriber.PhoneNumber?.Value,
@@ -66,23 +93,20 @@ namespace FertileNotify.API.Controllers
                 }
             };
 
-            return Ok(ApiResponse<SubscriberDto>.SuccessResult(respone, "Subscription information belonging to the subscriber."));
+            return Ok(ApiResponse<SubscriberDto>.SuccessResult(response, "Subscription information belonging to the subscriber."));
         }
 
         [Authorize]
         [HttpPut("contact")]
         public async Task<IActionResult> UpdateContactInfo([FromBody] UpdateContactRequest request)
         {
-            var subscriber = await GetSubscriberAsync();
-
-            subscriber.UpdateContactInfo(
-                EmailAddress.Create(request.Email),
-                string.IsNullOrWhiteSpace(request.PhoneNumber)
-                    ? null
-                    : PhoneNumber.Create(request.PhoneNumber)
-            );
-
-            await _subscriberRepository.SaveAsync(subscriber);
+            var command = new UpdateContactInfoCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber
+            };
+            await _updateContactInfoHandler.HandleAsync(command);
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's contact information has been updated."));
         }
 
@@ -90,11 +114,12 @@ namespace FertileNotify.API.Controllers
         [HttpPut("company-name")]
         public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyNameRequest request)
         {
-            var subscriber = await GetSubscriberAsync();
-
-            subscriber.UpdateCompanyName(CompanyName.Create(request.CompanyName));
-
-            await _subscriberRepository.SaveAsync(subscriber);
+            var command = new UpdateCompanyNameCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                CompanyName = request.CompanyName
+            };
+            await _updateCompanyNameHandler.HandleAsync(command);
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's company name has been updated."));
         }
 
@@ -102,19 +127,19 @@ namespace FertileNotify.API.Controllers
         [HttpPost("channels")]
         public async Task<IActionResult> UpdateChannels([FromBody] ManageChannelRequest request)
         {
-            var subscriber = await GetSubscriberAsync();
-            var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(subscriber.Id);
+            var subscriberId = GetSubscriberIdFromClaims();
+            var command = new ManageChannelsCommand
+            {
+                SubscriberId = subscriberId,
+                Channel = request.Channel,
+                Enable = request.Enable
+            };
+            await _manageChannelsHandler.HandleAsync(command);
 
-            var channel = NotificationChannel.From(request.Channel.Trim().ToLower());
-            if (request.Enable)
-                subscriber.EnableChannel(channel, subscription!.Plan);
-            else
-                subscriber.DisableChannel(channel);
-
-            await _subscriberRepository.SaveAsync(subscriber);
+            var subscriber = await _subscriberRepository.GetByIdAsync(subscriberId);
             return Ok(ApiResponse<object>.SuccessResult(
-                new { activeChannels = subscriber.ActiveChannels.Select(c => c.Name) }, 
-                "The subscriber's company name has been updated.")
+                new { activeChannels = subscriber!.ActiveChannels.Select(c => c.Name) }, 
+                "The subscriber's channel settings have been updated.")
             );
         }
 
@@ -122,14 +147,13 @@ namespace FertileNotify.API.Controllers
         [HttpPut("password")]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
         {
-            var subscriber = await GetSubscriberAsync();
-
-            if (!subscriber.Password.Verify(request.CurrentPassword))
-                throw new UnauthorizedException("Current password is incorrect.");
-
-            subscriber.UpdatePassword(Password.Create(request.NewPassword));
-
-            await _subscriberRepository.SaveAsync(subscriber);
+            var command = new UpdatePasswordCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                CurrentPassword = request.CurrentPassword,
+                NewPassword = request.NewPassword
+            };
+            await _updatePasswordHandler.HandleAsync(command);
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's password has been updated."));
         }
 
@@ -151,13 +175,20 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<RegisterSubscriberCommand>.SuccessResult(command, "Registration successful, log in."));
         }
 
+        [Authorize]
         [HttpPost("create-api-key")]
         public async Task<IActionResult> Create([FromBody] CreateApiKeyRequest request)
         {
-            var rawApiKey = await _apiKeyService.CreateApiKeyAsync(GetSubscriberIdFromClaims(), request.Name);
+            var command = new CreateApiKeyCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                Name = request.Name
+            };
+            var rawApiKey = await _createApiKeyHandler.HandleAsync(command);
             return Ok(ApiResponse<object>.SuccessResult(new { ApiKey = rawApiKey }, "Please save this key securely. You won't be able to see it again."));
         }
 
+        [Authorize]
         [HttpGet("api-keys")]
         public async Task<IActionResult> GetApiKeys()
         {
@@ -173,31 +204,34 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<IEnumerable<ApiKeyDto>>.SuccessResult(response, "An API Key has been generated for the subscriber."));
         }
 
+        [Authorize]
         [HttpDelete("api-keys/{apiKeyId}")]
         public async Task<IActionResult> RevokeApiKey(Guid apiKeyId)
         {
-            var apiKey = await _apiKeyRepository.GetBySubscriberIdAsync(GetSubscriberIdFromClaims());
-
-            var keyToRevoke = apiKey.FirstOrDefault(k => k.Id == apiKeyId)
-                ?? throw new NotFoundException("API Key not found.");
-
-            keyToRevoke.Revoke();
-            await _apiKeyRepository.SaveAsync(keyToRevoke);
-
+            var command = new RevokeApiKeyCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                ApiKeyId = apiKeyId
+            };
+            await _revokeApiKeyHandler.HandleAsync(command);
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's API Key has been decommissioned."));
         }
 
+        [Authorize]
         [HttpPost("settings/channel-setting")]
         public async Task<IActionResult> SetChannelSetting([FromBody] ChannelSettingRequest request)
         {
-            var subscriberId = GetSubscriberIdFromClaims();
-            var channel = NotificationChannel.From(request.Channel);
-            var channelSetting = new SubscriberChannelSetting(subscriberId, channel, request.Settings);
-
-            await _subscriberChannelRepository.SaveAsync(channelSetting);
-            return Ok(new { message = $"{channel} configured successfully." });
+            var command = new SetChannelSettingCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                Channel = request.Channel,
+                Settings = request.Settings
+            };
+            await _setChannelSettingHandler.HandleAsync(command);
+            return Ok(new { message = $"{request.Channel} configured successfully." });
         }
 
+        [Authorize]
         [HttpGet("settings/channel-setting")]
         public async Task<IActionResult> GetChannelSetting([FromQuery] string channel)
         {
@@ -218,10 +252,5 @@ namespace FertileNotify.API.Controllers
                 ?? throw new UnauthorizedException("Subscriber ID claim not found.");
             return Guid.Parse(subscriberIdClaim.Value);
         }
-
-        [NonAction]
-        private async Task<Subscriber> GetSubscriberAsync()
-            => await _subscriberRepository.GetByIdAsync(GetSubscriberIdFromClaims())
-                ?? throw new NotFoundException("Subscriber not found.");
     }
 }

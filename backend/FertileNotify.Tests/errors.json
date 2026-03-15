@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Derleyicisi",
+        "version": "4.14.0.0",
+        "fileVersion": "4.14.0-3.25262.10 (8edf7bcd)",
+        "semanticVersion": "4.14.0",
+        "language": "tr-TR"
+      },
+      "results": [
+        {
+          "ruleId": "CS0246",
+          "level": "error",
+          "message": "'IMjmlRenderer' türü veya ad alanı adı bulunamadı (bir using yönergeniz veya derleme başvurunuz mu eksik?)",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///C:/Users/alfac/OneDrive/Belgeler/GitHub/Fertile-Notify/backend/FertileNotify.Tests/SendNotificationHandlerTests.cs",
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 31,
+                  "endLine": 28,
+                  "endColumn": 44
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "CS0246": {
+          "id": "CS0246",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0246)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

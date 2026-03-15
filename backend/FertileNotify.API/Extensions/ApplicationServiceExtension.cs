@@ -1,8 +1,16 @@
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Security;
 using FertileNotify.Application.Services;
-using FertileNotify.Application.UseCases.ProcessEvent;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
+using FertileNotify.Application.UseCases.SendNotification;
+using FertileNotify.Application.UseCases.Unsubscribe;
+using FertileNotify.Application.UseCases.UpdateContactInfo;
+using FertileNotify.Application.UseCases.UpdateCompanyName;
+using FertileNotify.Application.UseCases.ManageChannels;
+using FertileNotify.Application.UseCases.UpdatePassword;
+using FertileNotify.Application.UseCases.CreateApiKey;
+using FertileNotify.Application.UseCases.RevokeApiKey;
+using FertileNotify.Application.UseCases.SetChannelSetting;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using Mjml.Net;
@@ -32,8 +40,16 @@ public static class ApplicationServiceExtension
         services.AddHttpClient();
 
         // Use Cases
-        services.AddScoped<ProcessEventHandler>();
+        services.AddScoped<SendNotificationHandler>();
         services.AddScoped<RegisterSubscriberHandler>();
+        services.AddScoped<UnsubscribeHandler>();
+        services.AddScoped<UpdateContactInfoHandler>();
+        services.AddScoped<UpdateCompanyNameHandler>();
+        services.AddScoped<ManageChannelsHandler>();
+        services.AddScoped<UpdatePasswordHandler>();
+        services.AddScoped<CreateApiKeyHandler>();
+        services.AddScoped<RevokeApiKeyHandler>();
+        services.AddScoped<SetChannelSettingHandler>();
 
         // Notification Senders
         services.AddNotificationSenders();
