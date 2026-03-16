@@ -5,9 +5,9 @@ using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace FertileNotify.API.Controllers
@@ -35,13 +35,13 @@ namespace FertileNotify.API.Controllers
 
             var result = templates.Select(t => new
             {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                Event = t.EventType.Name,
-                Channel = t.Channel.Name,
-                Subject = t.SubjectTemplate,
-                Body = t.BodyTemplate,
+                t.Id,
+                t.Name,
+                t.Description,
+                t.EventType,
+                t.Channel,
+                t.Subject,
+                t.Body,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
             });
 
@@ -56,13 +56,13 @@ namespace FertileNotify.API.Controllers
 
             var result = logs.Select(t => new
             {
-                Id = t.Id,
-                Recipient = t.Recipient,
-                Channel = t.Channel.Name,
-                Event = t.EventType.Name,
-                Subject = t.Subject,
-                Body = t.Body,
-                CreatedAt = t.CreatedAt
+                t.Id,
+                t.Recipient,
+                t.Channel,
+                t.EventType,
+                t.Subject,
+                t.Body,
+                t.CreatedAt
             });
 
             return Ok(ApiResponse<object>.SuccessResult(result, "Notification logs retrieved successfully."));
@@ -88,13 +88,13 @@ namespace FertileNotify.API.Controllers
 
             var result = templates.Select(t => new
             {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                Event = t.EventType.Name,
-                Channel = t.Channel.Name,
-                Subject = t.SubjectTemplate,
-                Body = t.BodyTemplate,
+                t.Id,
+                t.Name,
+                t.Description,
+                t.EventType,
+                t.Channel,
+                t.Subject,
+                t.Body,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
             });
 
@@ -112,7 +112,7 @@ namespace FertileNotify.API.Controllers
 
             if (existingTemplate != null)
             {
-                existingTemplate.Update(request.Name, request.Description, request.SubjectTemplate, request.BodyTemplate);
+                existingTemplate.Update(request.Name, request.Description, request.Subject, request.Body);
                 await _templateRepository.SaveAsync();
             }
             else
@@ -123,8 +123,8 @@ namespace FertileNotify.API.Controllers
                     request.Description, 
                     eventType, 
                     channel, 
-                    request.SubjectTemplate, 
-                    request.BodyTemplate
+                    request.Subject, 
+                    request.Body
                 );
                 await _templateRepository.AddAsync(newTemplate);
             }

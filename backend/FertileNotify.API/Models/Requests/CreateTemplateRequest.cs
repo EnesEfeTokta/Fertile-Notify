@@ -6,7 +6,7 @@
         public string Description { get; set; } = null!;
         public string EventType { get; set; } = null!;
         public string Channel { get; set; } = null!;
-        public string SubjectTemplate { get; set; } = null!;
-        public string BodyTemplate { get; set; } = null!;
+        public string Subject { get; set; } = null!;
+        public string Body { get; set; } = null!;
     }
 }

@@ -24,11 +24,12 @@ namespace FertileNotify.API.Validators
                 .NotEmpty().WithMessage("Channel is a required field.")
                 .Must(ChannelValid).WithMessage("Invalid Channel type.");
 
-            RuleFor(x => x.SubjectTemplate)
-                .NotEmpty().WithMessage("SubjectTemplate is required.");
+            RuleFor(x => x.Subject)
+                .NotEmpty().WithMessage("Subject is required.");
 
-            RuleFor(x => x.BodyTemplate)
-                .NotEmpty().WithMessage("BodyTemplate is required.");
+            RuleFor(x => x.Body)
+                .NotEmpty().WithMessage("Body is required.")
+                .Must(body => body.Contains("{{UnsubscriberLink}}")).WithMessage("UnsubscriberLink is required.");
         }
 
         private bool BeAValidEventType(string eventType)

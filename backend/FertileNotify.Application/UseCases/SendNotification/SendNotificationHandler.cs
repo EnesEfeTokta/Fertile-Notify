@@ -5,6 +5,7 @@ using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
+
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
@@ -107,9 +108,9 @@ namespace FertileNotify.Application.UseCases.SendNotification
             var (subscriber, subscription) = await GetAndValidateEntities(message.SubscriberId, eventType, channel);
 
             var unsubscribeToken = _securityService.GenerateUnsubscribeToken(message.Recipient, message.SubscriberId);
-            if (!message.Parameters.ContainsKey("UnsubscribeLink"))
+            if (!message.Parameters.ContainsKey("UnsubscriberLink"))
             {
-                message.Parameters["UnsubscribeLink"] = 
+                message.Parameters["UnsubscriberLink"] = 
                     $"http://fertile-notify.enesefetokta.shop/unsubscribe?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
             }
 
@@ -153,8 +154,8 @@ namespace FertileNotify.Application.UseCases.SendNotification
             var template = await _templateRepository.GetTemplateAsync(eventType, channel, subscriberId)
                 ?? throw new NotFoundException($"No template for {eventType.Name} on {channel.Name}");
 
-            var subject = _templateEngine.Render(template.SubjectTemplate, channel, parameters);
-            var body = _templateEngine.Render(template.BodyTemplate, channel, parameters);
+            var subject = _templateEngine.Render(template.Subject, channel, parameters);
+            var body = _templateEngine.Render(template.Body, channel, parameters);
 
             return (subject, body);
         }
