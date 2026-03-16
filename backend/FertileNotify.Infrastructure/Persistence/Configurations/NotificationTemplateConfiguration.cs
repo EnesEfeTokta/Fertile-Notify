@@ -36,11 +36,11 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
                 .HasMaxLength(50)
                 .IsRequired();
 
-            builder.Property(t => t.SubjectTemplate)
+            builder.Property(t => t.Subject)
                 .HasMaxLength(200)
                 .IsRequired();
 
-            builder.Property(t => t.BodyTemplate)
+            builder.Property(t => t.Body)
                 .IsRequired();
         }
     }
