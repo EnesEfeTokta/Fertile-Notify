@@ -87,6 +87,46 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.ToTable("ForbiddenRecipients");
                 });
 
+            modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationComplaint", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("NotificationBody")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotificationSubject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ReporterEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<Guid>("SubscriberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NotificationComplaints");
+                });
+
             modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -140,7 +180,7 @@ namespace FertileNotify.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("BodyTemplate")
+                    b.Property<string>("Body")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -164,7 +204,7 @@ namespace FertileNotify.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("SubjectTemplate")
+                    b.Property<string>("Subject")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
