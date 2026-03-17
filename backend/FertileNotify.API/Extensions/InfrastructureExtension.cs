@@ -51,6 +51,9 @@ public static class InfrastructureExtension
             });
         });
 
+        // Background Workers
+        services.AddHostedService<LogRetentionWorker>();
+
         return services;
     }
 }

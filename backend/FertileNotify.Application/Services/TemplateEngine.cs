@@ -22,7 +22,7 @@ namespace FertileNotify.Application.Services
             {
                 foreach (var param in parameters)
                 {
-                    rendered = rendered.Replace($"{{{param.Key}}}", param.Value ?? string.Empty);
+                    rendered = rendered.Replace($"{{{{{param.Key}}}}}", param.Value ?? string.Empty);
                 }
             }
 

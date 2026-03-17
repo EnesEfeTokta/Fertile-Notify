@@ -1,4 +1,4 @@
-﻿namespace FertileNotify.Domain.Enums
+namespace FertileNotify.Domain.Enums
 {
-    public enum DeliveryStatus { Pending, Success, Failed }
+    public enum DeliveryStatus { Pending, Success, Failed, Rejected }
 }

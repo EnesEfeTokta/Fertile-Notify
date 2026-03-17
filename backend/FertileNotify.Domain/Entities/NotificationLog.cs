@@ -1,4 +1,4 @@
-﻿using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 
@@ -31,10 +31,28 @@ namespace FertileNotify.Domain.Entities
             CreatedAt = DateTime.UtcNow;
         }
 
-        public void SetResult(bool isSuccess, string? error = null)
+        public void SetResult(bool isSuccess, string? error = null, bool isRejected = false)
         {
-            Status = isSuccess ? DeliveryStatus.Success : DeliveryStatus.Failed;
+            if (isRejected)
+                Status = DeliveryStatus.Rejected;
+            else
+                Status = isSuccess ? DeliveryStatus.Success : DeliveryStatus.Failed;
+
             ErrorMessage = error;
+        }
+
+        public void AnonymizeContent()
+        {
+            Subject = MaskVariables(Subject);
+            Body = MaskVariables(Body);
+        }
+
+        private string MaskVariables(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            
+            // Regex to find {{VariableName}} or {{ VariableName }}
+            return System.Text.RegularExpressions.Regex.Replace(input, @"\{\{.*?\}\}", "***");
         }
     }
 }
