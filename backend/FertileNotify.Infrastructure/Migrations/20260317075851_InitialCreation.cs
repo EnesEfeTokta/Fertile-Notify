@@ -62,6 +62,24 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NotificationComplaints",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReporterEmail = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    Reason = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    NotificationSubject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    NotificationBody = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotificationComplaints", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NotificationLogs",
                 columns: table => new
                 {
@@ -91,8 +109,8 @@ namespace FertileNotify.Infrastructure.Migrations
                     Description = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     EventType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    SubjectTemplate = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    BodyTemplate = table.Column<string>(type: "text", nullable: false)
+                    Subject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Body = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,6 +189,9 @@ namespace FertileNotify.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ForbiddenRecipients");
+
+            migrationBuilder.DropTable(
+                name: "NotificationComplaints");
 
             migrationBuilder.DropTable(
                 name: "NotificationLogs");

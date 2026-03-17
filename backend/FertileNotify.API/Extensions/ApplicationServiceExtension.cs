@@ -13,6 +13,8 @@ using FertileNotify.Application.UseCases.RevokeApiKey;
 using FertileNotify.Application.UseCases.SetChannelSetting;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
+using FertileNotify.Application.UseCases.NotificationComplaint;
+
 using Mjml.Net;
 
 namespace FertileNotify.API.Extensions;
@@ -30,6 +32,7 @@ public static class ApplicationServiceExtension
         services.AddScoped<ISubscriberChannelRepository, EfSubscriberChannelRepository>();
         services.AddScoped<IStatsRepository, EfStatsRepository>();
         services.AddScoped<IBlacklistRepository, EfBlacklistRepository>();
+        services.AddScoped<INotificationComplaintRepository, EfINotificationComplaintRepository>();
 
         // Application Services
         services.AddScoped<IStatisticsService, StatisticsService>();
@@ -50,6 +53,7 @@ public static class ApplicationServiceExtension
         services.AddScoped<CreateApiKeyHandler>();
         services.AddScoped<RevokeApiKeyHandler>();
         services.AddScoped<SetChannelSettingHandler>();
+        services.AddScoped<NotificationComplaintHandler>();
 
         // Notification Senders
         services.AddNotificationSenders();
