@@ -21,8 +21,8 @@ namespace FertileNotify.Application.UseCases.SendNotification
         private readonly ISubscriberChannelRepository _subscriberChannelRepository;
         private readonly IEnumerable<INotificationSender> _senders;
         private readonly TemplateEngine _templateEngine;
-        private readonly IStatsRepository _statsRepository;
         private readonly ISecurityService _securityService;
+        private readonly INotificationLogService _logService;
         private readonly ILogger<SendNotificationHandler> _logger;
         private readonly Dictionary<NotificationChannel, INotificationSender> _senderMap;
 
@@ -35,8 +35,8 @@ namespace FertileNotify.Application.UseCases.SendNotification
             ITemplateRepository templateRepository,
             ISubscriberChannelRepository subscriberChannelRepository,
             TemplateEngine templateEngine,
-            IStatsRepository statsRepository,
             ISecurityService securityService,
+            INotificationLogService logService,
             ILogger<SendNotificationHandler> logger)
         {
             _publishEndpoint = publishEndpoint;
@@ -48,8 +48,8 @@ namespace FertileNotify.Application.UseCases.SendNotification
             _templateRepository = templateRepository;
             _subscriberChannelRepository = subscriberChannelRepository;
             _templateEngine = templateEngine;
-            _statsRepository = statsRepository;
             _securityService = securityService;
+            _logService = logService;
             _logger = logger;
         }
 
@@ -102,32 +102,50 @@ namespace FertileNotify.Application.UseCases.SendNotification
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
 
-            _logger.LogInformation("[HANDLING] Event: {Event}, Channel: {Channel}, Sub: {SubId}",
-                eventType.Name, channel.Name, message.SubscriberId);
+            string? subject = null;
+            string? body = null;
+            Subscription? subscription = null;
 
-            var (subscriber, subscription) = await GetAndValidateEntities(message.SubscriberId, eventType, channel);
-
-            var unsubscribeToken = _securityService.GenerateUnsubscribeToken(message.Recipient, message.SubscriberId);
-            if (!message.Parameters.ContainsKey("UnsubscriberLink"))
+            try
             {
-                message.Parameters["UnsubscriberLink"] = 
-                    $"http://fertile-notify.enesefetokta.shop/unsubscribe?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
+                var validated = await GetAndValidateEntities(message.SubscriberId, eventType, channel);
+                subscription = validated.Item2;
+
+                var unsubscribeToken = _securityService.GenerateUnsubscribeToken(message.Recipient, message.SubscriberId);
+                if (!message.Parameters.ContainsKey("UnsubscriberLink"))
+                    message.Parameters["UnsubscriberLink"] = 
+                        $"http://fertile-notify.enesefetokta.shop/unsubscribe?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
+
+                var content = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
+                subject = content.Subject;
+                body = content.Body;
+
+                var sender = GetSender(channel);
+                var channelSetting = await _subscriberChannelRepository.GetSettingAsync(message.SubscriberId, channel);
+
+                bool isSuccess = await sender.SendAsync(
+                    message.SubscriberId,
+                    message.Recipient,
+                    eventType,
+                    subject,
+                    body,
+                    channelSetting?.Settings);
+
+                if (isSuccess)
+                    await _logService.LogSuccessAsync(message, subject, body, subscription!);
+                else
+                    await _logService.LogFailureAsync(message, subject, body, "Provider rejected the message.");
             }
-
-            var (subject, body) = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
-
-            var sender = GetSender(channel);
-            var channelSetting = await _subscriberChannelRepository.GetSettingAsync(message.SubscriberId, channel);
-
-            bool isSuccess = await sender.SendAsync(
-                message.SubscriberId,
-                message.Recipient,
-                eventType,
-                subject,
-                body,
-                channelSetting?.Settings);
-
-            await FinalizeProcess(message.SubscriberId, eventType, channel, subscription, isSuccess, message.Recipient);
+            catch (BusinessRuleException ex)
+            {
+                await _logService.LogRejectedAsync(message, subject, body ,ex.Message);
+            }
+            catch (Exception ex)
+            {
+                await _logService.LogFailureAsync(message, subject, body, ex.Message);
+                _logger.LogError(ex, "Error processing notification for {Recipient}", message.Recipient);
+                throw;
+            }
         }
 
         private async Task<(Subscriber, Subscription)> GetAndValidateEntities(Guid subscriberId, EventType eventType, NotificationChannel channel)
@@ -168,29 +186,6 @@ namespace FertileNotify.Application.UseCases.SendNotification
                 throw new Exception($"System Error: No sender for {channel.Name}");
             }
             return sender;
-        }
-
-        private async Task FinalizeProcess(Guid subscriberId, EventType eventType, NotificationChannel channel, Subscription subscription, bool isSuccess, string recipient)
-        {
-            await _statsRepository.IncrementAsync(
-                subscriberId,
-                channel,
-                eventType,
-                isSuccess
-            );
-
-            if (isSuccess)
-            {
-                subscription.IncreaseUsage();
-                await _subscriptionRepository.SaveAsync(subscriberId, subscription);
-
-                _logger.LogInformation("[SUCCESS] Notification processed. Usage: {Used}/{Limit}",
-                    subscription.UsedThisMonth, subscription.MonthlyLimit);
-            }
-            else
-            {
-                _logger.LogWarning("[FAILED] Notification could not be sent to {Recipient}", recipient);
-            }
         }
     }
 }

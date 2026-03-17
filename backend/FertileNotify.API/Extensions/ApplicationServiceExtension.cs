@@ -36,6 +36,7 @@ public static class ApplicationServiceExtension
 
         // Application Services
         services.AddScoped<IStatisticsService, StatisticsService>();
+        services.AddScoped<INotificationLogService, NotificationLogService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
         services.AddScoped<ISecurityService, SecurityService>();
         services.AddScoped<TemplateEngine>();

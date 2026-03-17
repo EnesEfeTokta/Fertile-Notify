@@ -8,12 +8,10 @@ namespace FertileNotify.Infrastructure.Notifications
 {
     public class ConsoleNotificationSender : INotificationSender
     {
-        private readonly INotificationLogRepository _logRepository;
         private readonly ILogger<ConsoleNotificationSender> _logger;
 
-        public ConsoleNotificationSender(INotificationLogRepository logRepository, ILogger<ConsoleNotificationSender> logger)
+        public ConsoleNotificationSender(ILogger<ConsoleNotificationSender> logger)
         {
-            _logRepository = logRepository;
             _logger = logger;
         }
 
@@ -24,18 +22,7 @@ namespace FertileNotify.Infrastructure.Notifications
             try
             {
                 _logger.LogInformation("[CONSOLE LOG] Subscriber: {SubId}, Recipient: {To}", subscriberId, recipient);
-
-                var log = new NotificationLog(
-                    subscriberId,
-                    recipient,
-                    NotificationChannel.Console,
-                    eventType,
-                    subject,
-                    body
-                );
-
-                await _logRepository.AddAsync(log);
-
+                await Task.CompletedTask;
                 return true;
             }
             catch { return false; }
