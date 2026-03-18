@@ -1,0 +1,13 @@
+services:
+  db:
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+  redis:
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
