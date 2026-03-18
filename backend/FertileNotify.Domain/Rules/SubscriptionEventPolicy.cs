@@ -9,44 +9,9 @@ namespace FertileNotify.Domain.Rules
         {
             return plan switch
             {
-                SubscriptionPlan.Free =>
-                [
-                    EventType.SubscriberRegistered,
-                    EventType.PasswordReset,
-                    EventType.EmailVerified,
-                    EventType.LoginAlert,
-
-                    EventType.OrderCancelled,
-                    EventType.OrderShipped,
-                    EventType.OrderDelivered,
-                    EventType.OrderCreated,
-                    EventType.PaymentFailed,
-
-                    EventType.Campaign,
-                    EventType.MonthlyNewsletter,
-                    EventType.SupportTicketUpdated
-                ],
-
-                SubscriptionPlan.Pro =>
-                [
-                    EventType.SubscriberRegistered,
-                    EventType.PasswordReset,
-                    EventType.EmailVerified,
-                    EventType.LoginAlert,
-
-                    EventType.OrderCancelled,
-                    EventType.OrderShipped,
-                    EventType.OrderDelivered,
-                    EventType.OrderCreated,
-                    EventType.PaymentFailed,
-
-                    EventType.Campaign,
-                    EventType.MonthlyNewsletter,
-                    EventType.SupportTicketUpdated
-                ],
-
-                SubscriptionPlan.Enterprise =>
-                    EventCatalog.All,
+                SubscriptionPlan.Free => EventCatalog.All,
+                SubscriptionPlan.Pro => EventCatalog.All,
+                SubscriptionPlan.Enterprise => EventCatalog.All,
 
                 _ => []
             };

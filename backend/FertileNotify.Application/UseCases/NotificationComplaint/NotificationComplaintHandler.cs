@@ -42,7 +42,7 @@ namespace FertileNotify.Application.UseCases.NotificationComplaint
                 var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId);
 
                 await _emailService.SendEmailAsync(
-                    subscriber!.Email.Value,
+                    subscriber!.Email,
                     "New Notification Complaint", 
                     $"A new complaint has been filed by {command.ReporterEmail} for SubscriberId: {command.SubscriberId}. Reason: {command.Reason}. Description: {command.Description}"
                 );

@@ -1,4 +1,4 @@
-﻿using FertileNotify.Domain.Enums;
+using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Domain.Rules
@@ -12,7 +12,7 @@ namespace FertileNotify.Domain.Rules
             if (plan == SubscriptionPlan.Pro) return true;
 
             if (plan == SubscriptionPlan.Free)
-                return channel == NotificationChannel.Email || channel == NotificationChannel.Console;
+                return channel != NotificationChannel.SMS && channel != NotificationChannel.WhatsApp;
 
             return false;
         }

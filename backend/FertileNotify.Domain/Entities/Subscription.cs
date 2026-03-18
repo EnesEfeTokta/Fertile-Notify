@@ -42,8 +42,8 @@ namespace FertileNotify.Domain.Entities
             int limit = plan switch
             {
                 SubscriptionPlan.Free => 10,
-                SubscriptionPlan.Pro => 100,
-                SubscriptionPlan.Enterprise => 1000,
+                SubscriptionPlan.Pro => 1000,
+                SubscriptionPlan.Enterprise => 10000,
                 _ => 0
             };
 
@@ -53,13 +53,21 @@ namespace FertileNotify.Domain.Entities
             return new Subscription(userId, plan, limit, expiresAt, allowedEvents);
         }
 
-        public void EnsureCanSendNotification()
+        public int GetRemainingMonthlyLimit()
         {
-            SubscriptionRule.EnsureIsActive(ExpiresAt);
-            SubscriptionRule.EnsureCanSendNotification(MonthlyLimit, UsedThisMonth);
+            if (ExpiresAt < DateTime.UtcNow) return 0;
+            return Math.Max(0, MonthlyLimit - UsedThisMonth);
         }
 
-        public void IncreaseUsage() => UsedThisMonth++;
+        public bool TryUseMonthlyLimit(int cost)
+        {
+            if (GetRemainingMonthlyLimit() >= cost)
+            {
+                UsedThisMonth += cost;
+                return true;
+            }
+            return false;
+        }
 
         public bool CanHandle(EventType eventType) => _allowedEvents.Contains(eventType);
     }

@@ -4,6 +4,7 @@ using FertileNotify.Application.Services;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
+using FertileNotify.Domain.Rules;
 using FertileNotify.Domain.ValueObjects;
 
 using MassTransit;
@@ -104,11 +105,13 @@ namespace FertileNotify.Application.UseCases.SendNotification
 
             string? subject = null;
             string? body = null;
+            Subscriber? subscriber = null;
             Subscription? subscription = null;
 
             try
             {
                 var validated = await GetAndValidateEntities(message.SubscriberId, eventType, channel);
+                subscriber = validated.Item1;
                 subscription = validated.Item2;
 
                 var unsubscribeToken = _securityService.GenerateUnsubscribeToken(message.Recipient, message.SubscriberId);
@@ -132,9 +135,14 @@ namespace FertileNotify.Application.UseCases.SendNotification
                     channelSetting?.Settings);
 
                 if (isSuccess)
-                    await _logService.LogSuccessAsync(message, subject, body, subscription!);
+                {
+                    await ChargeCreditsAsync(subscriber, subscription, channel);
+                    await _logService.LogSuccessAsync(message, subject, body);
+                }
                 else
+                {
                     await _logService.LogFailureAsync(message, subject, body, "Provider rejected the message.");
+                }
             }
             catch (BusinessRuleException ex)
             {
@@ -145,6 +153,22 @@ namespace FertileNotify.Application.UseCases.SendNotification
                 await _logService.LogFailureAsync(message, subject, body, ex.Message);
                 _logger.LogError(ex, "Error processing notification for {Recipient}", message.Recipient);
                 throw;
+            }
+        }
+
+        private async Task ChargeCreditsAsync(Subscriber subscriber, Subscription subscription, NotificationChannel channel)
+        {
+            int cost = NotificationCostPolicy.GetCost(channel);
+
+            if (subscription.TryUseMonthlyLimit(cost))
+            {
+                await _subscriptionRepository.SaveAsync(subscriber.Id, subscription);
+                _logger.LogInformation("Used {Cost} credits from Monthly Plan. Remaining: {Remaining}", cost, subscription.GetRemainingMonthlyLimit());
+            }
+            else if (subscriber.TryUseExtraCredit(cost))
+            {
+                await _subscriberRepository.SaveAsync(subscriber);
+                _logger.LogInformation("Used {Cost} credits from Extra Wallet. Remaining: {Remaining}", cost, subscriber.ExtraCredits);
             }
         }
 
@@ -161,8 +185,6 @@ namespace FertileNotify.Application.UseCases.SendNotification
 
             if (!subscriber.ActiveChannels.Contains(channel))
                 throw new BusinessRuleException($"Channel {channel.Name} is not enabled for this subscriber.");
-
-            subscription.EnsureCanSendNotification();
 
             return (subscriber, subscription);
         }

@@ -42,7 +42,7 @@ namespace FertileNotify.API.Controllers
                 throw new UnauthorizedException("Invalid credentials");
 
             var otpCode = await _otpService.GenerateOtpAsync(subscriber.Id);
-            await _emailService.SendEmailAsync(subscriber.Email.ToString(), "OTP Verification", $"Your OTP is: {otpCode}.");
+            await _emailService.SendEmailAsync(subscriber.Email, "OTP Verification", $"Your OTP is: {otpCode}.");
 
             return Ok(ApiResponse<object>.SuccessResult(default!, "A special 6-character code valid for 5 minutes has been sent to your email address. Please enter this code."));
 
@@ -96,7 +96,7 @@ namespace FertileNotify.API.Controllers
         {
             var subscriber = await GetSubscriber(email);
             var otpCode = await _otpService.GenerateOtpAsync(subscriber.Id);
-            await _emailService.SendEmailAsync(subscriber.Email.ToString(), "Password Reset OTP", $"Your OTP for password reset is: {otpCode}.");
+            await _emailService.SendEmailAsync(subscriber.Email, "Password Reset OTP", $"Your OTP for password reset is: {otpCode}.");
             return Ok(ApiResponse<object>.SuccessResult(default!, "A special 6-character code valid for 5 minutes has been sent to your email address. Please enter this code to reset your password."));
         }
 
