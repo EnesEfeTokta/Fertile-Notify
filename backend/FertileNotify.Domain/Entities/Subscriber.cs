@@ -14,6 +14,8 @@ namespace FertileNotify.Domain.Entities
         public PhoneNumber? PhoneNumber { get; private set; }
         public RefreshToken? RefreshToken { get; private set; }
 
+        public int ExtraCredits { get; private set; } = 0;
+
         private readonly HashSet<NotificationChannel> _activeChannels = new();
         public IReadOnlyCollection<NotificationChannel> ActiveChannels => _activeChannels;
 
@@ -53,6 +55,22 @@ namespace FertileNotify.Domain.Entities
 
             Email = email;
             PhoneNumber = phoneNumber;
+        }
+
+        public void AddCredits(int amount)
+        {
+            if (amount <= 0) throw new ArgumentException("Amount must be positive");
+            ExtraCredits += amount;
+        }
+
+        public bool TryUseExtraCredit(int amount = 1)
+        {
+            if (ExtraCredits >= amount)
+            {
+                ExtraCredits -= amount;
+                return true;
+            }
+            return false;
         }
 
         public void EnableChannel(NotificationChannel channel, SubscriptionPlan plan)

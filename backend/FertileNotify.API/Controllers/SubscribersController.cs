@@ -20,6 +20,7 @@ using System.Security.Claims;
 
 namespace FertileNotify.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/subscribers")]
     public class SubscriberController : ControllerBase
@@ -67,7 +68,6 @@ namespace FertileNotify.API.Controllers
             _subscriberChannelRepository = subscriberChannelRepository;
         }
 
-        [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
         {
@@ -79,11 +79,11 @@ namespace FertileNotify.API.Controllers
 
             var response = new SubscriberDto
             {
-                Id = subscriberId,
                 CompanyName = subscriber.CompanyName.Name,
                 Email = subscriber.Email.Value,
                 PhoneNumber = subscriber.PhoneNumber?.Value,
                 ActiveChannels = subscriber.ActiveChannels.Select(c => c.Name).ToList(),
+                ExtraCredits = subscriber.ExtraCredits,
                 Subscription = subscription == null ? null : new SubscriptionDto
                 {
                     Plan = subscription.Plan.ToString(),
@@ -96,7 +96,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<SubscriberDto>.SuccessResult(response, "Subscription information belonging to the subscriber."));
         }
 
-        [Authorize]
         [HttpPut("contact")]
         public async Task<IActionResult> UpdateContactInfo([FromBody] UpdateContactRequest request)
         {
@@ -110,7 +109,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's contact information has been updated."));
         }
 
-        [Authorize]
         [HttpPut("company-name")]
         public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyNameRequest request)
         {
@@ -123,7 +121,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's company name has been updated."));
         }
 
-        [Authorize]
         [HttpPost("channels")]
         public async Task<IActionResult> UpdateChannels([FromBody] ManageChannelRequest request)
         {
@@ -143,7 +140,6 @@ namespace FertileNotify.API.Controllers
             );
         }
 
-        [Authorize]
         [HttpPut("password")]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
         {
@@ -157,6 +153,7 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's password has been updated."));
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterSubscriberRequest request)
         {
@@ -175,7 +172,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<RegisterSubscriberCommand>.SuccessResult(command, "Registration successful, log in."));
         }
 
-        [Authorize]
         [HttpPost("create-api-key")]
         public async Task<IActionResult> Create([FromBody] CreateApiKeyRequest request)
         {
@@ -188,7 +184,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(new { ApiKey = rawApiKey }, "Please save this key securely. You won't be able to see it again."));
         }
 
-        [Authorize]
         [HttpGet("api-keys")]
         public async Task<IActionResult> GetApiKeys()
         {
@@ -204,7 +199,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<IEnumerable<ApiKeyDto>>.SuccessResult(response, "An API Key has been generated for the subscriber."));
         }
 
-        [Authorize]
         [HttpDelete("api-keys/{apiKeyId}")]
         public async Task<IActionResult> RevokeApiKey(Guid apiKeyId)
         {
@@ -217,7 +211,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's API Key has been decommissioned."));
         }
 
-        [Authorize]
         [HttpPost("settings/channel-setting")]
         public async Task<IActionResult> SetChannelSetting([FromBody] ChannelSettingRequest request)
         {
@@ -228,21 +221,31 @@ namespace FertileNotify.API.Controllers
                 Settings = request.Settings
             };
             await _setChannelSettingHandler.HandleAsync(command);
-            return Ok(new { message = $"{request.Channel} configured successfully." });
+            return Ok(ApiResponse<object>.SuccessResult(default!, $"{request.Channel} configured successfully."));
         }
 
-        [Authorize]
         [HttpGet("settings/channel-setting")]
         public async Task<IActionResult> GetChannelSetting([FromQuery] string channel)
         {
-            var subscriberId = GetSubscriberIdFromClaims();
-            var channelEnum = NotificationChannel.From(channel);
-            var setting = await _subscriberChannelRepository.GetSettingAsync(subscriberId, channelEnum);
+            var setting = await _subscriberChannelRepository.GetSettingAsync(GetSubscriberIdFromClaims(), NotificationChannel.From(channel));
 
             if (setting == null)
                 return NotFound(new { message = $"No settings found for {channel}." });
 
             return Ok(ApiResponse<SubscriberChannelSetting>.SuccessResult(setting, $"{channel} settings retrieved successfully."));
+        }
+
+        [HttpPatch("add-extra-credits")]
+        public async Task<IActionResult> AddExtraCredits([FromBody] int count)
+        {
+            if (count <= 0)
+                return BadRequest();
+
+            var subscriber = await _subscriberRepository.GetByIdAsync(GetSubscriberIdFromClaims());
+            subscriber!.AddCredits(count);
+            await _subscriberRepository.SaveAsync(subscriber);
+
+            return Ok(ApiResponse<object>.SuccessResult(default!, $"{count} amount of extra credits have been added."));
         }
 
         [NonAction]

@@ -1,4 +1,5 @@
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.ValueObjects;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
@@ -7,18 +8,18 @@ using MimeKit;
 
 namespace FertileNotify.Infrastructure.Notifications
 {
-    public class SmtpEmailService : IEmailService
+    public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        private readonly ILogger<SmtpEmailService> _logger;
+        private readonly ILogger<EmailService> _logger;
 
-        public SmtpEmailService(IConfiguration configuration, ILogger<SmtpEmailService> logger)
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _configuration = configuration;
             _logger = logger;
         }
 
-        public async Task SendEmailAsync(string to, string subject, string body)
+        public async Task SendEmailAsync(EmailAddress to, string subject, string body)
         {
             var host = _configuration["SystemSmtp:Host"];
             var port = int.Parse(_configuration["SystemSmtp:Port"] ?? "587");
@@ -31,7 +32,7 @@ namespace FertileNotify.Infrastructure.Notifications
             {
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(displayName, from!));
-                message.To.Add(MailboxAddress.Parse(to));
+                message.To.Add(MailboxAddress.Parse(to.Value));
                 message.Subject = subject;
 
                 var bodyBuilder = new BodyBuilder { HtmlBody = body };

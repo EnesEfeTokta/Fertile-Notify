@@ -11,22 +11,19 @@ namespace FertileNotify.Application.Services
     {
         private readonly INotificationLogRepository _logRepository;
         private readonly IStatsRepository _statsRepository;
-        private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ILogger<NotificationLogService> _logger;
 
         public NotificationLogService(
             INotificationLogRepository logRepository,
             IStatsRepository statsRepository,
-            ISubscriptionRepository subscriptionRepository,
             ILogger<NotificationLogService> _logger)
         {
             _logRepository = logRepository;
             _statsRepository = statsRepository;
-            _subscriptionRepository = subscriptionRepository;
             this._logger = _logger;
         }
 
-        public async Task LogSuccessAsync(ProcessNotificationMessage message, string subject, string body, Subscription subscription)
+        public async Task LogSuccessAsync(ProcessNotificationMessage message, string subject, string body)
         {
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
@@ -43,9 +40,6 @@ namespace FertileNotify.Application.Services
             await _logRepository.AddAsync(log);
 
             await _statsRepository.IncrementAsync(message.SubscriberId, channel, eventType, true);
-            
-            subscription.IncreaseUsage();
-            await _subscriptionRepository.SaveAsync(message.SubscriberId, subscription);
 
             _logger.LogInformation("[SUCCESS] Notification logged and usage updated for {Recipient}", message.Recipient);
         }

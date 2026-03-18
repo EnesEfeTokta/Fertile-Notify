@@ -1,5 +1,4 @@
 using FertileNotify.Application.Contracts;
-using FertileNotify.Domain.Entities;
 
 namespace FertileNotify.Application.Interfaces
 {
@@ -8,8 +7,7 @@ namespace FertileNotify.Application.Interfaces
         Task LogSuccessAsync(
             ProcessNotificationMessage message, 
             string subject, 
-            string body, 
-            Subscription subscription);
+            string body);
 
         Task LogFailureAsync(
             ProcessNotificationMessage message, 
