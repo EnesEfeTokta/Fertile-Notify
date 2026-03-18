@@ -48,26 +48,6 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(result, "Templates retrieved successfully."));
         }
 
-        [HttpGet("logs")]
-        public async Task<IActionResult> GetLogs()
-        {
-            var subscriberId = GetSubscriberIdFromClaims();
-            var logs = await _logRepository.GetLatestBySubscriberIdAsync(subscriberId, 10);
-
-            var result = logs.Select(t => new
-            {
-                t.Id,
-                t.Recipient,
-                t.Channel,
-                t.EventType,
-                t.Subject,
-                t.Body,
-                t.CreatedAt
-            });
-
-            return Ok(ApiResponse<object>.SuccessResult(result, "Notification logs retrieved successfully."));
-        }
-
         [HttpPost("query")]
         public async Task<IActionResult> GetTemplates([FromBody] GetTemplatesRequest request)
         {
