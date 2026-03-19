@@ -64,16 +64,30 @@ export default function DashboardPage() {
                             <div className="absolute top-0 right-0 w-64 h-64 bg-accent-primary/5 blur-[100px] -mr-32 -mt-32 pointer-events-none" />
                             <div className="relative z-10">
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-6">Service Status</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-8">
                                     <div>
                                         <p className="text-sm text-secondary mb-1">Monthly Usage</p>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-display font-bold text-primary">{profile?.subscription?.usedThisMonth?.toLocaleString()}</span>
-                                            <span className="text-tertiary text-sm">/ {profile?.subscription?.monthlyLimit?.toLocaleString()}</span>
+                                            <span className="text-4xl font-display font-bold text-primary">{(profile?.subscription?.usedThisMonth ?? 0).toLocaleString()}</span>
+                                            <span className="text-tertiary text-sm">/ {(profile?.subscription?.monthlyLimit ?? 0).toLocaleString()}</span>
                                         </div>
                                         <div className="mt-4 h-2 bg-tertiary rounded-full overflow-hidden w-full max-w-[200px]">
                                             <div className="h-full bg-accent-primary transition-all duration-1000" style={{ width: `${usedPct}%` }} />
                                         </div>
+                                        <p className="text-[10px] text-tertiary mt-2">Monthly subscription credits</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-secondary mb-1">Extra Credits</p>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-display font-bold text-accent-primary">{(profile?.extraCredits ?? 0).toLocaleString()}</span>
+                                            <span className="text-tertiary text-sm">Available</span>
+                                        </div>
+                                        <button 
+                                            onClick={() => window.location.hash = "/buy-credits"}
+                                            className="mt-4 text-[11px] font-bold text-accent-primary hover:underline flex items-center gap-1"
+                                        >
+                                            Buy More Credits →
+                                        </button>
                                     </div>
                                     <div>
                                         <p className="text-sm text-secondary mb-1">Current Plan</p>

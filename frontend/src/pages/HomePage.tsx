@@ -137,7 +137,6 @@ export default function HomePage() {
                             {[
                                 { label: "Features", action: () => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" }) },
                                 { label: "Pricing", action: () => navigate("/pricing") },
-                                { label: "Docs", action: () => navigate("/documentation") },
                                 { label: "Changelog", action: () => navigate("/changelog") },
                             ].map(l => (
                                 <button
@@ -513,12 +512,6 @@ export default function HomePage() {
                             className="btn-primary px-9 py-3.5 text-[15px] shadow-accent-lg"
                         >
                             {isAuthenticated ? "Open Dashboard" : "Create free account"}
-                        </button>
-                        <button
-                            onClick={() => navigate("/documentation")}
-                            className="btn-secondary px-9 py-3.5 text-[15px]"
-                        >
-                            Read the docs
                         </button>
                     </div>
                 </div>

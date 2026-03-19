@@ -35,5 +35,7 @@ export interface Notification {
     event: string,
     subject: string,
     body: string,
+    status: string,
+    errorMessage?: string,
     createdAt: string
 }

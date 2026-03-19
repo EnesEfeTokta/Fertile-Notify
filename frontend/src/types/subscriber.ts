@@ -4,6 +4,7 @@ export interface SubscriberProfile {
     email: string;
     phoneNumber?: string;
     activeChannels: string[];
+    extraCredits: number;
     subscription?: Subscription;
 }
 

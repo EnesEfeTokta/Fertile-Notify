@@ -37,5 +37,8 @@ export const subscriberService = {
             params: { channel }
         });
         return response.data.data;
+    },
+    buyCredits: async (count: number): Promise<void> => {
+        await axiosClient.patch("/subscribers/add-extra-credits", { count });
     }
 };

@@ -143,6 +143,7 @@ namespace FertileNotify.Infrastructure.Migrations
                     RefreshToken = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     RefreshTokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     RefreshTokenRevoked = table.Column<bool>(type: "boolean", nullable: true),
+                    ExtraCredits = table.Column<int>(type: "integer", nullable: false),
                     ActiveChannels = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

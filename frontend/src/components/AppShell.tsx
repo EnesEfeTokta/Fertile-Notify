@@ -107,6 +107,16 @@ export default function AppShell({ children, title, actions, companyName, plan }
                         <div className="space-y-1">
                             <NavItem
                                 currentPath={location.pathname}
+                                path="/api-reference"
+                                label="API Docs"
+                                icon={
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                }
+                            />
+                            <NavItem
+                                currentPath={location.pathname}
                                 path="/api-keys"
                                 label="API Keys"
                                 icon={
@@ -148,6 +158,16 @@ export default function AppShell({ children, title, actions, companyName, plan }
                                 icon={
                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                    </svg>
+                                }
+                            />
+                            <NavItem
+                                currentPath={location.pathname}
+                                path="/buy-credits"
+                                label="Buy Credits"
+                                icon={
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 }
                             />
