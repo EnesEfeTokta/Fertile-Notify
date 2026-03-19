@@ -80,6 +80,10 @@ export default function EmailDesignAdvancedPanelPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!mjmlCode.includes('{{UnsubscriberLink}}')) {
+      alert('Template body must contain the {{UnsubscriberLink}} variable.');
+      return;
+    }
     try {
       const request: CreateOrUpdateCustom = {
         name: templateName,
@@ -235,7 +239,7 @@ export default function EmailDesignAdvancedPanelPage() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <p className="text-xs text-secondary">
-          <span className="font-medium">Tip:</span> Use <code className="px-1 py-0.5 bg-tertiary rounded text-primary-400">{'{Variable}'}</code> syntax for dynamic data. Example: <code className="px-1 py-0.5 bg-tertiary rounded text-primary-400">{'{Name}'}</code>, <code className="px-1 py-0.5 bg-tertiary rounded text-primary-400">{'{Email}'}</code>
+          <span className="font-medium">Tip:</span> Use <code className="px-1 py-0.5 bg-tertiary rounded text-primary-400">{'{{VariableName}}'}</code> syntax for dynamic data. Example: <code className="px-1 py-0.5 bg-tertiary rounded text-primary-400">{'{{Name}}'}</code>, <code className="px-1 py-0.5 bg-tertiary rounded text-primary-400">{'{{Email}}'}</code>. You MUST include <code className="px-1 py-0.5 bg-tertiary rounded text-red-400">{'{{UnsubscriberLink}}'}</code>.
         </p>
       </div>
 

@@ -60,6 +60,10 @@ export default function ChannelDesignPanelPage() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!message.includes('{{UnsubscriberLink}}')) {
+            alert('Template message body must contain the {{UnsubscriberLink}} variable.');
+            return;
+        }
         try {
             const request: CreateOrUpdateCustom = {
                 name: templateName,
@@ -228,7 +232,7 @@ export default function ChannelDesignPanelPage() {
 
                         <div className="card-elevated p-4 !bg-primary-500/5 !border-primary-500/10">
                             <p className="text-xs text-secondary leading-relaxed">
-                                <span className="font-bold text-primary-400">Pro Tip:</span> Use <code>{'{Variable}'}</code> tag to inject dynamic data from your backend. Available tags depend on the event type selected.
+                                <span className="font-bold text-primary-400">Pro Tip:</span> Use <code>{'{{VariableName}}'}</code> tag to inject dynamic data from your backend. Available tags depend on the event type selected. You MUST include the <code className="text-red-400">{'{{UnsubscriberLink}}'}</code> tag in the body.
                             </p>
                         </div>
                     </div>

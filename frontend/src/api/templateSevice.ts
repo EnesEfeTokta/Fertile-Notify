@@ -14,8 +14,8 @@ export const templateSevice = {
         const response = await axiosClient.post("templates/query", data);
         return response.data;
     },
-    getNotificationLogs: async (): Promise<Notification[]> => {
-        const response = await axiosClient.get("templates/logs");
+    getNotificationLogs: async (limit: number = 50): Promise<Notification[]> => {
+        const response = await axiosClient.get(`logs/${limit}`);
         return response.data;
     }
 }

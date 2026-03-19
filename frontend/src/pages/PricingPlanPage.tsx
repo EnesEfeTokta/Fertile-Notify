@@ -42,23 +42,24 @@ const PricingPlanPage = () => {
                         </div>
 
                         <ul className="space-y-4 mb-10 flex-1 border-t border-primary pt-8">
+
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>2,000 console notifications / mo</span>
+                                <span>10 Notification Credits / mo</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>150 email notifications / mo</span>
+                                <span>Email, Console, Webhooks</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
-                                <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span>Detailed statistics (Daily & Weekly)</span>
+                                <span>No SMS or WhatsApp Support</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,23 +89,24 @@ const PricingPlanPage = () => {
                         </div>
 
                         <ul className="space-y-4 mb-10 flex-1 border-t border-primary pt-8">
+
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>10,000 console notifications / mo</span>
+                                <span>1,000 Notification Credits / mo</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>500 email notifications / mo</span>
+                                <span>All Channels Included</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>250 SMS limit per month</span>
+                                <span>Option to buy extra lifetime credits</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,23 +138,24 @@ const PricingPlanPage = () => {
                         </div>
 
                         <ul className="space-y-4 mb-10 flex-1 border-t border-primary pt-8">
+
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>Unlimited console notifications</span>
+                                <span>10,000 Notification Credits / mo</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>5,000 email notifications / mo</span>
+                                <span>Bulk purchase discounts for credits</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span>1,000 SMS limit per month</span>
+                                <span>Custom integrations available</span>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-secondary">
                                 <svg className="w-5 h-5 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,22 +203,22 @@ const PricingPlanPage = () => {
                             <tbody className="divide-y divide-primary/10">
                                 {/* Notifications */}
                                 <tr>
-                                    <td className="py-5 px-4 text-sm font-medium text-primary">Console Notifications</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">2,000 / mo</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">10,000 / mo</td>
-                                    <td className="py-5 px-4 text-sm text-secondary font-semibold">Unlimited</td>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Monthly Credits</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">10</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">1,000</td>
+                                    <td className="py-5 px-4 text-sm text-secondary font-semibold">10,000</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-5 px-4 text-sm font-medium text-primary">Email Notifications</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">150 / mo</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">500 / mo</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">5,000 / mo</td>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Channel Costs</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Email(1), Slack(1)</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">SMS(10), WP(5), Rest(1)</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">SMS(10), WP(5), Rest(1)</td>
                                 </tr>
                                 <tr>
-                                    <td className="py-5 px-4 text-sm font-medium text-primary">SMS Support</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">---</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">250 / mo</td>
-                                    <td className="py-5 px-4 text-sm text-secondary">1,000 / mo</td>
+                                    <td className="py-5 px-4 text-sm font-medium text-primary">Buy Extra Credits</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Yes</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Yes</td>
+                                    <td className="py-5 px-4 text-sm text-secondary">Yes</td>
                                 </tr>
                                 {/* Channels */}
                                 <tr>

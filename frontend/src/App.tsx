@@ -13,6 +13,8 @@ import StatisticsPage from './pages/StatisticsPage';
 import AccountPage from './pages/AccountPage';
 import ApiKeysPage from './pages/ApiKeysPage';
 import BlacklistPage from './pages/BlacklistPage';
+import BuyCreditsPage from './pages/BuyCreditsPage';
+import LogsPage from './pages/LogsPage';
 
 // Info Pages
 import AboutUsPage from './pages/info/AboutUsPage';
@@ -30,6 +32,7 @@ function App() {
         <Route path="/email-visual-editor" element={<EmailDesignVisualPanelPage />} />
         <Route path="/channel-editor" element={<ChannelDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/logs" element={<LogsPage />} />
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />
@@ -40,6 +43,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/pricing" element={<PricingPlanPage />} />
+        <Route path="/buy-credits" element={<BuyCreditsPage />} />
 
         {/* Info Routes */}
         <Route path="/about" element={<AboutUsPage />} />
