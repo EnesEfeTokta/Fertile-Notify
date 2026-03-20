@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { subscriberService } from '../api/subscriberService';
 import type { SubscriberProfile } from '../types/subscriber';
 import ConsoleLogsModal from '../components/ConsoleLogsModal';
@@ -8,6 +9,7 @@ import AppShell from '../components/AppShell';
 import { useToast } from '../components/Toast';
 
 export default function DashboardPage() {
+    const navigate = useNavigate();
     const [profile, setProfile] = useState<SubscriberProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
@@ -83,7 +85,7 @@ export default function DashboardPage() {
                                             <span className="text-tertiary text-sm">Available</span>
                                         </div>
                                         <button 
-                                            onClick={() => window.location.hash = "/buy-credits"}
+                                            onClick={() => navigate("/buy-credits")}
                                             className="mt-4 text-[11px] font-bold text-accent-primary hover:underline flex items-center gap-1"
                                         >
                                             Buy More Credits →
@@ -123,13 +125,18 @@ export default function DashboardPage() {
                                     <span className="text-sm font-bold text-green-400">14ms</span>
                                 </div>
                                 <div className="flex items-center justify-between p-3 rounded-lg bg-tertiary/50 border border-primary text-tertiary">
-                                    <span className="text-sm">API Uptime</span>
+                                    <span className="text-sm border-b border-dashed border-tertiary cursor-help" title="Rolling 30-day average">Uptime</span>
                                     <span className="text-sm font-bold">99.99%</span>
                                 </div>
                             </div>
-                            <button onClick={() => window.location.hash = "/statistics"} className="w-full mt-6 py-2 border border-primary rounded-lg text-xs font-bold hover:bg-tertiary transition-colors">
-                                View Full Analytics →
-                            </button>
+                            <div className="flex flex-col gap-2 mt-6">
+                                <button onClick={() => navigate("/statistics")} className="w-full py-2 bg-tertiary border border-primary rounded-lg text-xs font-bold hover:bg-hover transition-colors">
+                                    View Full Analytics →
+                                </button>
+                                <button onClick={() => navigate("/logs")} className="w-full py-2 border border-accent-primary/20 rounded-lg text-xs font-bold text-accent-primary hover:bg-accent-primary/5 transition-colors">
+                                    Check Delivery Logs →
+                                </button>
+                            </div>
                         </div>
                     </div>
 

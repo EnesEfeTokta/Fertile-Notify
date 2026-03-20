@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { templateSevice } from '../api/templateSevice';
-import type { Template as ApiTemplate } from '../types/template';
-import { NOTIFICATION_CHANNELS, getChannelMetadata } from '../constants/channels';
+import { NOTIFICATION_CHANNELS, getChannelMetadata, getString } from '../constants/channels';
 import AppShell from '../components/AppShell';
 
 interface Template {
@@ -36,19 +35,25 @@ export default function TemplatesPage() {
             try {
                 setLoading(true);
                 const data = await templateSevice.getAllTemplates();
-                setTemplates(data.map((t: ApiTemplate) => ({
-                    id: t.id,
-                    name: t.name,
-                    description: t.description || 'No description available',
-                    type: capitalizeChannel(t.channel),
-                    channelId: t.channel?.toLowerCase() || 'sms',
-                    eventType: t.event,
-                    source: t.source,
+                if (!Array.isArray(data)) {
+                    console.error("Templates API returned non-array data:", data);
+                    setTemplates([]);
+                    return;
+                }
+                setTemplates(data.map((t: any, index: number) => ({
+                    id: getString(t.id || t.Id) || `template-${index}`,
+                    name: getString(t.name || t.Name),
+                    description: getString(t.description || t.Description || 'No description available'),
+                    type: capitalizeChannel(getString(t.channel || t.Channel)),
+                    channelId: getString(t.channel || t.Channel || 'sms').toLowerCase(),
+                    eventType: getString(t.eventType || t.EventType || t.event || t.Event || 'Unknown'),
+                    source: (getString(t.source || t.Source) as 'Default' | 'Custom'),
                     updatedAt: new Date().toISOString().split('T')[0],
-                    subject: t.subject || '',
-                    body: t.body || '',
+                    subject: getString(t.subject || t.Subject || ''),
+                    body: getString(t.body || t.Body || ''),
                 })));
-            } catch {
+            } catch (err) {
+                console.error("Mapping error:", err);
                 setError('Failed to load templates.');
             } finally {
                 setLoading(false);

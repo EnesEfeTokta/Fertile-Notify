@@ -17,12 +17,16 @@ axiosClient.interceptors.request.use(config => {
 });
 
 axiosClient.interceptors.response.use(
-    (response: AxiosResponse<ApiResponse<any>>) => {
-        if (response.data && typeof response.data === 'object' && 'success' in response.data) {
-            if (response.data.success) {
-                return { ...response, data: response.data.data };
-            } else {
-                return Promise.reject(response.data);
+    (response: AxiosResponse<any>) => {
+        const resData = response.data;
+        if (resData && typeof resData === 'object') {
+            const isSuccess = resData.success === true || resData.Success === true || resData.isSuccess === true;
+            if ('success' in resData || 'Success' in resData || 'isSuccess' in resData) {
+                if (isSuccess) {
+                    return { ...response, data: resData.data ?? resData.Data };
+                } else {
+                    return Promise.reject(resData);
+                }
             }
         }
         return response;

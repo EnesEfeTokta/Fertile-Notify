@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { templateSevice } from '../api/templateSevice';
 import type { Notification } from '../types/template';
 import AppShell from '../components/AppShell';
-import { getChannelMetadata } from '../constants/channels';
+import { getChannelMetadata, getString } from '../constants/channels';
 
 export default function LogsPage() {
     const [logs, setLogs] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
+    const [limit, setLimit] = useState(50);
     const [error, setError] = useState<string | null>(null);
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -14,7 +15,7 @@ export default function LogsPage() {
         const fetchLogs = async () => {
             try {
                 setLoading(true);
-                const data = await templateSevice.getNotificationLogs(50);
+                const data = await templateSevice.getNotificationLogs(limit);
                 setLogs(data);
             } catch {
                 setError('Failed to load notification logs.');
@@ -23,7 +24,7 @@ export default function LogsPage() {
             }
         };
         fetchLogs();
-    }, []);
+    }, [limit]);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -37,13 +38,27 @@ export default function LogsPage() {
     return (
         <AppShell title="Notification Logs">
             <div className="max-w-6xl space-y-6">
-                <div className="card p-6 border-accent-primary/20 bg-primary/50 relative overflow-hidden">
-                    <h2 className="text-xl font-display font-bold text-primary mb-2">Delivery History</h2>
-                    <p className="text-sm text-secondary max-w-3xl leading-relaxed">
-                        Review your recent notification deliveries. For privacy and GDPR compliance, full contents 
-                        are retained for 7 days. Older logs (up to 30 days) have sensitive data masked. Logs older 
-                        than 30 days are automatically removed.
-                    </p>
+                <div className="card p-6 border-accent-primary/20 bg-primary/50 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div className="flex-1">
+                        <h2 className="text-xl font-display font-bold text-primary mb-2">Delivery History</h2>
+                        <p className="text-sm text-secondary max-w-2xl leading-relaxed">
+                            Review your recent notification deliveries. For privacy and GDPR compliance, full contents 
+                            are retained for 7 days. Older logs (up to 30 days) have sensitive data masked.
+                        </p>
+                    </div>
+                    <div className="shrink-0 flex flex-col gap-1.5 min-w-[140px]">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted">Logs to fetch</label>
+                        <select 
+                            value={limit} 
+                            onChange={(e) => setLimit(Number(e.target.value))}
+                            className="bg-secondary border border-primary rounded-lg px-3 py-2 text-sm text-primary font-bold focus:border-accent-primary outline-none cursor-pointer transition-all"
+                        >
+                            <option value={10}>Latest 10</option>
+                            <option value={50}>Latest 50</option>
+                            <option value={100}>Latest 100</option>
+                            <option value={500}>Latest 500</option>
+                        </select>
+                    </div>
                 </div>
 
                 {loading ? (
@@ -82,7 +97,7 @@ export default function LogsPage() {
                                             return diffDays <= 30;
                                         })
                                         .map((log) => {
-                                            const chMeta = getChannelMetadata(log.channel?.toLowerCase() || 'email');
+                                            const chMeta = getChannelMetadata(log.channel || (log as any).Channel);
                                             const isExpanded = expandedId === log.id;
                                             const diffDays = Math.ceil((Date.now() - new Date(log.createdAt).getTime()) / (1000 * 60 * 60 * 24));
                                             const isMasked = diffDays > 7;
@@ -112,7 +127,7 @@ export default function LogsPage() {
                                                             </div>
                                                         </td>
                                                         <td className="py-4 px-5 text-sm text-secondary">
-                                                            <span className="px-2 py-1 rounded bg-secondary text-xs font-mono">{log.event}</span>
+                                                            <span className="px-2 py-1 rounded bg-secondary text-xs font-mono">{getString(log.event || (log as any).Event)}</span>
                                                         </td>
                                                         <td className="py-4 px-5">
                                                             <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${getStatusColor(log.status)}`}>

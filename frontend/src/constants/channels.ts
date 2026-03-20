@@ -20,10 +20,19 @@ export const NOTIFICATION_CHANNELS: ChannelMetadata[] = [
     { id: 'webhook', name: 'Webhook', icon: '🔗', color: '#10b981', editorRoute: '/channel-editor' },
 ];
 
-export const getChannelMetadata = (id: string): ChannelMetadata => {
-    return NOTIFICATION_CHANNELS.find(c => c.id === id.toLowerCase()) || {
-        id: id.toLowerCase(),
-        name: id.charAt(0).toUpperCase() + id.slice(1),
+export const getString = (val: any): string => {
+    if (typeof val === 'string') return val;
+    if (val && typeof val === 'object') {
+        return val.name || val.Name || val.value || val.Value || JSON.stringify(val);
+    }
+    return String(val || '');
+};
+
+export const getChannelMetadata = (id?: any): ChannelMetadata => {
+    const safeId = getString(id).toLowerCase();
+    return NOTIFICATION_CHANNELS.find(c => c.id === safeId) || {
+        id: safeId,
+        name: safeId.charAt(0).toUpperCase() + safeId.slice(1),
         icon: '🔔',
         color: '#6b7280',
         editorRoute: '/channel-editor'
