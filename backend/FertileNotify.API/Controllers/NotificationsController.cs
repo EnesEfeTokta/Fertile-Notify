@@ -53,26 +53,6 @@ namespace FertileNotify.API.Controllers
             );
         }
 
-        [AllowAnonymous]
-        [HttpPost("unsubscribe")]
-        public async Task<IActionResult> PublicUnsubscribe([FromBody] UnsubscribeRequest request)
-        {
-            var command = new UnsubscribeCommand
-            {
-                SubscriberId = request.SubscriberId,
-                Recipient = request.Recipient,
-                Token = request.Token,
-                Channels = request.Channels
-            };
-
-            bool success = await _unsubscribeHandler.HandleAsync(command);
-
-            if (!success)
-                return BadRequest(ApiResponse<object>.FailureResult(new List<string> { "Invalid unsubscribe token." }, "Failed to unsubscribe."));
-
-            return Ok(ApiResponse<object>.SuccessResult(null!, "You have been successfully unsubscribed."));
-        }
-
         [NonAction]
         private Guid GetSubscriberIdFromClaims()
         {
