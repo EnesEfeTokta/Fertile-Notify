@@ -115,9 +115,9 @@ namespace FertileNotify.Application.UseCases.SendNotification
                 subscription = validated.Item2;
 
                 var unsubscribeToken = _securityService.GenerateUnsubscribeToken(message.Recipient, message.SubscriberId);
-                if (!message.Parameters.ContainsKey("UnsubscriberLink"))
-                    message.Parameters["UnsubscriberLink"] = 
-                        $"http://fertile-notify.enesefetokta.shop/unsubscribe?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
+                if (!message.Parameters.ContainsKey("RecipientsManagerLink"))
+                    message.Parameters["RecipientsManagerLink"] = 
+                        $"http://fertile-notify.enesefetokta.shop/recipients-manager?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
 
                 var content = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
                 subject = content.Subject;

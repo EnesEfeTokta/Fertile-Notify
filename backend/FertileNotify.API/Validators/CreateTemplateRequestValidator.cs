@@ -29,7 +29,7 @@ namespace FertileNotify.API.Validators
 
             RuleFor(x => x.Body)
                 .NotEmpty().WithMessage("Body is required.")
-                .Must(body => body.Contains("{{UnsubscriberLink}}")).WithMessage("UnsubscriberLink is required.");
+                .Must(body => body.Contains("{{RecipientsManagerLink}}")).WithMessage("RecipientsManagerLink is required.");
         }
 
         private bool BeAValidEventType(string eventType)
