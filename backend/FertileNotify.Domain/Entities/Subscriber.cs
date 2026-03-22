@@ -13,7 +13,6 @@ namespace FertileNotify.Domain.Entities
         public EmailAddress Email { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
         public RefreshToken? RefreshToken { get; private set; }
-
         public int ExtraCredits { get; private set; } = 0;
 
         private readonly HashSet<NotificationChannel> _activeChannels = new();
@@ -26,12 +25,7 @@ namespace FertileNotify.Domain.Entities
             Email = default!;
         }
 
-        public Subscriber(
-            CompanyName companyName, 
-            Password password, 
-            EmailAddress email, 
-            PhoneNumber? phoneNumber
-        )
+        public Subscriber(CompanyName companyName, Password password, EmailAddress email, PhoneNumber? phoneNumber)
         {
             Id = Guid.NewGuid();
             CompanyName = companyName;
@@ -42,25 +36,44 @@ namespace FertileNotify.Domain.Entities
             _activeChannels.Add(NotificationChannel.Email);
         }
 
-        public void UpdateCompanyName(CompanyName companyName) => CompanyName = companyName;
+        public Subscriber WithCompanyName(CompanyName companyName)
+        {
+            CompanyName = companyName;
+            return this;
+        }
 
-        public void UpdatePassword(Password password) => Password = password;
+        public Subscriber WithEmail(EmailAddress email)
+        {
+            Email = email;
+            return this;
+        }
 
-        public void SetRefreshToken(RefreshToken refreshToken) => RefreshToken = refreshToken;
-
-        public void UpdateContactInfo(EmailAddress email, PhoneNumber? phoneNumber)
+        public Subscriber WithPhoneNumber(PhoneNumber? phoneNumber)
         {
             if (phoneNumber == null && _activeChannels.Contains(NotificationChannel.SMS))
                 throw new BusinessRuleException("Cannot remove phone number while SMS channel is active.", "CHN_1306");
 
-            Email = email;
             PhoneNumber = phoneNumber;
+            return this;
         }
 
-        public void AddCredits(int amount)
+        public Subscriber WithPassword(Password password)
+        {
+            Password = password;
+            return this;
+        }
+
+        public Subscriber SetRefreshToken(RefreshToken refreshToken) 
+        {
+            RefreshToken = refreshToken;
+            return this;
+        }
+
+        public Subscriber AddCredits(int amount)
         {
             if (amount <= 0) throw new ArgumentException("Amount must be positive");
             ExtraCredits += amount;
+            return this;
         }
 
         public bool TryUseExtraCredit(int amount = 1)
@@ -73,9 +86,9 @@ namespace FertileNotify.Domain.Entities
             return false;
         }
 
-        public void EnableChannel(NotificationChannel channel, SubscriptionPlan plan)
+        public Subscriber EnableChannel(NotificationChannel channel, SubscriptionPlan plan)
         {
-            if (_activeChannels.Contains(channel)) return;
+            if (_activeChannels.Contains(channel)) return this;
 
             if (!SubscriptionChannelPolicy.CanUseChannel(plan, channel))
                 throw new BusinessRuleException($"Your plan ({plan}) does not support the {channel.Name} channel.", "CMP_1507");
@@ -87,12 +100,14 @@ namespace FertileNotify.Domain.Entities
                 throw new BusinessRuleException("Phone number is required to enable SMS channel.", "USR_1103");
 
             _activeChannels.Add(channel);
+            return this;
         }
 
-        public void DisableChannel(NotificationChannel channel)
+        public Subscriber DisableChannel(NotificationChannel channel)
         {
             if (_activeChannels.Contains(channel))
                 _activeChannels.Remove(channel);
+            return this;
         }
     }
 }

@@ -22,8 +22,9 @@ namespace FertileNotify.Application.UseCases.UpdatePassword
             if (!subscriber.Password.Verify(command.CurrentPassword))
                 throw new UnauthorizedException("Current password is incorrect.");
 
-            subscriber.UpdatePassword(Password.Create(command.NewPassword));
+            var newPassword = Password.Create(command.NewPassword);
 
+            subscriber.WithPassword(newPassword);
             await _subscriberRepository.SaveAsync(subscriber);
         }
     }

@@ -18,9 +18,10 @@ namespace FertileNotify.Application.UseCases.UpdateCompanyName
         {
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found.");
+                
+            var companyName = CompanyName.Create(command.CompanyName);
 
-            subscriber.UpdateCompanyName(CompanyName.Create(command.CompanyName));
-
+            subscriber.WithCompanyName(companyName);
             await _subscriberRepository.SaveAsync(subscriber);
         }
     }
