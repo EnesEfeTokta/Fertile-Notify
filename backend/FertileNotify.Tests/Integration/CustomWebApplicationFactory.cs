@@ -1,3 +1,14 @@
+using FertileNotify.Application.Interfaces;
+using FertileNotify.Infrastructure.Persistence;
+using FertileNotify.Tests.Integration.Fakes;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 namespace FertileNotify.Tests.Integration
 {
     public class CustomWebApplicationFactory<TProgram>

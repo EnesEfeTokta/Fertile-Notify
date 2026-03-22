@@ -1,3 +1,6 @@
+using FertileNotify.Application.Interfaces;
+using FertileNotify.Domain.ValueObjects;
+
 namespace FertileNotify.Tests.Integration.Fakes
 {
     public class FakeEmailService : IEmailService

@@ -1,3 +1,5 @@
+using FertileNotify.Application.Interfaces;
+
 namespace FertileNotify.Tests.Integration.Fakes
 {
     public class FakeOtpService : IOtpService

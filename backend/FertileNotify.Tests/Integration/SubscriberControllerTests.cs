@@ -1,6 +1,15 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using FertileNotify.API.Models.Requests;
+using FertileNotify.API.Models.Responses;
+using FertileNotify.Application.DTOs;
+using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.ValueObjects;
+using FertileNotify.Infrastructure.Persistence;
+using FertileNotify.Tests.Integration.Fakes;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FertileNotify.Tests.Integration
 {
