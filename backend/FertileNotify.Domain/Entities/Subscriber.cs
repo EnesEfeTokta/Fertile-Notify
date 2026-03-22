@@ -63,6 +63,14 @@ namespace FertileNotify.Domain.Entities
             return this;
         }
 
+        public void UpdatePassword(string currentPassword, Password newPassword)
+        {
+            if (!Password.Verify(currentPassword))
+                throw new BusinessRuleException("Current password is incorrect.", "AUTH_001");
+
+            Password = newPassword;
+        }
+
         public Subscriber SetRefreshToken(RefreshToken refreshToken) 
         {
             RefreshToken = refreshToken;

@@ -24,7 +24,7 @@ builder.Host.UseSerilog();
 builder.Services
     .AddWebConfig()             // CORS, Rate Limiting, Controllers, Validation
     .AddSwaggerConfig()         // Swagger Documentation & Security
-    .AddInfrastructureConfig(builder.Configuration) // DB, Redis, RabbitMQ, HealthChecks
+    .AddInfrastructureConfig(builder.Configuration, builder.Environment) // DB, Redis, RabbitMQ, HealthChecks
     .AddAuthConfig(builder.Configuration)           // JWT, ApiKey, Token Services
     .AddApplicationServices();  // Repositories, Use Cases, Core Services
 
@@ -45,10 +45,13 @@ using (var scope = app.Services.CreateScope())
         
         Log.Information(" >> Starting database migration... << ");
         
-        if (context.Database.GetPendingMigrations().Any())
+        if (!app.Environment.IsEnvironment("Testing"))
         {
-            await context.Database.MigrateAsync();
-            Log.Information(" >> The database has been successfully updated. << ");
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                await context.Database.MigrateAsync();
+                Log.Information(" >> The database has been successfully updated. << ");
+            }
         }
         
         Log.Information(" >> Starting database seeding... << ");
@@ -83,3 +86,5 @@ app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

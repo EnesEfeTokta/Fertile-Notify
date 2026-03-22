@@ -16,12 +16,10 @@ namespace FertileNotify.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly SendNotificationHandler _sendNotificationHandler;
-        private readonly UnsubscribeHandler _unsubscribeHandler;
 
-        public NotificationsController(SendNotificationHandler sendNotificationHandler, UnsubscribeHandler unsubscribeHandler)
+        public NotificationsController(SendNotificationHandler sendNotificationHandler)
         {
             _sendNotificationHandler = sendNotificationHandler;
-            _unsubscribeHandler = unsubscribeHandler;
         }
 
         [HttpPost]
