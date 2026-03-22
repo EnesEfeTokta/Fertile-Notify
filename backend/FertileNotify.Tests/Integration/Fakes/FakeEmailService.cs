@@ -1,14 +1,8 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.ValueObjects;
-using System.Threading.Tasks;
-
-namespace FertileNotify.Tests.Integration.Fakes;
-
-public class FakeEmailService : IEmailService
+namespace FertileNotify.Tests.Integration.Fakes
 {
-    public Task SendEmailAsync(EmailAddress to, string subject, string body)
+    public class FakeEmailService : IEmailService
     {
-        // Simulate email sending delay or simply do nothing
-        return Task.CompletedTask;
+        public Task SendEmailAsync(EmailAddress to, string subject, string body)
+            => Task.CompletedTask;
     }
 }
