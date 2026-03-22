@@ -107,7 +107,7 @@ namespace FertileNotify.API.Controllers
             var isValid = await _otpService.VerifyOtpAsync(subscriber.Id, request.OtpCode);
             if (!isValid)
                 throw new UnauthorizedException("Invalid or expired OTP code");
-            subscriber.UpdatePassword(Password.Create(request.NewPassword));
+            subscriber.WithPassword(Password.Create(request.NewPassword));
             await _subscriberRepository.SaveAsync(subscriber);
             return Ok(ApiResponse<object>.SuccessResult(default!, "Password reset successful."));
         }
