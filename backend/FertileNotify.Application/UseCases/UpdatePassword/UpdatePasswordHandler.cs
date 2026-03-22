@@ -15,10 +15,10 @@ namespace FertileNotify.Application.UseCases.UpdatePassword
         private readonly ILogger<UpdatePasswordHandler> _logger;
 
         public UpdatePasswordHandler(
-            ISubscriberRepository subscriberRepository, 
-            IOtpService otpService, 
-            IEmailService emailService, 
-            ITokenService tokenService, 
+            ISubscriberRepository subscriberRepository,
+            IOtpService otpService,
+            IEmailService emailService,
+            ITokenService tokenService,
             ILogger<UpdatePasswordHandler> logger)
         {
             _subscriberRepository = subscriberRepository;
@@ -30,20 +30,10 @@ namespace FertileNotify.Application.UseCases.UpdatePassword
 
         public async Task HandleAsync(UpdatePasswordCommand command)
         {
-            _logger.LogInformation("Handling UpdatePasswordCommand for SubscriberId: {SubscriberId}", command.SubscriberId);
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found.");
 
-            if (!subscriber.Password.Verify(command.CurrentPassword))
-                throw new UnauthorizedException("Current password is incorrect.");
-            
-            var isValid = await _otpService.VerifyOtpAsync(subscriber.Id, command.OtpCode);
-            if (!isValid)
-                throw new UnauthorizedException("Invalid or expired OTP code");
-
-            var newPassword = Password.Create(command.NewPassword);
-
-            subscriber.WithPassword(newPassword);
+            subscriber.UpdatePassword(command.CurrentPassword, Password.Create(command.NewPassword));
             await _subscriberRepository.SaveAsync(subscriber);
         }
     }

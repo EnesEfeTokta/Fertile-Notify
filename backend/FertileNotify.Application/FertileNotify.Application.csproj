@@ -18,4 +18,8 @@
     <PackageReference Include="Mjml.Net" Version="4.11.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UseCases/VerifyCode/" />
+  </ItemGroup>
+
 </Project>

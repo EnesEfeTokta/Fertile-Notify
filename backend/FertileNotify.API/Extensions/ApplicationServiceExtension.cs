@@ -11,6 +11,10 @@ using FertileNotify.Application.UseCases.UpdatePassword;
 using FertileNotify.Application.UseCases.CreateApiKey;
 using FertileNotify.Application.UseCases.RevokeApiKey;
 using FertileNotify.Application.UseCases.SetChannelSetting;
+using FertileNotify.Application.UseCases.Login;
+using FertileNotify.Application.UseCases.VerifyCode;
+using FertileNotify.Application.UseCases.ForgotPassword;
+using FertileNotify.Application.UseCases.RefreshToken;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using FertileNotify.Application.UseCases.NotificationComplaint;
@@ -44,6 +48,10 @@ public static class ApplicationServiceExtension
         services.AddHttpClient();
 
         // Use Cases
+        services.AddScoped<LoginHandler>();
+        services.AddScoped<VerifyCodeHandler>();
+        services.AddScoped<ForgotPasswordHandler>();
+        services.AddScoped<RefreshTokenHandler>();
         services.AddScoped<SendNotificationHandler>();
         services.AddScoped<RegisterSubscriberHandler>();
         services.AddScoped<UnsubscribeHandler>();

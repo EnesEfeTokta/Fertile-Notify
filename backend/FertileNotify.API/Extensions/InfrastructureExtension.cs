@@ -7,15 +7,18 @@ namespace FertileNotify.API.Extensions;
 
 public static class InfrastructureExtension
 {
-    public static IServiceCollection AddInfrastructureConfig(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureConfig(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         // Database
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         // Health Checks
-        services.AddHealthChecks()
-            .AddNpgSql(configuration.GetConnectionString("DefaultConnection")!);
+        var healthChecks = services.AddHealthChecks();
+        if (!environment.IsEnvironment("Testing"))
+        {
+            healthChecks.AddNpgSql(configuration.GetConnectionString("DefaultConnection")!);
+        }
 
         // Redis
         services.AddStackExchangeRedisCache(options =>
@@ -24,6 +27,11 @@ public static class InfrastructureExtension
             options.InstanceName = "FertileNotify_";
         });
 
+        if (environment.IsEnvironment("Testing"))
+        {
+            return services;
+        }
+
         // MassTransit (RabbitMQ)
         services.AddMassTransit(x =>
         {
@@ -31,13 +39,13 @@ public static class InfrastructureExtension
 
             x.UsingRabbitMq((context, cfg) =>
             {
-                cfg.Host(configuration["RabbitMQ:Host"], "/", h => 
+                cfg.Host(configuration["RabbitMQ:Host"], "/", h =>
                 {
                     h.Username(configuration["RabbitMQ:Username"] ?? "guest");
                     h.Password(configuration["RabbitMQ:Password"] ?? "guest");
                 });
 
-                cfg.ReceiveEndpoint("notification-queue", e => 
+                cfg.ReceiveEndpoint("notification-queue", e =>
                 {
                     e.PrefetchCount = 16;
                     e.EnablePriority(10);
