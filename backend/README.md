@@ -1,10 +1,10 @@
 # Fertile Notify - Backend
 
-A robust notification management system built with Clean Architecture principles using .NET 9, designed to handle multi-channel notifications (Email, SMS, In-App) with subscription-based access control and rate limiting.
+A robust notification management system built with Clean Architecture principles using .NET 10, designed to handle multi-channel notifications (Email, SMS, Push, Slack, Discord, MS Teams, etc.) with subscription-based access control and rate limiting.
 
 ## Overview
 
-The Fertile Notify backend is a notification processing platform that allows subscribers to send notifications through multiple channels based on their subscription plan. The system is built using Clean Architecture with clear separation of concerns across four main layers.
+The Fertile Notify backend is a high-performance notification processing platform that allows subscribers to send notifications through multiple channels based on their subscription plan. The system is built using Clean Architecture with clear separation of concerns across four main layers, ensuring maintainability and scalability.
 
 ## Architecture
 
@@ -29,24 +29,23 @@ The backend follows **Clean Architecture** (also known as Onion Architecture) wi
           │ implements interfaces
 ┌─────────┴───────────────────────────────────────┐
 │    FertileNotify.Infrastructure (Technical)     │
-│   Database, Email, SMS, Background Jobs         │
+│   Database, External Services, Background Jobs  │
 └─────────────────────────────────────────────────┘
 ```
 
 ### Layer Responsibilities
 
-- **API Layer**: HTTP endpoints, request validation, authentication/authorization
-- **Application Layer**: Business workflows, use case orchestration, service interfaces
-- **Domain Layer**: Core business logic, entities, value objects, business rules
-- **Infrastructure Layer**: Database access, external services, notification delivery, background workers
+- **API Layer**: HTTP endpoints, request validation, authentication/authorization, and rate limiting.
+- **Application Layer**: Business workflows, use case orchestration, and service interfaces.
+- **Domain Layer**: Core business logic, entities, value objects, and fundamental business rules.
+- **Infrastructure Layer**: Data persistence, external notification services, background consumers, and caching.
 
 ## Key Features
 
 ### 🔐 Authentication & Authorization
-- **Dual Authentication**: JWT Bearer tokens + API Key authentication
-- **OTP Verification**: Two-factor login with one-time passwords
-- **Token Refresh**: Secure token renewal mechanism
-- **API Key Management**: Generate, revoke, and manage API keys
+- **Dual Authentication**: JWT Bearer tokens for users and API Key authentication for server-to-server integration.
+- **OTP Verification**: Secure two-factor login flow with one-time passwords.
+- **Role-Based Access**: Granular control over features based on subscription tiers.
 
 ### 📊 Subscription Plans
 Three tiers with different capabilities and limits:
@@ -55,124 +54,104 @@ Three tiers with different capabilities and limits:
 |---------|------|-----|------------|
 | Monthly Notification Limit | 100 | 1,000 | 10,000 |
 | Rate Limit (requests/min) | 50 | 100 | 1,000 |
-| Available Channels | Email | Email, SMS | Email, SMS, Console |
+| Available Channels | Email | Email, SMS, Push | All Channels |
 | Allowed Event Types | Basic events | Extended events | All events |
 
 ### 📬 Multi-Channel Notifications
-- **Email**: SMTP-based email delivery
-- **SMS**: SMS gateway integration
-- **Console**: In-app/console notifications for testing
+Support for a wide range of delivery channels:
+- **Email**: SMTP and advanced email services.
+- **Mobile/Web**: Firebase Push Notifications, Web Push.
+- **Messaging**: WhatsApp, SMS, Telegram.
+- **Collaboration**: Slack, Discord, MS Teams.
+- **Integrations**: Webhooks, Console (for testing).
 
 ### 🎨 Template Engine
-- Dynamic content replacement with `{{variable}}` syntax
-- Event-based template selection
-- Reusable templates for different notification types
+- Dynamic content replacement with `{{variable}}` syntax.
+- Support for MJML for responsive email templates.
+- Event-based template selection and channel-specific formatting.
 
-### ⚡ Asynchronous Processing
-- **Background Worker**: Hosted service for async notification delivery
-- **In-Memory Queue**: Fast message queuing for notification processing
-- **Retry Mechanism**: Automatic retry with exponential backoff for failed deliveries
+### ⚡ Advanced Infrastructure
+- **Message Broker**: MassTransit with RabbitMQ for reliable asynchronous processing.
+- **Caching**: Distributed caching using Redis for performance optimization.
+- **Background Processing**: Dedicated consumers for handling high-volume notification traffic.
 
 ## Project Structure
 
 ```
 backend/
 ├── FertileNotify.API/              # Web API controllers and endpoints
-│   ├── Controllers/                # AuthController, NotificationsController, SubscribersController
+│   ├── Controllers/                # RESTful endpoints (Auth, Notifications, Subscribers, etc.)
 │   ├── Models/                     # Request/Response DTOs
-│   ├── Validators/                 # FluentValidation validators
-│   ├── Middlewares/                # Exception handling
-│   └── Authentication/             # JWT and API Key handlers
+│   ├── Validators/                 # FluentValidation logic
+│   └── Authentication/             # Auth handlers and JWT/API Key logic
 │
 ├── FertileNotify.Application/      # Business use cases and services
-│   ├── UseCases/                   # ProcessEvent, RegisterSubscriber handlers
-│   ├── Services/                   # TemplateEngine, OtpService
-│   ├── Interfaces/                 # Repository and service contracts
-│   └── DTOs/                       # Data transfer objects
+│   ├── UseCases/                   # Core business workflows (Commands/Handlers)
+│   ├── Services/                   # Domain services (TemplateEngine, Stats, etc.)
+│   └── Interfaces/                 # Repository and external service contracts
 │
 ├── FertileNotify.Domain/           # Core business logic
-│   ├── Entities/                   # Subscriber, Notification, Subscription, etc.
-│   ├── ValueObjects/               # EmailAddress, Password, PhoneNumber, etc.
-│   ├── Enums/                      # SubscriptionPlan
-│   ├── Rules/                      # Business rules and policies
-│   ├── Events/                     # Domain events
-│   └── Exceptions/                 # Domain-specific exceptions
+│   ├── Entities/                   # Domain models (Subscriber, Subscription, etc.)
+│   ├── ValueObjects/               # Immutable business components
+│   └── Rules/                      # Domain-specific business rules
 │
-├── FertileNotify.Infrastructure/   # External concerns implementation
-│   ├── Persistence/                # EF Core DbContext, repositories
-│   ├── Notifications/              # Email, SMS, Console senders
-│   ├── BackgroundJobs/             # NotificationWorker, queue
-│   ├── Authentication/             # JWT service, API key service
-│   └── Migrations/                 # Database migrations
+├── FertileNotify.Infrastructure/   # Technical implementations
+│   ├── Persistence/                # EF Core, PostgreSQL, Repositories
+│   ├── Notifications/              # Concrete sender implementations (Email, SMS, etc.)
+│   └── BackgroundJobs/             # MassTransit consumers and workers
 │
 ├── FertileNotify.Tests/            # Unit and integration tests
-│   ├── Application/                # Use case handler tests
-│   ├── Domain/                     # Entity and value object tests
-│   └── Infrastructure/             # Repository tests (planned)
 │
 ├── FertileNotify.sln               # Solution file
-├── Dockerfile                      # Docker container definition
 └── README.md                       # This file
 ```
 
 ## Getting Started
 
 ### Prerequisites
-- .NET 9 SDK
-- PostgreSQL 14+ database
-- (Optional) Docker for containerized deployment
+- .NET 10 SDK
+- PostgreSQL 15+
+- RabbitMQ
+- Redis
+- (Optional) Docker
 
 ### Configuration
 
-Create an `appsettings.Development.json` file in the `FertileNotify.API` directory:
+The application uses `appsettings.json` and environment variables for configuration. Create an `appsettings.Development.json` file in the `FertileNotify.API` directory:
 
 ```json
 {
   "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Database=FertileNotifyDb;Username=postgres;Password=your_password"
   },
+  "Redis": {
+    "ConnectionString": "localhost:6379,abortConnect=false"
+  },
+  "RabbitMQ": {
+    "Host": "localhost",
+    "Username": "guest",
+    "Password": "guest"
+  },
   "JwtSettings": {
     "SecretKey": "your-secret-key-at-least-32-characters-long",
-    "Issuer": "FertileNotify",
+    "Issuer": "FertileNotifyAPI",
     "Audience": "FertileNotifyClients",
-    "ExpiryInMinutes": 1440
+    "ExpiryInMinutes": 15
   },
-  "EmailSettings": {
-    "SmtpHost": "smtp.example.com",
-    "SmtpPort": 587,
+  "SystemSmtp": {
+    "Host": "smtp.example.com",
+    "Port": 587,
     "Username": "your-email@example.com",
     "Password": "your-smtp-password",
-    "FromAddress": "notifications@example.com",
-    "FromName": "Fertile Notify"
-  },
-  "Serilog": {
-    "MinimumLevel": {
-      "Default": "Information",
-      "Override": {
-        "Microsoft": "Warning",
-        "System": "Warning"
-      }
-    },
-    "WriteTo": [
-      {
-        "Name": "Console"
-      },
-      {
-        "Name": "File",
-        "Args": {
-          "path": "logs/log-.txt",
-          "rollingInterval": "Day"
-        }
-      }
-    ]
+    "From": "notifications@example.com"
   }
 }
 ```
 
 ### Database Setup
 
-1. Ensure PostgreSQL is running
-2. Update connection string in `appsettings.json`
+1. Ensure PostgreSQL is running.
+2. Update connection string in `appsettings.json`.
 3. Apply migrations:
 
 ```bash
@@ -187,20 +166,11 @@ dotnet ef database update --project ../FertileNotify.Infrastructure
 cd backend/FertileNotify.API
 dotnet run
 ```
-
-The API will be available at:
-- HTTP: `http://localhost:5000`
-- HTTPS: `https://localhost:5001`
-- Swagger UI: `https://localhost:5001/swagger`
+The API will be available at `https://localhost:5001/swagger`.
 
 #### Watch Mode (Auto-reload on changes)
 ```bash
 dotnet watch run
-```
-
-#### Production Mode
-```bash
-dotnet run --configuration Release
 ```
 
 ### Using Docker
@@ -215,146 +185,44 @@ docker run -p 5080:8080 \
   fertile-notify-api
 ```
 
-Or use Docker Compose from the root directory:
-
-```bash
-cd ..
-docker-compose up
-```
-
-## API Endpoints
+## API Endpoints Summary
 
 ### Authentication
-- `POST /api/auth/login` - Login with email/password, get OTP
-- `POST /api/auth/verify-otp` - Verify OTP and receive JWT token
-- `POST /api/auth/refresh-token` - Refresh expired JWT token
-- `PUT /api/auth/password` - Update password
+- `POST /api/auth/login`: Login with email/password, generates OTP.
+- `POST /api/auth/verify-otp`: Verify OTP code and receive JWT token.
+- `POST /api/auth/refresh-token`: Refresh expired JWT token.
+- `PUT /api/auth/password`: Update password.
 
 ### Subscribers
-- `POST /api/subscribers/register` - Register new subscriber
-- `GET /api/subscribers/profile` - Get current subscriber profile
-- `PUT /api/subscribers/channels` - Update notification channel preferences
-- `POST /api/subscribers/api-keys` - Generate new API key
-- `GET /api/subscribers/api-keys` - List all API keys
-- `DELETE /api/subscribers/api-keys/{id}` - Revoke API key
+- `POST /api/subscribers/register`: Register new subscriber.
+- `GET /api/subscribers/profile`: Get current subscriber profile.
+- `PUT /api/subscribers/channels`: Update notification channel preferences.
+- `POST /api/subscribers/api-keys`: Generate new API key.
+- `DELETE /api/subscribers/api-keys/{id}`: Revoke API key.
 
 ### Notifications
-- `POST /api/notifications/send` - Send single notification
-- `POST /api/notifications/bulk` - Send bulk notifications
+- `POST /api/notifications/send`: Send single notification.
+- `POST /api/notifications/bulk`: Send bulk notifications.
 
 ## Running Tests
 
-### All Tests
 ```bash
 cd backend
 dotnet test
 ```
 
-### Specific Test Class
-```bash
-dotnet test --filter "FullyQualifiedName~ProcessEventHandlerTests"
-```
-
-### With Code Coverage
-```bash
-dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-```
-
-### Watch Mode
-```bash
-dotnet watch test
-```
-
 ## Technology Stack
 
-- **.NET 9**: Latest .NET framework
-- **ASP.NET Core**: Web API framework
-- **Entity Framework Core 9**: ORM for database access
-- **PostgreSQL**: Relational database
-- **FluentValidation**: Request validation
-- **JWT Bearer**: Token-based authentication
-- **BCrypt**: Password hashing
-- **Serilog**: Structured logging
-- **xUnit/NUnit**: Testing frameworks
-- **Moq**: Mocking framework
-- **Swagger/OpenAPI**: API documentation
-
-## Development Guidelines
-
-### Code Organization
-- Follow Clean Architecture principles
-- Keep layers independent with clear boundaries
-- Use dependency injection for loose coupling
-- Implement repository pattern for data access
-- Apply SOLID principles throughout
-
-### Testing Strategy
-- **Domain Layer**: Unit tests for business logic (90%+ coverage)
-- **Application Layer**: Use case tests with mocked dependencies (85%+ coverage)
-- **Infrastructure Layer**: Integration tests with test database (70%+ coverage)
-- **API Layer**: Controller tests for endpoints
-
-### Database Migrations
-```bash
-# Create new migration
-dotnet ef migrations add MigrationName --project FertileNotify.Infrastructure --startup-project FertileNotify.API
-
-# Apply migrations
-dotnet ef database update --project FertileNotify.Infrastructure --startup-project FertileNotify.API
-
-# Rollback migration
-dotnet ef database update PreviousMigrationName --project FertileNotify.Infrastructure --startup-project FertileNotify.API
-```
-
-## Business Rules
-
-### Subscription Limits
-- **Free Plan**: 100 notifications/month, Email only, 50 requests/min
-- **Pro Plan**: 1,000 notifications/month, Email + SMS, 100 requests/min
-- **Enterprise Plan**: 10,000 notifications/month, All channels, 1,000 requests/min
-
-### Notification Channels
-- Subscribers can enable up to 3 notification channels
-- Channel availability depends on subscription plan
-- Email is available for all plans
-
-### Rate Limiting
-- Enforced at the API level based on subscription plan
-- Uses sliding window algorithm
-- Returns 429 (Too Many Requests) when limit exceeded
-
-### Retry Policy
-- Failed notifications retry up to 3 times
-- Exponential backoff: 30s, 2min, 5min
-- After max retries, notification marked as permanently failed
-
-## Monitoring and Logging
-
-The application uses Serilog for structured logging with the following log levels:
-
-- **Debug**: Development diagnostics
-- **Information**: Application flow, successful operations
-- **Warning**: Retry attempts, rate limit warnings
-- **Error**: Failed operations, exceptions
-- **Critical**: System failures
-
-Logs are written to:
-- Console (development)
-- File (production) - `/logs` directory
-- Application Insights (if configured)
-
-## Contributing
-
-1. Follow the existing code structure and patterns
-2. Write unit tests for new features
-3. Update relevant README files
-4. Ensure all tests pass before committing
-5. Follow C# coding conventions
+- **Framework**: .NET 10 / ASP.NET Core
+- **Database**: PostgreSQL / Entity Framework Core 10
+- **Messaging**: MassTransit / RabbitMQ
+- **Caching**: Redis
+- **Validation**: FluentValidation
+- **Logging**: Serilog
+- **Auth**: JWT / API Keys / BCrypt
+- **Email**: MJML.NET / MailKit
+- **Testing**: xUnit / Moq / FluentAssertions
 
 ## License
 
 [MIT License](../LICENSE)
-
-## Support
-
-For issues, questions, or contributions, please refer to the main repository documentation.

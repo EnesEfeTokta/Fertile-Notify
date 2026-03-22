@@ -1,209 +1,108 @@
 # FertileNotify.API
 
-The API layer serves as the presentation layer of the Fertile Notify application, providing RESTful endpoints for notification delivery, subscriber management, and authentication with dual authentication support (JWT + API Keys).
+The API layer is the entry point for the Fertile Notify application, providing RESTful endpoints for notification delivery, subscriber management, and authentication. It supports dual authentication (JWT and API Keys) and follows Clean Architecture principles by delegating business logic to the Application layer.
 
 ## Overview
 
-This project contains the web API controllers, request/response models, validators, middleware components, and authentication handlers that manage HTTP communication with external systems and clients. It is the entry point for all HTTP requests and coordinates with the Application layer to execute use cases.
+This project contains web API controllers, request/response models, validators, and middleware components. It is built using **.NET 10** and emphasizes performance, security, and developer productivity through Swagger/OpenAPI documentation.
 
 ## Key Components
 
 ### Controllers
 
-- **AuthController**: Handles subscriber authentication with OTP verification and JWT token management
-  - Login endpoint with OTP generation
-  - OTP verification for secure authentication
-  - JWT token generation and refresh
-  - Password update functionality
-  
-- **NotificationsController**: Manages notification sending operations (single and bulk)
-  - Send single notification to a subscriber
-  - Send bulk notifications to multiple subscribers
-  - Validates and queues notifications for asynchronous processing
-  
-- **SubscribersController**: Handles subscriber registration, profile management, and API key operations
-  - Subscriber registration with subscription plans (Free/Pro/Enterprise)
-  - Profile retrieval and updates
-  - Communication channel preference management (Email, SMS, Console)
-  - API key generation, listing, and revocation
-  - Subscription plan information
+- **AuthController**: Manages subscriber login flow, OTP verification, JWT token refresh, and password updates.
+- **NotificationsController**: Handles the orchestration of single and bulk notification delivery requests.
+- **SubscribersController**: Manages subscriber registration, profile retrieval, and active notification channels.
+- **StatisticsController**: Provides endpoints for accessing real-time usage metrics and quota tracking.
+- **LogController**: Allows subscribers to retrieve historical notification delivery logs.
+- **RecipientsController**: Manages recipient blacklist (forbidden recipients) and opt-out requests.
+- **TemplatesController**: Management of reusable notification templates.
 
-### Models
+### Models (DTOs)
 
-Contains Data Transfer Objects (DTOs) organized by functionality:
-
-**Authentication Models (4):**
-- `LoginRequest`: Email and password for login
-- `VerifyOtpRequest`: OTP code verification
-- `RefreshTokenRequest`: Token refresh data
-- `UpdatePasswordRequest`: Current and new password
-
-**Subscriber Models (3):**
-- `RegisterSubscriberRequest`: Email, password, company, phone, subscription plan
-- `UpdateChannelsRequest`: Enable/disable notification channels
-- `GenerateApiKeyRequest`: Name and description for API key
-
-**Notification Models (4):**
-- `SendNotificationRequest`: Single notification with title, message, and channel
-- `BulkNotificationRequest`: Multiple notifications with subscriber IDs
-- `NotificationDto`: Notification details response
-- Standardized response models for success and error cases
+The API project contains structured Request and Response objects (DTOs) organized by feature:
+- **Authentication**: `LoginRequest`, `VerifyOtpRequest`, `RefreshTokenRequest`.
+- **Subscriber**: `RegisterSubscriberRequest`, `UpdateChannelsRequest`, `GenerateApiKeyRequest`.
+- **Notification**: `SendNotificationRequest`, `BulkNotificationRequest`.
+- **Statistics**: `DailyStatsResponse`, `UsageSummaryResponse`.
 
 ### Validators
 
-FluentValidation validators ensure data integrity (10 validators):
-- **Authentication Validators**: Login, OTP verification, password update validation
-- **Subscriber Validators**: Registration with email format, password strength (min 8 chars, uppercase, lowercase, digit, special char)
-- **Notification Validators**: Single and bulk notification request validation with title/message length limits
-- **Channel Validators**: Notification channel preference validation
-- **API Key Validators**: API key generation request validation
+FluentValidation is used for robust request validation:
+- **Input Integrity**: Ensures that email formats, password complexity, and title/message lengths meet system requirements.
+- **Security Validation**: Validates OTP codes and API key generation metadata.
+- **Business Rule Pre-checks**: Validates that required fields are present before passing commands to handlers.
 
 ### Middlewares
 
-Custom middleware components for:
-- **Global Error Handling**: Catches and formats exceptions as proper HTTP responses
-- **Request Logging**: Logs incoming requests and outgoing responses (Serilog integration)
+- **Global Error Handling**: Centralized exception handling that transforms application errors into standardized JSON responses.
+- **Request Logging**: Serilog integration for structured logging of all incoming API requests and outgoing responses.
+- **Rate Limiting**: Plan-based rate limiting to prevent API abuse.
 
 ### Authentication
 
-Dual authentication system supporting:
-- **JWT Bearer Tokens**: For interactive applications with login flow
-  - Generated after OTP verification
-  - Includes refresh token mechanism
-  - Short-lived access tokens (configurable expiry)
-- **API Keys**: For server-to-server integrations
-  - Generated via subscriber endpoint
-  - Hashed storage for security
-  - Can be revoked at any time
-  - Includes rate limiting per subscription plan
+A dual authentication system that supports:
+- **JWT Bearer Tokens**: For interactive front-end applications, supporting OTP-based login and token refresh.
+- **API Keys**: For secure server-to-server integration, with hashed storage and instant revocation.
 
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/login` - Login with email/password, generates OTP
-- `POST /api/auth/verify-otp` - Verify OTP code and receive JWT token
-- `POST /api/auth/refresh-token` - Refresh expired JWT token
-- `PUT /api/auth/password` - Update password (requires authentication)
+- `POST /api/auth/login`: Email/password login flow (generates OTP).
+- `POST /api/auth/verify-otp`: Secure 2FA verification (returns JWT).
+- `POST /api/auth/refresh-token`: Renew expired access tokens.
+- `PUT /api/auth/password`: Update security credentials.
 
 ### Subscribers
-- `POST /api/subscribers/register` - Register new subscriber with subscription plan (Free/Pro/Enterprise)
-- `GET /api/subscribers/profile` - Get authenticated subscriber's profile
-- `PUT /api/subscribers/channels` - Update notification channel preferences (Email, SMS, Console)
-- `POST /api/subscribers/api-keys` - Generate new API key for server-to-server auth
-- `GET /api/subscribers/api-keys` - List all active API keys
-- `DELETE /api/subscribers/api-keys/{id}` - Revoke/delete an API key
+- `POST /api/subscribers/register`: New account creation with plan selection.
+- `GET /api/subscribers/profile`: Authenticated profile retrieval.
+- `PUT /api/subscribers/channels`: Management of active delivery channels.
+- `POST /api/subscribers/api-keys`: Create secure API keys.
+- `DELETE /api/subscribers/api-keys/{id}`: Instant key revocation.
 
 ### Notifications
-- `POST /api/notifications/send` - Send single notification to a subscriber
-- `POST /api/notifications/bulk` - Send bulk notifications to multiple subscribers
+- `POST /api/notifications/send`: High-performance notification dispatch.
+- `POST /api/notifications/bulk`: Efficiently send messages to multiple recipients.
+
+### Analytics & Logs
+- `GET /api/statistics`: Usage summary and quota tracking.
+- `GET /api/logs`: Access delivery history and status updates.
 
 ## Configuration
 
-The API is configured through `appsettings.json` and supports:
-- **Database Connection**: PostgreSQL connection string
-- **JWT Settings**: Secret key (min 32 chars), issuer, audience, token expiry duration (default: 1440 minutes)
-- **Logging**: Serilog structured logging with console and file sinks
-- **CORS**: Cross-origin resource sharing policies for allowed origins
-- **Email Settings**: SMTP host, port, username, password, from address
-- **Rate Limiting**: Per-plan rate limits (Free: 50/min, Pro: 100/min, Enterprise: 1000/min)
-- **Background Workers**: Notification queue processing intervals and retry policies
-
-Example `appsettings.json`:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=FertileNotifyDb;Username=postgres;Password=password"
-  },
-  "JwtSettings": {
-    "SecretKey": "your-secret-key-at-least-32-characters-long",
-    "Issuer": "FertileNotify",
-    "Audience": "FertileNotifyClients",
-    "ExpiryInMinutes": 1440
-  },
-  "EmailSettings": {
-    "SmtpHost": "smtp.example.com",
-    "SmtpPort": 587,
-    "Username": "notifications@example.com",
-    "Password": "smtp-password"
-  }
-}
-```
+The API is configured using `appsettings.json` and environment variables. Key sections:
+- `ConnectionStrings`: PostgreSQL connection info.
+- `Redis:ConnectionString`: Distributed cache settings.
+- `RabbitMQ`: Message broker credentials and host.
+- `JwtSettings`: Security keys and token expiration (default: 1440 minutes).
+- `RateLimiting`: Plan-specific request limits.
 
 ## Dependencies
 
-- **ASP.NET Core 9.0**: Web API framework
-- **FluentValidation.AspNetCore**: Request validation library
-- **Microsoft.EntityFrameworkCore**: ORM integration with PostgreSQL
-- **Microsoft.AspNetCore.Authentication.JwtBearer**: JWT Bearer token authentication
-- **Swashbuckle.AspNetCore**: Swagger/OpenAPI documentation
-- **Serilog.AspNetCore**: Structured logging with multiple sinks
-- **BCrypt.Net-Next**: Password hashing (via Domain layer)
+- **ASP.NET Core 10.0**: High-performance web framework.
+- **Swashbuckle.AspNetCore**: Automated Swagger/OpenAPI documentation.
+- **FluentValidation.AspNetCore**: Expressive input validation.
+- **Microsoft.AspNetCore.Authentication.JwtBearer**: Standardized JWT support.
+- **Serilog.AspNetCore**: Structured logging with file and console sinks.
+- **DotNetEnv**: Environment variable management.
 
 ## Running the API
 
 ### Development Mode
 ```bash
-cd FertileNotify.API
+cd backend/FertileNotify.API
 dotnet run
 ```
+The API starts at `https://localhost:5001`. Access documentation at `/swagger`.
 
-The API will start on:
-- HTTP: `http://localhost:5000`
-- HTTPS: `https://localhost:5001`
-- Swagger UI: `https://localhost:5001/swagger`
-
-### Watch Mode (Auto-reload on changes)
+### Docker
 ```bash
-dotnet watch run
-```
-
-### Production Mode
-```bash
-dotnet run --configuration Release
-```
-
-### Using Docker
-```bash
-# From backend directory
-cd ..
 docker build -t fertile-notify-api -f Dockerfile .
-docker run -p 5080:8080 \
-  -e ConnectionStrings__DefaultConnection="Host=host.docker.internal;Database=FertileNotifyDb;Username=postgres;Password=password" \
-  fertile-notify-api
+docker run -p 5080:8080 fertile-notify-api
 ```
 
-## Subscription Plans & Rate Limiting
+## Performance & Scaling
 
-The API enforces different limits based on subscription plans:
-
-| Plan | Monthly Notifications | Rate Limit (req/min) | Available Channels | Allowed Events |
-|------|----------------------|---------------------|-------------------|----------------|
-| **Free** | 100 | 50 | Email | Basic events |
-| **Pro** | 1,000 | 100 | Email, SMS | Extended events |
-| **Enterprise** | 10,000 | 1,000 | Email, SMS, Console | All events |
-
-Rate limiting returns HTTP 429 (Too Many Requests) when exceeded.
-
-## Architecture Role
-
-The API layer is the outermost layer in Clean Architecture and:
-
-**Depends on:**
-- **FertileNotify.Application** - For use case handlers and orchestration logic
-- **FertileNotify.Domain** - For domain entities and value objects (indirectly)
-- **FertileNotify.Infrastructure** - For dependency injection configuration
-
-**Responsibilities:**
-- HTTP request/response handling
-- Input validation and sanitization
-- Authentication and authorization
-- Request routing to appropriate use case handlers
-- Response formatting and error handling
-- API documentation (Swagger/OpenAPI)
-
-**Does NOT contain:**
-- Business logic (delegated to Application layer)
-- Data access code (handled by Infrastructure layer)
-- Domain rules (encapsulated in Domain layer)
-
-As the entry point of the application, the API project orchestrates incoming requests and delegates business logic execution to the Application layer while keeping presentation concerns separate from core business logic.
+- **Plan-Based Rate Limiting**: Ensures fair resource usage (Free: 50/min, Pro: 100/min, Enterprise: 1000/min).
+- **Asynchronous Handlers**: All controller actions are async to prevent thread starvation.
+- **Scalable Architecture**: The API can be horizontally scaled, with Redis and RabbitMQ coordinating state across instances.
