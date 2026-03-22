@@ -19,13 +19,10 @@ namespace FertileNotify.Application.UseCases.UpdateContactInfo
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found.");
 
-            subscriber.UpdateContactInfo(
-                EmailAddress.Create(command.Email),
-                string.IsNullOrWhiteSpace(command.PhoneNumber)
-                    ? null
-                    : PhoneNumber.Create(command.PhoneNumber)
-            );
+            var email = EmailAddress.Create(command.Email);
+            var phoneNumber = PhoneNumber.Create(command.PhoneNumber?.Trim() ?? string.Empty);
 
+            subscriber.WithEmail(email).WithPhoneNumber(phoneNumber);
             await _subscriberRepository.SaveAsync(subscriber);
         }
     }
