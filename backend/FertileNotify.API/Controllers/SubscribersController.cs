@@ -10,6 +10,7 @@ using FertileNotify.Application.UseCases.SetChannelSetting;
 using FertileNotify.Application.UseCases.UpdateCompanyName;
 using FertileNotify.Application.UseCases.UpdateContactInfo;
 using FertileNotify.Application.UseCases.UpdatePassword;
+using FertileNotify.Application.UseCases.DeleteAccount;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Exceptions;
@@ -33,6 +34,7 @@ namespace FertileNotify.API.Controllers
         private readonly CreateApiKeyHandler _createApiKeyHandler;
         private readonly RevokeApiKeyHandler _revokeApiKeyHandler;
         private readonly SetChannelSettingHandler _setChannelSettingHandler;
+        private readonly DeleteAccountHandler _deleteAccountHandler;
 
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
@@ -48,6 +50,7 @@ namespace FertileNotify.API.Controllers
             CreateApiKeyHandler createApiKeyHandler,
             RevokeApiKeyHandler revokeApiKeyHandler,
             SetChannelSettingHandler setChannelSettingHandler,
+            DeleteAccountHandler deleteAccountHandler,
             ISubscriptionRepository subscriptionRepository,
             ISubscriberRepository subscriberRepository,
             IApiKeyRepository apiKeyRepository,
@@ -61,6 +64,7 @@ namespace FertileNotify.API.Controllers
             _createApiKeyHandler = createApiKeyHandler;
             _revokeApiKeyHandler = revokeApiKeyHandler;
             _setChannelSettingHandler = setChannelSettingHandler;
+            _deleteAccountHandler = deleteAccountHandler;
 
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
@@ -99,45 +103,36 @@ namespace FertileNotify.API.Controllers
         [HttpPut("contact")]
         public async Task<IActionResult> UpdateContactInfo([FromBody] UpdateContactRequest request)
         {
-            var command = new UpdateContactInfoCommand
+            await _updateContactInfoHandler.HandleAsync(new UpdateContactInfoCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Email = request.Email,
                 PhoneNumber = request.PhoneNumber
-            };
-            await _updateContactInfoHandler.HandleAsync(command);
+            });
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's contact information has been updated."));
         }
 
         [HttpPut("company-name")]
         public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyNameRequest request)
         {
-            var command = new UpdateCompanyNameCommand
+            await _updateCompanyNameHandler.HandleAsync(new UpdateCompanyNameCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 CompanyName = request.CompanyName
-            };
-            await _updateCompanyNameHandler.HandleAsync(command);
+            });
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's company name has been updated."));
         }
 
         [HttpPost("channels")]
         public async Task<IActionResult> UpdateChannels([FromBody] ManageChannelRequest request)
         {
-            var subscriberId = GetSubscriberIdFromClaims();
-            var command = new ManageChannelsCommand
+            await _manageChannelsHandler.HandleAsync(new ManageChannelsCommand
             {
-                SubscriberId = subscriberId,
+                SubscriberId = GetSubscriberIdFromClaims(),
                 Channel = request.Channel,
                 Enable = request.Enable
-            };
-            await _manageChannelsHandler.HandleAsync(command);
-
-            var subscriber = await _subscriberRepository.GetByIdAsync(subscriberId);
-            return Ok(ApiResponse<object>.SuccessResult(
-                new { activeChannels = subscriber!.ActiveChannels.Select(c => c.Name) }, 
-                "The subscriber's channel settings have been updated.")
-            );
+            });
+            return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's channel settings have been updated."));
         }
 
         [HttpPut("password")]
@@ -153,12 +148,22 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's password has been updated."));
         }
 
+        [HttpDelete("delete-account")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            await _deleteAccountHandler.HandleAsync(new DeleteAccountCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims()
+            });
+            return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's account has been deleted."));
+        }
+
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterSubscriberRequest request)
         {
             Enum.TryParse<SubscriptionPlan>(request.Plan, ignoreCase: true, out var plan);
-            var command = new RegisterSubscriberCommand
+            await _registerSubscriberHandler.HandleAsync(new RegisterSubscriberCommand
             {
                 CompanyName = CompanyName.Create(request.CompanyName),
                 Password = Password.Create(request.Password),
@@ -167,9 +172,8 @@ namespace FertileNotify.API.Controllers
                                 ? null
                                 : PhoneNumber.Create(request.PhoneNumber),
                 Plan = plan,
-            };
-            await _registerSubscriberHandler.HandleAsync(command);
-            return Ok(ApiResponse<RegisterSubscriberCommand>.SuccessResult(command, "Registration successful, log in."));
+            });
+            return Ok(ApiResponse<RegisterSubscriberCommand>.SuccessResult(default!, "Registration successful, log in."));
         }
 
         [HttpPost("create-api-key")]
@@ -202,25 +206,23 @@ namespace FertileNotify.API.Controllers
         [HttpDelete("api-keys/{apiKeyId}")]
         public async Task<IActionResult> RevokeApiKey(Guid apiKeyId)
         {
-            var command = new RevokeApiKeyCommand
+            await _revokeApiKeyHandler.HandleAsync(new RevokeApiKeyCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 ApiKeyId = apiKeyId
-            };
-            await _revokeApiKeyHandler.HandleAsync(command);
+            });
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's API Key has been decommissioned."));
         }
 
         [HttpPost("settings/channel-setting")]
         public async Task<IActionResult> SetChannelSetting([FromBody] ChannelSettingRequest request)
         {
-            var command = new SetChannelSettingCommand
+            await _setChannelSettingHandler.HandleAsync(new SetChannelSettingCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Channel = request.Channel,
                 Settings = request.Settings
-            };
-            await _setChannelSettingHandler.HandleAsync(command);
+            });
             return Ok(ApiResponse<object>.SuccessResult(default!, $"{request.Channel} configured successfully."));
         }
 
