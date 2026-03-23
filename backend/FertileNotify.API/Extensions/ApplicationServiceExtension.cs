@@ -15,6 +15,7 @@ using FertileNotify.Application.UseCases.Login;
 using FertileNotify.Application.UseCases.VerifyCode;
 using FertileNotify.Application.UseCases.ForgotPassword;
 using FertileNotify.Application.UseCases.RefreshToken;
+using FertileNotify.Application.UseCases.DeleteAccount;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using FertileNotify.Application.UseCases.NotificationComplaint;
@@ -63,6 +64,7 @@ public static class ApplicationServiceExtension
         services.AddScoped<RevokeApiKeyHandler>();
         services.AddScoped<SetChannelSettingHandler>();
         services.AddScoped<NotificationComplaintHandler>();
+        services.AddScoped<DeleteAccountHandler>();
 
         // Notification Senders
         services.AddNotificationSenders();
