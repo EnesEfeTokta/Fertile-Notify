@@ -53,6 +53,34 @@ namespace FertileNotify.Domain.Entities
             return new Subscription(userId, plan, limit, expiresAt, allowedEvents);
         }
 
+        public static Subscription Restore(
+            Guid id,
+            Guid subscriberId,
+            SubscriptionPlan plan,
+            int monthlyLimit,
+            int usedThisMonth,
+            DateTime expiresAt,
+            IEnumerable<EventType> allowedEvents)
+        {
+            var subscription = new Subscription
+            {
+                Id = id,
+                SubscriberId = subscriberId,
+                Plan = plan,
+                MonthlyLimit = monthlyLimit,
+                UsedThisMonth = usedThisMonth,
+                ExpiresAt = expiresAt
+            };
+
+            subscription._allowedEvents.Clear();
+            foreach (var eventType in allowedEvents)
+            {
+                subscription._allowedEvents.Add(eventType);
+            }
+
+            return subscription;
+        }
+
         public int GetRemainingMonthlyLimit()
         {
             if (ExpiresAt < DateTime.UtcNow) return 0;

@@ -5,74 +5,75 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.HttpOverrides;
 
-namespace FertileNotify.API.Extensions;
-
-public static class WebExtension
+namespace FertileNotify.API.Extensions
 {
-    public static IServiceCollection AddWebConfig(this IServiceCollection services)
+    public static class WebExtension
     {
-        services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
-
-        services.AddFluentValidationAutoValidation();
-        services.AddValidatorsFromAssemblyContaining<Program>();
-
-        services.AddCors(options =>
+        public static IServiceCollection AddWebConfig(this IServiceCollection services)
         {
-            options.AddPolicy("AllowFrontend", policy =>
-            {
-                var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    ?? new[] { "http://localhost:3000", "http://localhost:5173" };
-
-                policy.WithOrigins(allowedOrigins)
-                      .AllowAnyHeader()
-                      .AllowAnyMethod()
-                      .AllowCredentials();
-            });
-        });
-
-        services.AddRateLimiter(options =>
-        {
-            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-            {
-                var subscriberId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var partitionKey = subscriberId ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
-                var plan = context.User.FindFirst("Plan")?.Value ?? "Free";
-
-                int permitLimit = plan switch
+            services.AddControllers()
+                .AddJsonOptions(options =>
                 {
-                    "Pro" => 100,
-                    "Enterprise" => 1000,
-                    _ => 20
-                };
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
-                return RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: partitionKey,
-                    factory: _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = permitLimit,
-                        Window = TimeSpan.FromMinutes(1),
-                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                        QueueLimit = 0
-                    });
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssemblyContaining<Program>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        ?? new[] { "http://localhost:3000", "http://localhost:5173" };
+
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
             });
 
-            options.OnRejected = async (context, token) =>
+            services.AddRateLimiter(options =>
             {
-                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                await context.HttpContext.Response.WriteAsync("Too many requests. Please upgrade your plan.", token);
-            };
-        });
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
+                    var subscriberId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var partitionKey = subscriberId ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+                    var plan = context.User.FindFirst("Plan")?.Value ?? "Free";
 
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        });
+                    int permitLimit = plan switch
+                    {
+                        "Pro" => 100,
+                        "Enterprise" => 1000,
+                        _ => 20
+                    };
 
-        return services;
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: partitionKey,
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = permitLimit,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        });
+                });
+
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    await context.HttpContext.Response.WriteAsync("Too many requests. Please upgrade your plan.", token);
+                };
+            });
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
+            return services;
+        }
     }
 }

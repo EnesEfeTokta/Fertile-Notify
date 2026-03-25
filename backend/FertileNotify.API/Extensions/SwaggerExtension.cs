@@ -1,37 +1,37 @@
 using Microsoft.OpenApi.Models;
 
-namespace FertileNotify.API.Extensions;
-
-public static class SwaggerExtension
+namespace FertileNotify.API.Extensions
 {
-    public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
+    public static class SwaggerExtension
     {
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
+        public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
         {
-            c.SwaggerDoc("v1", new() { Title = "Fertile Notify API", Version = "v1" });
-            c.CustomSchemaIds(type => type.FullName);
-            
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(c =>
             {
-                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
-            });
-            
-            c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
-            {
-                Description = "API Key authentication using FN-Api-Key header. Example: \"FN-Api-Key: your-api-key\"",
-                Name = "FN-Api-Key",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "ApiKeyScheme"
-            });
-            
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
+                c.SwaggerDoc("v1", new() { Title = "Fertile Notify API", Version = "v1" });
+                c.CustomSchemaIds(type => type.FullName);
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                {
+                    Description = "API Key authentication using FN-Api-Key header. Example: \"FN-Api-Key: your-api-key\"",
+                    Name = "FN-Api-Key",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "ApiKeyScheme"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
                 {
                     new OpenApiSecurityScheme
                     {
@@ -52,19 +52,20 @@ public static class SwaggerExtension
                     },
                     new List<string>()
                 }
+                });
             });
-        });
 
-        return services;
-    }
+            return services;
+        }
 
-    public static IApplicationBuilder UseSwaggerConfig(this IApplicationBuilder app)
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
+        public static IApplicationBuilder UseSwaggerConfig(this IApplicationBuilder app)
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fertile Notify API v1");
-        });
-        return app;
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fertile Notify API v1");
+            });
+            return app;
+        }
     }
 }
