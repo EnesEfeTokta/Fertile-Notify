@@ -3,65 +3,67 @@ using FertileNotify.Infrastructure.Persistence;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
-namespace FertileNotify.API.Extensions;
-
-public static class InfrastructureExtension
+namespace FertileNotify.API.Extensions
 {
-    public static IServiceCollection AddInfrastructureConfig(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+    public static class InfrastructureExtension
     {
-        // Database
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
-        // Health Checks
-        var healthChecks = services.AddHealthChecks();
-        if (!environment.IsEnvironment("Testing"))
+        public static IServiceCollection AddInfrastructureConfig(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
-            healthChecks.AddNpgSql(configuration.GetConnectionString("DefaultConnection")!);
-        }
+            // Database
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        // Redis
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = configuration["Redis:ConnectionString"] ?? "localhost:6379";
-            options.InstanceName = "FertileNotify_";
-        });
-
-        if (environment.IsEnvironment("Testing"))
-        {
-            return services;
-        }
-
-        // MassTransit (RabbitMQ)
-        services.AddMassTransit(x =>
-        {
-            x.AddConsumer<NotificationConsumer>();
-
-            x.UsingRabbitMq((context, cfg) =>
+            // Health Checks
+            var healthChecks = services.AddHealthChecks();
+            if (!environment.IsEnvironment("Testing"))
             {
-                cfg.Host(configuration["RabbitMQ:Host"], "/", h =>
-                {
-                    h.Username(configuration["RabbitMQ:Username"] ?? "guest");
-                    h.Password(configuration["RabbitMQ:Password"] ?? "guest");
-                });
+                healthChecks.AddNpgSql(configuration.GetConnectionString("DefaultConnection")!);
+            }
 
-                cfg.ReceiveEndpoint("notification-queue", e =>
-                {
-                    e.PrefetchCount = 16;
-                    e.EnablePriority(10);
-                    e.UseMessageRetry(r => r.Intervals(
-                        TimeSpan.FromSeconds(5),
-                        TimeSpan.FromSeconds(15),
-                        TimeSpan.FromSeconds(30)));
+            if (environment.IsEnvironment("Testing"))
+            {
+                services.AddDistributedMemoryCache();
+                return services;
+            }
 
-                    e.ConfigureConsumer<NotificationConsumer>(context);
+            // Redis
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration["Redis:ConnectionString"] ?? "localhost:6379";
+                options.InstanceName = "FertileNotify_";
+            });
+
+            // MassTransit (RabbitMQ)
+            services.AddMassTransit(x =>
+            {
+                x.AddConsumer<NotificationConsumer>();
+
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host(configuration["RabbitMQ:Host"], "/", h =>
+                    {
+                        h.Username(configuration["RabbitMQ:Username"] ?? "guest");
+                        h.Password(configuration["RabbitMQ:Password"] ?? "guest");
+                    });
+
+                    cfg.ReceiveEndpoint("notification-queue", e =>
+                    {
+                        e.PrefetchCount = 16;
+                        e.EnablePriority(10);
+                        e.UseMessageRetry(r => r.Intervals(
+                            TimeSpan.FromSeconds(5),
+                            TimeSpan.FromSeconds(15),
+                            TimeSpan.FromSeconds(30)));
+
+                        e.ConfigureConsumer<NotificationConsumer>(context);
+                    });
                 });
             });
-        });
 
-        // Background Workers
-        services.AddHostedService<LogRetentionWorker>();
+            // Background Workers
+            services.AddHostedService<LogRetentionWorker>();
 
-        return services;
+            return services;
+        }
     }
 }
