@@ -13,8 +13,7 @@ namespace FertileNotify.Domain.Entities
         public ComplaintType Reason { get; private set; }
         public string? Description { get; private set; }
 
-        public string NotificationSubject { get; private set; } = string.Empty;
-        public string NotificationBody { get; private set; } = string.Empty;
+        public NotificationContent Content { get; private set; } = default!;
 
         public DateTime CreatedAt { get; private set; }
 
@@ -25,8 +24,7 @@ namespace FertileNotify.Domain.Entities
             EmailAddress reporterEmail,
             ComplaintType reason,
             string? description,
-            string notificationSubject,
-            string notificationBody
+            NotificationContent content
         )
         {
             Id = Guid.NewGuid();
@@ -34,8 +32,7 @@ namespace FertileNotify.Domain.Entities
             ReporterEmail = reporterEmail;
             Reason = reason;
             Description = description;
-            NotificationSubject = notificationSubject;
-            NotificationBody = notificationBody;
+            Content = content;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -44,8 +41,7 @@ namespace FertileNotify.Domain.Entities
             EmailAddress reporterEmail,
             ComplaintType type,
             string? description,
-            string notificationSubject,
-            string notificationBody
+            NotificationContent content
         )
         {
             return new NotificationComplaint(
@@ -53,8 +49,7 @@ namespace FertileNotify.Domain.Entities
                 reporterEmail,
                 type,
                 description,
-                notificationSubject,
-                notificationBody
+                content
             );
         }
     }

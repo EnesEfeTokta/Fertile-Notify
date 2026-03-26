@@ -18,13 +18,11 @@ namespace FertileNotify.API.Controllers
     public class TemplatesController : ControllerBase
     {
         private readonly ITemplateRepository _templateRepository;
-        private readonly INotificationLogRepository _logRepository;
 
-        public TemplatesController(ITemplateRepository templateRepository, INotificationLogRepository logRepository)
+        public TemplatesController(ITemplateRepository templateRepository)
         {
 
             _templateRepository = templateRepository;
-            _logRepository = logRepository;
         }
 
         [HttpGet]
@@ -40,8 +38,8 @@ namespace FertileNotify.API.Controllers
                 t.Description,
                 t.EventType,
                 t.Channel,
-                t.Subject,
-                t.Body,
+                t.Content.Subject,
+                t.Content.Body,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
             });
 
@@ -73,11 +71,10 @@ namespace FertileNotify.API.Controllers
                 t.Description,
                 t.EventType,
                 t.Channel,
-                t.Subject,
-                t.Body,
+                t.Content.Subject,
+                t.Content.Body,
                 Source = t.SubscriberId == null ? "Default" : "Custom"
             });
-
             return Ok(ApiResponse<object>.SuccessResult(result, "Queried templates retrieved successfully."));
         }
 
@@ -92,7 +89,7 @@ namespace FertileNotify.API.Controllers
 
             if (existingTemplate != null)
             {
-                existingTemplate.Update(request.Name, request.Description, request.Subject, request.Body);
+                existingTemplate.Update(request.Name, request.Description, new NotificationContent(request.Subject, request.Body));
                 await _templateRepository.SaveAsync();
             }
             else
@@ -103,8 +100,7 @@ namespace FertileNotify.API.Controllers
                     request.Description, 
                     eventType, 
                     channel, 
-                    request.Subject, 
-                    request.Body
+                    new NotificationContent(request.Subject, request.Body)
                 );
                 await _templateRepository.AddAsync(newTemplate);
             }

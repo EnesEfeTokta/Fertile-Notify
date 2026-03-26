@@ -102,17 +102,13 @@ namespace FertileNotify.Application.UseCases.SendNotification
         {
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
-
-            string? subject = null;
-            string? body = null;
-            Subscriber? subscriber = null;
-            Subscription? subscription = null;
+            var notification = new NotificationContent(string.Empty, string.Empty);
 
             try
             {
                 var validated = await GetAndValidateEntities(message.SubscriberId, eventType, channel);
-                subscriber = validated.Item1;
-                subscription = validated.Item2;
+                Subscriber subscriber = validated.Item1;
+                Subscription subscription = validated.Item2;
 
                 var unsubscribeToken = _securityService.GenerateUnsubscribeToken(message.Recipient, message.SubscriberId);
                 if (!message.Parameters.ContainsKey("RecipientsManagerLink"))
@@ -120,8 +116,7 @@ namespace FertileNotify.Application.UseCases.SendNotification
                         $"http://fertile-notify.enesefetokta.shop/recipients-manager?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
 
                 var content = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
-                subject = content.Subject;
-                body = content.Body;
+                notification = notification.Update(content.Subject, content.Body);
 
                 var sender = GetSender(channel);
                 var channelSetting = await _subscriberChannelRepository.GetSettingAsync(message.SubscriberId, channel);
@@ -130,27 +125,26 @@ namespace FertileNotify.Application.UseCases.SendNotification
                     message.SubscriberId,
                     message.Recipient,
                     eventType,
-                    subject,
-                    body,
+                    notification,
                     channelSetting?.Settings);
 
                 if (isSuccess)
                 {
                     await ChargeCreditsAsync(subscriber, subscription, channel);
-                    await _logService.LogSuccessAsync(message, subject, body);
+                    await _logService.LogSuccessAsync(message, notification);
                 }
                 else
                 {
-                    await _logService.LogFailureAsync(message, subject, body, "Provider rejected the message.");
+                    await _logService.LogFailureAsync(message, notification, "Provider rejected the message.");
                 }
             }
             catch (BusinessRuleException ex)
             {
-                await _logService.LogRejectedAsync(message, subject, body ,ex.Message);
+                await _logService.LogRejectedAsync(message, notification, ex.Message);
             }
             catch (Exception ex)
             {
-                await _logService.LogFailureAsync(message, subject, body, ex.Message);
+                await _logService.LogFailureAsync(message, notification, ex.Message);
                 _logger.LogError(ex, "Error processing notification for {Recipient}", message.Recipient);
                 throw;
             }
@@ -194,8 +188,8 @@ namespace FertileNotify.Application.UseCases.SendNotification
             var template = await _templateRepository.GetTemplateAsync(eventType, channel, subscriberId)
                 ?? throw new NotFoundException($"No template for {eventType.Name} on {channel.Name}");
 
-            var subject = _templateEngine.Render(template.Subject, channel, parameters);
-            var body = _templateEngine.Render(template.Body, channel, parameters);
+            var subject = _templateEngine.Render(template.Content.Subject, channel, parameters);
+            var body = _templateEngine.Render(template.Content.Body, channel, parameters);
 
             return (subject, body);
         }

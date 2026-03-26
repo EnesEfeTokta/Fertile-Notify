@@ -31,8 +31,8 @@ namespace FertileNotify.API.Controllers
                 t.Recipient,
                 t.Channel,
                 t.EventType,
-                t.Subject,
-                t.Body,
+                t.Content.Subject,
+                t.Content.Body,
                 t.Status,
                 t.ErrorMessage,
                 t.CreatedAt

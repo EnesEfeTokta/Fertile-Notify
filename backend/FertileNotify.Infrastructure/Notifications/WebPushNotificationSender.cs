@@ -18,7 +18,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.WebPush;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -52,8 +57,8 @@ namespace FertileNotify.Infrastructure.Notifications
 
                 var payloadJson = JsonSerializer.Serialize(new
                 {
-                    title = subject,
-                    message = body,
+                    title = content.Subject,
+                    message = content.Body,
                     icon,
                     url
                 });

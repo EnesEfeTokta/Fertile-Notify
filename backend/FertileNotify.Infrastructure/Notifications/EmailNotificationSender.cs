@@ -19,7 +19,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Email;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -35,9 +40,9 @@ namespace FertileNotify.Infrastructure.Notifications
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(providerSettings.GetValueOrDefault("SMTP_OwnerName", "Fertile Notify"), email));
                 message.To.Add(MailboxAddress.Parse(recipient));
-                message.Subject = subject;
+                message.Subject = content.Subject;
 
-                var bodyBuilder = new BodyBuilder { HtmlBody = body };
+                var bodyBuilder = new BodyBuilder { HtmlBody = content.Body };
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using var client = new SmtpClient();

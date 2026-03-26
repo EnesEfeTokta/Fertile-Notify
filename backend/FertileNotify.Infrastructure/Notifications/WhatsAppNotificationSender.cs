@@ -20,7 +20,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.WhatsApp;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -37,14 +42,14 @@ namespace FertileNotify.Infrastructure.Notifications
                 var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{sid}:{token}"));
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
 
-                var content = new FormUrlEncodedContent(new[]
+                var sendContent = new FormUrlEncodedContent(new[]
                 {
                     new KeyValuePair<string, string>("To", $"whatsapp:{recipient}"),
                     new KeyValuePair<string, string>("From", $"whatsapp:{fromNumber}"),
-                    new KeyValuePair<string, string>("Body", $"*{subject}*\n{body}")
+                    new KeyValuePair<string, string>("Body", $"*{content.Subject}*\n{content.Body}")
                 });
 
-                var response = await _httpClient.PostAsync(url, content);
+                var response = await _httpClient.PostAsync(url, sendContent);
 
                 if (!response.IsSuccessStatusCode)
                 {

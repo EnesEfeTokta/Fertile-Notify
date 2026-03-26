@@ -11,23 +11,21 @@ namespace FertileNotify.Domain.Entities
         public string Recipient { get; private set; } = string.Empty;
         public NotificationChannel Channel { get; private set; } = default!;
         public EventType EventType { get; private set; } = default!;
-        public string Subject { get; private set; } = string.Empty;
-        public string Body { get; private set; } = string.Empty;
+        public NotificationContent Content { get; private set; } = default!;
         public DeliveryStatus Status { get; private set; }
         public string? ErrorMessage { get; private set; }
         public DateTime CreatedAt { get; private set; }
 
         private NotificationLog() { }
 
-        public NotificationLog(Guid subscriberId, string recipient, NotificationChannel channel, EventType eventType, string subject, string body)
+        public NotificationLog(Guid subscriberId, string recipient, NotificationChannel channel, EventType eventType, NotificationContent content)
         {
             Id = Guid.NewGuid();
             SubscriberId = subscriberId;
             Recipient = recipient;
             Channel = channel;
             EventType = eventType;
-            Subject = subject;
-            Body = body;
+            Content = content;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -43,8 +41,7 @@ namespace FertileNotify.Domain.Entities
 
         public void AnonymizeContent()
         {
-            Subject = MaskVariables(Subject);
-            Body = MaskVariables(Body);
+            Content = new NotificationContent(MaskVariables(Content.Subject), MaskVariables(Content.Body));
         }
 
         private string MaskVariables(string input)

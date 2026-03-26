@@ -21,7 +21,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Webhook;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -36,13 +41,13 @@ namespace FertileNotify.Infrastructure.Notifications
                     id = Guid.NewGuid(),
                     subscriber_id = subscriberId,
                     event_type = eventType.Name,
-                    subject = subject,
-                    message = body,
+                    subject = content.Subject,
+                    message = content.Body,
                     timestamp = DateTime.UtcNow
                 };
 
                 var jsonPayload = JsonSerializer.Serialize(payload);
-                var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+                var stringContent = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
                 if (providerSettings != null && providerSettings.TryGetValue("Webhook_Secret", out var secret))
                 {
@@ -53,7 +58,7 @@ namespace FertileNotify.Infrastructure.Notifications
 
                 _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("FertileNotify-Webhook/1.0");
 
-                var response = await _httpClient.PostAsync(recipient, content);
+                var response = await _httpClient.PostAsync(recipient, stringContent);
 
                 if (response.IsSuccessStatusCode)
                 {
