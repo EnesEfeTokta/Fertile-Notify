@@ -11,12 +11,11 @@ namespace FertileNotify.Domain.Entities
         public string? Description { get; private set; } = string.Empty;
         public EventType EventType { get; private set; } = default!;
         public NotificationChannel Channel { get; private set; } = default!;
-        public string Subject { get; private set; } = string.Empty;
-        public string Body { get; private set; } = string.Empty;
+        public NotificationContent Content { get; private set; } = default!;
 
         private NotificationTemplate() { }
 
-        private NotificationTemplate(string name, string description, EventType eventType, NotificationChannel channel, string subject, string body, Guid? subscriberId)
+        private NotificationTemplate(string name, string description, EventType eventType, NotificationChannel channel, NotificationContent content, Guid? subscriberId)
         {
             Id = Guid.NewGuid();
             SubscriberId = subscriberId;
@@ -24,23 +23,20 @@ namespace FertileNotify.Domain.Entities
             Description = description;
             EventType = eventType;
             Channel = channel;
-            Subject = subject;
-            Body = body;
+            Content = content;
         }
 
-        public static NotificationTemplate CreateGlobal(string name, string description, EventType eventType, NotificationChannel channel, string subject, string body)
-            => new NotificationTemplate(name, description, eventType, channel, subject, body, null);
+        public static NotificationTemplate CreateGlobal(string name, string description, EventType eventType, NotificationChannel channel, NotificationContent content)
+            => new NotificationTemplate(name, description, eventType, channel, content, null);
 
-        public static NotificationTemplate CreateCustom(Guid subscriberId, string name, string description, EventType eventType, NotificationChannel channel, string subject, string body)
-            => new NotificationTemplate(name, description, eventType, channel, subject, body, subscriberId);
+        public static NotificationTemplate CreateCustom(Guid subscriberId, string name, string description, EventType eventType, NotificationChannel channel, NotificationContent content)
+            => new NotificationTemplate(name, description, eventType, channel, content, subscriberId);
 
-        public void Update(string name, string description, string subject, string body)
+        public void Update(string name, string description, NotificationContent content)
         {
             Name = name;
             Description = description;
-
-            Subject = subject;
-            Body = body;
+            Content = content;
         }
     }
 }

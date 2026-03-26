@@ -19,7 +19,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Telegram;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -29,7 +34,7 @@ namespace FertileNotify.Infrastructure.Notifications
                 var url = $"https://api.telegram.org/bot{botToken}/sendMessage";
                 var payload = new { 
                     chat_id = recipient,
-                    text = $"*{subject}*\n\n{body}", 
+                    text = $"*{content.Subject}*\n\n{content.Body}", 
                     parse_mode = "Markdown" 
                 };
 

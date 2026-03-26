@@ -1,4 +1,6 @@
 using FertileNotify.Application.Contracts;
+using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Application.Interfaces
 {
@@ -6,19 +8,16 @@ namespace FertileNotify.Application.Interfaces
     {
         Task LogSuccessAsync(
             ProcessNotificationMessage message, 
-            string subject, 
-            string body);
+            NotificationContent content);
 
         Task LogFailureAsync(
             ProcessNotificationMessage message, 
-            string? subject, 
-            string? body, 
+            NotificationContent? content,
             string errorReason);
 
         Task LogRejectedAsync(
             ProcessNotificationMessage message,
-            string? subject,
-            string? body,
+            NotificationContent? content,
             string errorReason);
     }
 }

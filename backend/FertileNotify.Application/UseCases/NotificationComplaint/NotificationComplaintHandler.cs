@@ -33,8 +33,7 @@ namespace FertileNotify.Application.UseCases.NotificationComplaint
                     EmailAddress.Create(command.ReporterEmail),
                     Enum.Parse<Domain.Enums.ComplaintType>(command.Reason, ignoreCase: true),
                     command.Description,
-                    command.NotificationSubject,
-                    command.NotificationBody
+                    new NotificationContent(command.Subject, command.Body)
                 );
                 await _notificationComplaintRepository.SaveAsync(complaint);
                 _logger.LogInformation("Notification complaint recorded: {ComplaintId}", complaint.Id);

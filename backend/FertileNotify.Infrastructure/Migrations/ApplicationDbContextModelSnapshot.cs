@@ -100,15 +100,6 @@ namespace FertileNotify.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("NotificationBody")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("NotificationSubject")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
                     b.Property<string>("Reason")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -132,10 +123,6 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Channel")
                         .IsRequired()
@@ -161,11 +148,6 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
                     b.Property<Guid>("SubscriberId")
                         .HasColumnType("uuid");
 
@@ -179,10 +161,6 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Channel")
                         .IsRequired()
@@ -203,11 +181,6 @@ namespace FertileNotify.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid?>("SubscriberId")
                         .HasColumnType("uuid");
@@ -342,6 +315,90 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationComplaint", b =>
+                {
+                    b.OwnsOne("FertileNotify.Domain.ValueObjects.NotificationContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("NotificationComplaintId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Body")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subject")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.HasKey("NotificationComplaintId");
+
+                            b1.ToTable("NotificationComplaints");
+
+                            b1.WithOwner()
+                                .HasForeignKey("NotificationComplaintId");
+                        });
+
+                    b.Navigation("Content")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationLog", b =>
+                {
+                    b.OwnsOne("FertileNotify.Domain.ValueObjects.NotificationContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("NotificationLogId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Body")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subject")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.HasKey("NotificationLogId");
+
+                            b1.ToTable("NotificationLogs");
+
+                            b1.WithOwner()
+                                .HasForeignKey("NotificationLogId");
+                        });
+
+                    b.Navigation("Content")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationTemplate", b =>
+                {
+                    b.OwnsOne("FertileNotify.Domain.ValueObjects.NotificationContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("NotificationTemplateId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Body")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subject")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.HasKey("NotificationTemplateId");
+
+                            b1.ToTable("NotificationTemplates");
+
+                            b1.WithOwner()
+                                .HasForeignKey("NotificationTemplateId");
+                        });
+
+                    b.Navigation("Content")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FertileNotify.Domain.Entities.Subscriber", b =>

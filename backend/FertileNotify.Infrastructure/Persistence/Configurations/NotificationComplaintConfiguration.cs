@@ -26,12 +26,14 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
             builder.Property(nc => nc.Description)
                 .HasMaxLength(500);
 
-            builder.Property(nc => nc.NotificationSubject)
-                .HasMaxLength(200)
-                .IsRequired();
-
-            builder.Property(nc => nc.NotificationBody)
-                .IsRequired();
+            builder.OwnsOne(nc => nc.Content, nc =>
+            {
+                nc.Property(c => c.Subject)
+                    .HasMaxLength(200)
+                    .IsRequired();
+                nc.Property(c => c.Body)
+                    .IsRequired();
+            });
         }
     }
 }

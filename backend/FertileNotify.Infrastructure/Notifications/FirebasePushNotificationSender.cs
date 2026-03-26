@@ -19,7 +19,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.FirebasePush;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -51,8 +56,8 @@ namespace FertileNotify.Infrastructure.Notifications
                     Token = recipient,
                     Notification = new Notification()
                     {
-                        Title = subject,
-                        Body = body
+                        Title = content.Subject,
+                        Body = content.Body
                     },
                     Data = new Dictionary<string, string>()
                     {

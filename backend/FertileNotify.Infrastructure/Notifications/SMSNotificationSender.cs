@@ -16,15 +16,20 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.SMS;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
                 _logger.LogInformation(
                     "[SMS] Sent to: {Recipient} | Subject: {Subject} | Body: {Body}",
                     recipient,
-                    subject,
-                    body
+                    content.Subject,
+                    content.Body
                 );
                 await Task.Delay( 1 ); // TEST
                 return true;

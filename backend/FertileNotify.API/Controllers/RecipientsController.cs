@@ -61,8 +61,8 @@ namespace FertileNotify.API.Controllers
                 ReporterEmail = request.ReporterEmail,
                 Reason = request.Reason,
                 Description = request.Description,
-                NotificationSubject = request.NotificationSubject,
-                NotificationBody = request.NotificationBody
+                Subject = request.NotificationSubject,
+                Body = request.NotificationBody
             });
             return Ok(ApiResponse<object>.SuccessResult(null!, "Complaint submitted successfully."));
         }

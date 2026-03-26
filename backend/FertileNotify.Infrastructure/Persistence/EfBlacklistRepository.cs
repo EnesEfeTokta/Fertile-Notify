@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace FertileNotify.Infrastructure.Persistence

@@ -52,21 +52,17 @@ namespace FertileNotify.Application.Services
 
             foreach (Match match in matches)
             {
-                // Template'in match öncesindeki kısmını ekle
                 sb.Append(template, lastIndex, match.Index - lastIndex);
 
-                // {{Key}} içindeki key'i al ve parameters'ten ara
                 var key = match.Groups[1].Value;
                 if (parameters.TryGetValue(key, out var value))
                 {
                     sb.Append(value);
                 }
-                // Key bulunamazsa boş string ile değiştir
 
                 lastIndex = match.Index + match.Length;
             }
 
-            // Template'in kalan kısmını ekle
             sb.Append(template, lastIndex, template.Length - lastIndex);
 
             return sb.ToString();

@@ -134,7 +134,7 @@ namespace FertileNotify.Tests.Integration
             // 2. Refresh Token
             var refreshRequest = new RefreshTokenRequest
             {
-                RefreshToken = loginResult!.Data.RefreshToken
+                RefreshToken = loginResult!.Data!.RefreshToken
             };
 
             var response = await _client.PostAsJsonAsync("/api/auth/refresh-token", refreshRequest);

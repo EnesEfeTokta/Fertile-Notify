@@ -23,7 +23,7 @@ namespace FertileNotify.Application.Services
             this._logger = _logger;
         }
 
-        public async Task LogSuccessAsync(ProcessNotificationMessage message, string subject, string body)
+        public async Task LogSuccessAsync(ProcessNotificationMessage message, NotificationContent content)
         {
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
@@ -33,8 +33,7 @@ namespace FertileNotify.Application.Services
                 message.Recipient,
                 channel,
                 eventType,
-                subject,
-                body);
+                content ?? new NotificationContent("[N/A]", "[N/A]"));
 
             log.SetResult(true);
             await _logRepository.AddAsync(log);
@@ -44,7 +43,7 @@ namespace FertileNotify.Application.Services
             _logger.LogInformation("[SUCCESS] Notification logged and usage updated for {Recipient}", message.Recipient);
         }
 
-        public async Task LogFailureAsync(ProcessNotificationMessage message, string? subject, string? body, string errorReason)
+        public async Task LogFailureAsync(ProcessNotificationMessage message, NotificationContent? content, string errorReason)
         {
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
@@ -54,8 +53,7 @@ namespace FertileNotify.Application.Services
                 message.Recipient,
                 channel,
                 eventType,
-                subject ?? "[N/A]",
-                body ?? "[N/A]");
+                content ?? new NotificationContent("[N/A]", "[N/A]"));
 
             log.SetResult(false, errorReason);
             await _logRepository.AddAsync(log);
@@ -65,7 +63,7 @@ namespace FertileNotify.Application.Services
             _logger.LogWarning("[FAILED] Notification failed for {Recipient}: {Reason}", message.Recipient, errorReason);
         }
 
-        public async Task LogRejectedAsync(ProcessNotificationMessage message, string? subject, string? body, string errorReason)
+        public async Task LogRejectedAsync(ProcessNotificationMessage message, NotificationContent? content, string errorReason)
         {
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
@@ -75,8 +73,7 @@ namespace FertileNotify.Application.Services
                 message.Recipient,
                 channel,
                 eventType,
-                subject ?? "[N/A]",
-                body ?? "[N/A]");
+                content ?? new NotificationContent("[N/A]", "[N/A]"));
 
             log.SetResult(false, errorReason, isRejected: true);
             await _logRepository.AddAsync(log);

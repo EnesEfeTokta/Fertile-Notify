@@ -22,7 +22,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.Discord;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -31,13 +36,13 @@ namespace FertileNotify.Infrastructure.Notifications
 
                 var payload = new
                 {
-                    content = $"_**Contact Person: {recipient}**_\n+--------------------------+\n**{subject}**\n{body}"
+                    content = $"_**Contact Person: {recipient}**_\n+--------------------------+\n**{content.Subject}**\n{content.Body}"
                 };
 
                 var json = JsonSerializer.Serialize(payload);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync(webhookUrl, content);
+                var response = await _httpClient.PostAsync(webhookUrl, stringContent);
 
                 if (!response.IsSuccessStatusCode)
                 {

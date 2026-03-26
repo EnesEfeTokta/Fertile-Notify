@@ -20,7 +20,12 @@ namespace FertileNotify.Infrastructure.Notifications
 
         public NotificationChannel Channel => NotificationChannel.MSTeams;
 
-        public async Task<bool> SendAsync(Guid subscriberId, string recipient, EventType eventType, string subject, string body, IReadOnlyDictionary<string, string>? providerSettings = null)
+        public async Task<bool> SendAsync(
+            Guid subscriberId, 
+            string recipient, 
+            EventType eventType, 
+            NotificationContent content, 
+            IReadOnlyDictionary<string, string>? providerSettings = null)
         {
             try
             {
@@ -32,13 +37,13 @@ namespace FertileNotify.Infrastructure.Notifications
 
                 var payload = new
                 {
-                    text = $"### {subject}\n\n{body}"
+                    text = $"### {content.Subject}\n\n{content.Body}"
                 };
 
                 var json = JsonSerializer.Serialize(payload);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync(url, content);
+                var response = await _httpClient.PostAsync(url, stringContent);
 
                 if (!response.IsSuccessStatusCode)
                 {

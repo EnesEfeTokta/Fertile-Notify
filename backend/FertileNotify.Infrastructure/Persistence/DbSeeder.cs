@@ -37,9 +37,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Sent to new subscribers immediately after registration to welcome them to the platform.",
                         EventType.SubscriberRegistered,
                         channel,
-                        "Welcome to {{AppName}}!",
-                        isEmail ? WrapInMjml("Hi {{Name}}, thank you for joining us. We are excited to have you on board. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, welcome to {{AppName}}! We are excited to have you on board. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Welcome to {{Name}}!",
+                            isEmail ? WrapInMjml("Hi {{Name}}, welcome to our service! We're excited to have you on board. To manage this notification, go to this address. {{RecipientsManagerLink}}") 
+                                    : "Hi {{Name}}, welcome to our service! We're excited to have you on board. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -47,9 +49,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Contains the security code or link required for a user to reset their forgotten password.",
                         EventType.PasswordReset,
                         channel,
-                        "Reset Your Password",
-                        isEmail ? WrapInMjml("Hello {{Name}}, use this code to reset your password: <b>{{Code}}</b>. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hello {{Name}}, your password reset code is: {{Code}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Reset Your Password",
+                            isEmail ? WrapInMjml("Hello {{Name}}, use this code to reset your password: <b>{{Code}}</b>. To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hello {{Name}}, your password reset code is: {{Code}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -57,9 +61,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Confirmation sent once the user successfully verifies their email address.",
                         EventType.EmailVerified,
                         channel,
-                        "Email Verified Successfully",
-                        isEmail ? WrapInMjml("Hi {{Name}}, your email address has been verified. You can now access all features. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, your email address has been verified. You can now access all features. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Email Verified Successfully",
+                            isEmail ? WrapInMjml("Hi {{Name}}, your email address has been verified. You can now access all features. To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hi {{Name}}, your email address has been verified. You can now access all features. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -67,9 +73,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Notifies the user when a login occurs from a new device or unrecognized location.",
                         EventType.LoginAlert,
                         channel,
-                        "New Login Detected",
-                        isEmail ? WrapInMjml("Hello {{Name}}, we detected a new login to your account from <b>{{Device}}</b> at <b>{{Time}}</b>. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hello {{Name}}, we detected a new login to your account from {{Device}} at {{Time}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "New Login Detected",
+                            isEmail ? WrapInMjml("Hello {{Name}}, we detected a new login to your account from <b>{{Device}}</b> at <b>{{Time}}</b>. To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hello {{Name}}, we detected a new login to your account from {{Device}} at {{Time}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     // --- E-COMMERCE EVENTS ---
@@ -78,9 +86,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Sent after a successful purchase, providing the customer with an order summary.",
                         EventType.OrderCreated,
                         channel,
-                        "Order Confirmation #{{OrderId}}",
-                        isEmail ? WrapInMjml("Dear {{Name}}, thank you for your order. Total amount: <b>{{Amount}}</b>. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, order #{{OrderId}} for {{Amount}} is received. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Order Confirmation #{{OrderId}}",
+                            isEmail ? WrapInMjml("Dear {{Name}}, thank you for your order. Total amount: <b>{{Amount}}</b>. To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hi {{Name}}, order #{{OrderId}} for {{Amount}} is received. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -88,9 +98,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Alerts the customer when their order has been dispatched and provides tracking info.",
                         EventType.OrderShipped,
                         channel,
-                        "Your Order Has Shipped! #{{OrderId}}",
-                        isEmail ? WrapInMjml("Great news {{Name}}! Your order is on its way. Tracking: {{TrackingNumber}}. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, order #{OrderId} is shipped! Tracking: {{TrackingNumber}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Your Order Has Shipped! #{{OrderId}}",
+                            isEmail ? WrapInMjml("Great news {{Name}}! Your order is on its way. Tracking: {{TrackingNumber}}. To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hi {{Name}}, order #{OrderId} is shipped! Tracking: {{TrackingNumber}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -98,9 +110,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Sent to the customer once the courier marks the package as delivered.",
                         EventType.OrderDelivered,
                         channel,
-                        "Order Delivered",
-                        isEmail ? WrapInMjml("Hi {{Name}}, your order #{{OrderId}} has been delivered. Enjoy! To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, your order #{{OrderId}} has been delivered. Enjoy! To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Order Delivered",
+                            isEmail ? WrapInMjml("Hi {{Name}}, your order #{{OrderId}} has been delivered. Enjoy! To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hi {{Name}}, your order #{{OrderId}} has been delivered. Enjoy! To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -108,9 +122,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Urgent notification sent when a transaction fails, asking the user to update payment info.",
                         EventType.PaymentFailed,
                         channel,
-                        "Payment Failed for Order #{{OrderId}}",
-                        isEmail ? WrapInMjml("Hello {{Name}}, we couldn't process your payment. Please update your payment method to proceed. To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hello {{Name}}, we couldn't process your payment. Please update your payment method to proceed. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Payment Failed for Order #{{OrderId}}",
+                            isEmail ? WrapInMjml("Hello {{Name}}, we couldn't process your payment. Please update your payment method to proceed. To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hello {{Name}}, we couldn't process your payment. Please update your payment method to proceed. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     // --- GENERAL EVENTS ---
@@ -119,9 +135,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "A versatile template used for promotional offers, discounts, and announcements.",
                         EventType.Campaign,
                         channel,
-                        "{CampaignTitle}",
-                        isEmail ? WrapInMjml("Hi {{Name}}, check out our latest offer: {{CampaignDetails}}. Don't miss out! To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, check out our latest offer: {{CampaignDetails}}. Don't miss out! To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "{CampaignTitle}",
+                            isEmail ? WrapInMjml("Hi {{Name}}, check out our latest offer: {{CampaignDetails}}. Don't miss out! To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hi {{Name}}, check out our latest offer: {{CampaignDetails}}. Don't miss out! To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -129,9 +147,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Sent monthly to keep users informed about platform updates and news.",
                         EventType.MonthlyNewsletter,
                         channel,
-                        "{{Month}} Newsletter",
-                        isEmail ? WrapInMjml("Hi {{Name}}, here are the updates for this month: <b>{{Updates}}.</b> To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hi {{Name}}, here are the updates for this month: {{Updates}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "{{Month}} Newsletter",
+                            isEmail ? WrapInMjml("Hi {{Name}}, here are the updates for this month: <b>{{Updates}}.</b> To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hi {{Name}}, here are the updates for this month: {{Updates}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
 
                     globalTemplates.Add(NotificationTemplate.CreateGlobal(
@@ -139,9 +159,11 @@ namespace FertileNotify.Infrastructure.Persistence
                         "Notifies the user when there is a new response or status change on their support ticket.",
                         EventType.SupportTicketUpdated,
                         channel,
-                        "Update on Ticket #{{TicketId}}",
-                        isEmail ? WrapInMjml("Hello {{Name}}, your support ticket has been updated. <b>Status: {{Status}}. Reply: {{Message}}.</b> To manage this notification, go to this address. {{RecipientsManagerLink}}")
-                                : "Hello {{Name}}, your support ticket has been updated. Status: {Status}. Reply: {{Message}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        new NotificationContent(
+                            "Update on Ticket #{{TicketId}}",
+                            isEmail ? WrapInMjml("Hello {{Name}}, your support ticket has been updated. <b>Status: {{Status}}. Reply: {{Message}}.</b> To manage this notification, go to this address. {{RecipientsManagerLink}}")
+                                    : "Hello {{Name}}, your support ticket has been updated. Status: {Status}. Reply: {{Message}}. To manage this notification, go to this address. {{RecipientsManagerLink}}"
+                        )
                     ));
                 }
 
