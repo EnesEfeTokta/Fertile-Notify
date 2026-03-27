@@ -29,6 +29,28 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AutomationWorkflows",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Content_Subject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Content_Body = table.Column<string>(type: "text", nullable: false),
+                    EventTrigger = table.Column<string>(type: "text", nullable: false),
+                    CronExpression = table.Column<string>(type: "text", nullable: false),
+                    Recipients = table.Column<string>(type: "character varying(1500)", maxLength: 1500, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AutomationWorkflows", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DailyStats",
                 columns: table => new
                 {
@@ -184,6 +206,9 @@ namespace FertileNotify.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ApiKeys");
+
+            migrationBuilder.DropTable(
+                name: "AutomationWorkflows");
 
             migrationBuilder.DropTable(
                 name: "DailyStats");

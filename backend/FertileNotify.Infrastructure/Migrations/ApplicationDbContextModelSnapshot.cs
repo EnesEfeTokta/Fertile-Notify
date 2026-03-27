@@ -57,6 +57,52 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.ToTable("ApiKeys");
                 });
 
+            modelBuilder.Entity("FertileNotify.Domain.Entities.AutomationWorkflow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CronExpression")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EventTrigger")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Recipients")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
+
+                    b.Property<Guid>("SubscriberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AutomationWorkflows");
+                });
+
             modelBuilder.Entity("FertileNotify.Domain.Entities.ForbiddenRecipient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -315,6 +361,34 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.AutomationWorkflow", b =>
+                {
+                    b.OwnsOne("FertileNotify.Domain.ValueObjects.NotificationContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("AutomationWorkflowId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Body")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Subject")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.HasKey("AutomationWorkflowId");
+
+                            b1.ToTable("AutomationWorkflows");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AutomationWorkflowId");
+                        });
+
+                    b.Navigation("Content")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationComplaint", b =>

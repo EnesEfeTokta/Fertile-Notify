@@ -1,5 +1,6 @@
 using FertileNotify.Infrastructure.BackgroundJobs;
 using FertileNotify.Infrastructure.Persistence;
+using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,6 +63,10 @@ namespace FertileNotify.API.Extensions
 
             // Background Workers
             services.AddHostedService<LogRetentionWorker>();
+
+            // Hangfire
+            //services.AddHangfire(x => x.UseMemoryStorage());
+            //services.AddHangfireServer();
 
             return services;
         }

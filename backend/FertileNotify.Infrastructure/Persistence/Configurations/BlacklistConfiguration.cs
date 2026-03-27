@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;

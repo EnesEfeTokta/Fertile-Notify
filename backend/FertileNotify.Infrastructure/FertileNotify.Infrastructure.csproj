@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageReference Include="MailKit" Version="4.12.1" />
     <PackageReference Include="MimeKit" Version="4.15.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.0" /> 
