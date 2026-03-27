@@ -115,8 +115,13 @@ namespace FertileNotify.Application.UseCases.SendNotification
                     message.Parameters["RecipientsManagerLink"] = 
                         $"http://fertile-notify.enesefetokta.shop/recipients-manager?recipient={message.Recipient}&subId={message.SubscriberId}&token={unsubscribeToken}";
 
-                var content = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
-                notification = notification.Update(content.Subject, content.Body);
+                var content = ResolveContent(message);
+                if (content == null)
+                {
+                    content = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
+                }
+
+                notification = notification.Update(content.Value.Subject, content.Value.Body);
 
                 var sender = GetSender(channel);
                 var channelSetting = await _subscriberChannelRepository.GetSettingAsync(message.SubscriberId, channel);
@@ -192,6 +197,16 @@ namespace FertileNotify.Application.UseCases.SendNotification
             var body = _templateEngine.Render(template.Content.Body, channel, parameters);
 
             return (subject, body);
+        }
+
+        private static (string Subject, string Body)? ResolveContent(ProcessNotificationMessage message)
+        {
+            if (string.IsNullOrWhiteSpace(message.DirectSubject) || string.IsNullOrWhiteSpace(message.DirectBody))
+            {
+                return null;
+            }
+
+            return (message.DirectSubject, message.DirectBody);
         }
 
         private INotificationSender GetSender(NotificationChannel channel)

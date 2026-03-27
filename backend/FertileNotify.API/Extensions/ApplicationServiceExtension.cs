@@ -16,6 +16,7 @@ using FertileNotify.Application.UseCases.VerifyCode;
 using FertileNotify.Application.UseCases.ForgotPassword;
 using FertileNotify.Application.UseCases.RefreshToken;
 using FertileNotify.Application.UseCases.DeleteAccount;
+using FertileNotify.Application.UseCases.Workflow;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
 using FertileNotify.Application.UseCases.NotificationComplaint;
@@ -39,6 +40,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<IStatsRepository, EfStatsRepository>();
             services.AddScoped<IBlacklistRepository, EfBlacklistRepository>();
             services.AddScoped<INotificationComplaintRepository, EfINotificationComplaintRepository>();
+            services.AddScoped<IAutomationRepository, EfAutomationRepository>();
 
             // Application Services
             services.AddScoped<IStatisticsService, StatisticsService>();
@@ -46,6 +48,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<TemplateEngine>();
+            services.AddScoped<AutomationTriggerService>();
             services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
             services.AddHttpClient();
 
@@ -66,6 +69,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<SetChannelSettingHandler>();
             services.AddScoped<NotificationComplaintHandler>();
             services.AddScoped<DeleteAccountHandler>();
+            services.AddScoped<WorkflowNotificationHandler>();
 
             // Notification Senders
             services.AddNotificationSenders();
