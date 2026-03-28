@@ -12,6 +12,8 @@ namespace FertileNotify.Domain.Entities
         public NotificationContent Content { get; private set; } = default!;
         public string EventTrigger { get; private set; } = string.Empty;
         public string CronExpression { get; private set; } = string.Empty;
+        public int MaxRepeatCount { get; private set; } = 1;
+        public int CurrentRepeatCount { get; private set; } = 0;
         public List<string> Recipients { get; private set; } = new();
         public bool IsActive { get; private set; } = true;
         public DateTime CreatedAt { get; private set; }
@@ -27,6 +29,30 @@ namespace FertileNotify.Domain.Entities
             string eventTrigger,
             string cronExpression,
             List<string> recipients)
+            : this(
+                subscriberId,
+                name,
+                description,
+                content,
+                channel,
+                eventTrigger,
+                cronExpression,
+                1,
+                0,
+                recipients)
+        { }
+
+        public AutomationWorkflow(
+            Guid subscriberId,
+            string name,
+            string description,
+            NotificationContent content,
+            NotificationChannel channel,
+            string eventTrigger,
+            string cronExpression,
+            int maxRepeatCount,
+            int currentRepeatCount,
+            List<string> recipients)
         {
             Id = Guid.NewGuid();
             SubscriberId = subscriberId;
@@ -36,12 +62,16 @@ namespace FertileNotify.Domain.Entities
             Channel = channel;
             EventTrigger = eventTrigger;
             CronExpression = cronExpression;
+            MaxRepeatCount = maxRepeatCount;
+            CurrentRepeatCount = currentRepeatCount;
             Recipients = recipients;
             CreatedAt = DateTime.UtcNow;
         }
 
         public void Activate() => IsActive = true;
         public void Deactivate() => IsActive = false;
+
+        public void IncrementRepeatCount() => CurrentRepeatCount++;
 
         public void UpdateDetails(string name, string description)
         {
@@ -52,7 +82,7 @@ namespace FertileNotify.Domain.Entities
         public void UpdateContent(NotificationContent content) => Content = content;
         public void UpdateChannel(NotificationChannel channel) => Channel = channel;
         public void UpdateRecipients(List<string> recipients) => Recipients = recipients;
-        
+
         public void UpdateSchedule(string eventTrigger, string cronExpression)
         {
             EventTrigger = eventTrigger;

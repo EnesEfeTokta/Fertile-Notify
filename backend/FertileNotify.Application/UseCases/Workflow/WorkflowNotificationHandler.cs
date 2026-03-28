@@ -4,6 +4,7 @@ using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using FertileNotify.Application.DTOs;
+using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Application.UseCases.Workflow
 {
@@ -11,13 +12,19 @@ namespace FertileNotify.Application.UseCases.Workflow
     {
         private readonly IAutomationRepository _automationRepository;
         private readonly AutomationTriggerService _automationTriggerService;
+        private readonly IWorkflowScheduleService _workflowScheduleService;
+        private readonly ILogger<WorkflowNotificationHandler>? _logger;
 
         public WorkflowNotificationHandler(
             IAutomationRepository automationRepository,
-            AutomationTriggerService automationTriggerService)
+            AutomationTriggerService automationTriggerService,
+            IWorkflowScheduleService? workflowScheduleService = null,
+            ILogger<WorkflowNotificationHandler>? logger = null)
         {
             _automationRepository = automationRepository;
             _automationTriggerService = automationTriggerService;
+            _workflowScheduleService = workflowScheduleService ?? new NoOpWorkflowScheduleService();
+            _logger = logger;
         }
 
         public async Task<int> TriggerAsync(TriggerWorkflowNotificationsCommand command)
@@ -38,9 +45,9 @@ namespace FertileNotify.Application.UseCases.Workflow
                 throw new BusinessRuleException("At least one recipient is required.");
             }
 
-            if (string.IsNullOrWhiteSpace(command.EventTrigger))
+            if (string.IsNullOrWhiteSpace(command.EventTrigger) && string.IsNullOrWhiteSpace(command.CronExpression))
             {
-                throw new BusinessRuleException("EventTrigger is required.");
+                throw new BusinessRuleException("Either EventTrigger or CronExpression is required.");
             }
 
             var resolvedChannel = ResolveChannel(command.Channel, command.To);
@@ -55,10 +62,14 @@ namespace FertileNotify.Application.UseCases.Workflow
                 channel,
                 command.EventTrigger.Trim(),
                 command.CronExpression,
+                1,
+                0,
                 recipients);
 
             await _automationRepository.CreateAsync(workflow);
             await _automationRepository.SaveChangesAsync();
+
+            await _workflowScheduleService.SyncAsync(workflow);
 
             return workflow.Id;
         }
@@ -95,15 +106,25 @@ namespace FertileNotify.Application.UseCases.Workflow
                 }
             }
 
+            // Handle schedule changes
+            var cronChanged = false;
             if (!string.IsNullOrWhiteSpace(command.EventTrigger) || !string.IsNullOrWhiteSpace(command.CronExpression))
             {
+                var oldCron = workflow.CronExpression;
                 workflow.UpdateSchedule(
                     command.EventTrigger ?? workflow.EventTrigger,
                     command.CronExpression ?? workflow.CronExpression);
+                
+                cronChanged = oldCron != workflow.CronExpression;
             }
 
-            _automationRepository.UpdateAsync(workflow);
+            _automationRepository.Update(workflow);
             await _automationRepository.SaveChangesAsync();
+
+            if (cronChanged)
+            {
+                await _workflowScheduleService.SyncAsync(workflow);
+            }
         }
 
         public async Task<List<WorkflowNotificationDto>> ListAsync(Guid subscriberId)
@@ -120,7 +141,9 @@ namespace FertileNotify.Application.UseCases.Workflow
 
         public async Task DeleteAsync(WorkflowNotificationByIdCommand command)
         {
-            await GetOwnedWorkflowAsync(command.SubscriberId, command.Id);
+            var workflow = await GetOwnedWorkflowAsync(command.SubscriberId, command.Id);
+
+            await _workflowScheduleService.RemoveAsync(workflow.Id);
             await _automationRepository.DeleteAsync(command.Id);
             await _automationRepository.SaveChangesAsync();
         }
@@ -129,16 +152,27 @@ namespace FertileNotify.Application.UseCases.Workflow
         {
             var workflow = await GetOwnedWorkflowAsync(command.SubscriberId, command.Id);
             workflow.Activate();
-            _automationRepository.UpdateAsync(workflow);
+            _automationRepository.Update(workflow);
             await _automationRepository.SaveChangesAsync();
+            await _workflowScheduleService.SyncAsync(workflow);
         }
 
         public async Task DeactivateAsync(WorkflowNotificationByIdCommand command)
         {
             var workflow = await GetOwnedWorkflowAsync(command.SubscriberId, command.Id);
             workflow.Deactivate();
-            _automationRepository.UpdateAsync(workflow);
+            _automationRepository.Update(workflow);
             await _automationRepository.SaveChangesAsync();
+            await _workflowScheduleService.RemoveAsync(workflow.Id);
+        }
+
+        public async Task ExecuteWorkflowJob(Guid subscriberId, string eventTrigger)
+        {
+            await TriggerAsync(new TriggerWorkflowNotificationsCommand
+            {
+                SubscriberId = subscriberId,
+                EventTrigger = eventTrigger
+            });
         }
 
         private async Task<AutomationWorkflow> GetOwnedWorkflowAsync(Guid subscriberId, Guid workflowId)
@@ -196,3 +230,4 @@ namespace FertileNotify.Application.UseCases.Workflow
         }
     }
 }
+

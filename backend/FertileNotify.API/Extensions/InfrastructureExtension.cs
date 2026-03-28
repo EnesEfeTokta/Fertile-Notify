@@ -1,8 +1,9 @@
 using FertileNotify.Infrastructure.BackgroundJobs;
+using FertileNotify.Application.Interfaces;
 using FertileNotify.Infrastructure.Persistence;
-using Hangfire;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace FertileNotify.API.Extensions
 {
@@ -33,6 +34,10 @@ namespace FertileNotify.API.Extensions
                 options.Configuration = configuration["Redis:ConnectionString"] ?? "localhost:6379";
                 options.InstanceName = "FertileNotify_";
             });
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(configuration["Redis:ConnectionString"] ?? "localhost:6379,abortConnect=false"));
+            services.AddScoped<RedisSchedulerService>();
+            services.AddScoped<IWorkflowScheduleService, RedisWorkflowScheduleService>();
 
             // MassTransit (RabbitMQ)
             services.AddMassTransit(x =>
@@ -63,10 +68,7 @@ namespace FertileNotify.API.Extensions
 
             // Background Workers
             services.AddHostedService<LogRetentionWorker>();
-
-            // Hangfire
-            //services.AddHangfire(x => x.UseMemoryStorage());
-            //services.AddHangfireServer();
+            services.AddHostedService<AutomationWorker>();
 
             return services;
         }
