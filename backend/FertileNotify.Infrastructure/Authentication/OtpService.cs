@@ -1,4 +1,5 @@
 using FertileNotify.Application.Interfaces;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,9 @@ namespace FertileNotify.Infrastructure.Authentication
             int length = _configuration.GetValue<int>("OTPSettings:Length", 6);
             int expiryInMinutes = _configuration.GetValue<int>("OTPSettings:ExpiryInMinutes", 5);
 
-            var otp = new Random().Next((int)Math.Pow(10, length - 1), (int)Math.Pow(10, length)).ToString();
+            var minValue = (int)Math.Pow(10, length - 1);
+            var maxValue = (int)Math.Pow(10, length);
+            var otp = RandomNumberGenerator.GetInt32(minValue, maxValue).ToString();
             var key = $"otp_{subscriberId}";
 
             var options = new DistributedCacheEntryOptions
