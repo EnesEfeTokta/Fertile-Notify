@@ -21,8 +21,14 @@ namespace FertileNotify.Infrastructure.Authentication
 
         public async Task<string> GenerateOtpAsync(Guid subscriberId)
         {
-            int length = _configuration.GetValue<int>("OTPSettings:Length", 6);
-            int expiryInMinutes = _configuration.GetValue<int>("OTPSettings:ExpiryInMinutes", 5);
+            int length = 6;
+            int expiryInMinutes = 5;
+
+            if (_configuration != null)
+            {
+                length = _configuration.GetValue<int>("OTPSettings:Length", 6);
+                expiryInMinutes = _configuration.GetValue<int>("OTPSettings:ExpiryInMinutes", 5);
+            }
 
             var minValue = (int)Math.Pow(10, length - 1);
             var maxValue = (int)Math.Pow(10, length);

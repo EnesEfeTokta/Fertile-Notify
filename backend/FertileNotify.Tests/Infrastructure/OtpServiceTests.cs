@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FertileNotify.Infrastructure.Authentication;
 using FluentAssertions;
@@ -12,32 +13,33 @@ namespace FertileNotify.Tests.Infrastructure
 {
     public class OtpServiceTests
     {
-        private readonly Mock<IDistributedCache> _cacheMock;
-        private readonly Mock<IConfiguration> _configurationMock;
-        private readonly Mock<ILogger<OtpService>> _loggerMock;
-        private readonly OtpService _otpService;
-
-        public OtpServiceTests()
+        private IConfiguration GetConfiguration(string length = "6", string expiry = "5")
         {
-            _cacheMock = new Mock<IDistributedCache>();
-            _configurationMock = new Mock<IConfiguration>();
-            _loggerMock = new Mock<ILogger<OtpService>>();
-            _otpService = new OtpService(_cacheMock.Object, _configurationMock.Object, _loggerMock.Object);
+            var inMemorySettings = new Dictionary<string, string> {
+                {"OTPSettings:Length", length},
+                {"OTPSettings:ExpiryInMinutes", expiry}
+            };
+
+            return new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings!)
+                .Build();
         }
 
         [Fact]
         public async Task GenerateOtpAsync_ShouldReturnOtpOfCorrectLength()
         {
             // Arrange
+            var cacheMock = new Mock<IDistributedCache>();
+            var loggerMock = new Mock<ILogger<OtpService>>();
+            var configuration = GetConfiguration();
+            var otpService = new OtpService(cacheMock.Object, configuration, loggerMock.Object);
             var subscriberId = Guid.NewGuid();
-            var length = 6;
-            _configurationMock.Setup(x => x.GetSection("OTPSettings:Length").Value).Returns(length.ToString());
 
             // Act
-            var otp = await _otpService.GenerateOtpAsync(subscriberId);
+            var otp = await otpService.GenerateOtpAsync(subscriberId);
 
             // Assert
-            otp.Should().HaveLength(length);
+            otp.Should().HaveLength(6);
             int.TryParse(otp, out _).Should().BeTrue();
         }
 
@@ -45,36 +47,46 @@ namespace FertileNotify.Tests.Infrastructure
         public async Task VerifyOtpAsync_ShouldReturnTrue_WhenOtpIsValid()
         {
             // Arrange
+            var cacheMock = new Mock<IDistributedCache>();
+            var loggerMock = new Mock<ILogger<OtpService>>();
+            var configuration = GetConfiguration();
+            var otpService = new OtpService(cacheMock.Object, configuration, loggerMock.Object);
+
             var subscriberId = Guid.NewGuid();
             var otp = "123456";
             var key = $"otp_{subscriberId}";
             var otpBytes = System.Text.Encoding.UTF8.GetBytes(otp);
-            _cacheMock.Setup(x => x.GetAsync(key, default)).ReturnsAsync(otpBytes);
+            cacheMock.Setup(x => x.GetAsync(key, default)).ReturnsAsync(otpBytes);
 
             // Act
-            var result = await _otpService.VerifyOtpAsync(subscriberId, otp);
+            var result = await otpService.VerifyOtpAsync(subscriberId, otp);
 
             // Assert
             result.Should().BeTrue();
-            _cacheMock.Verify(x => x.RemoveAsync(key, default), Times.Once);
+            cacheMock.Verify(x => x.RemoveAsync(key, default), Times.Once);
         }
 
         [Fact]
         public async Task VerifyOtpAsync_ShouldReturnFalse_WhenOtpIsInvalid()
         {
             // Arrange
+            var cacheMock = new Mock<IDistributedCache>();
+            var loggerMock = new Mock<ILogger<OtpService>>();
+            var configuration = GetConfiguration();
+            var otpService = new OtpService(cacheMock.Object, configuration, loggerMock.Object);
+
             var subscriberId = Guid.NewGuid();
             var otp = "123456";
             var key = $"otp_{subscriberId}";
             var cachedOtpBytes = System.Text.Encoding.UTF8.GetBytes("654321");
-            _cacheMock.Setup(x => x.GetAsync(key, default)).ReturnsAsync(cachedOtpBytes);
+            cacheMock.Setup(x => x.GetAsync(key, default)).ReturnsAsync(cachedOtpBytes);
 
             // Act
-            var result = await _otpService.VerifyOtpAsync(subscriberId, otp);
+            var result = await otpService.VerifyOtpAsync(subscriberId, otp);
 
             // Assert
             result.Should().BeFalse();
-            _cacheMock.Verify(x => x.RemoveAsync(key, default), Times.Never);
+            cacheMock.Verify(x => x.RemoveAsync(key, default), Times.Never);
         }
     }
 }
