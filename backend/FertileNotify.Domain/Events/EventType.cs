@@ -57,7 +57,7 @@ namespace FertileNotify.Domain.Events
                 // For Test
                 "TestForDevelop" => TestForDevelop,
 
-                _ => throw new Exception($"Unknown event type: {name}")
+                _ => throw new ArgumentException($"Unknown event type: {name}")
             };
         }
 
