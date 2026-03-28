@@ -41,6 +41,8 @@ namespace FertileNotify.Infrastructure.Migrations
                     Content_Body = table.Column<string>(type: "text", nullable: false),
                     EventTrigger = table.Column<string>(type: "text", nullable: false),
                     CronExpression = table.Column<string>(type: "text", nullable: false),
+                    MaxRepeatCount = table.Column<int>(type: "integer", nullable: false),
+                    CurrentRepeatCount = table.Column<int>(type: "integer", nullable: false),
                     Recipients = table.Column<string>(type: "character varying(1500)", maxLength: 1500, nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

@@ -38,7 +38,13 @@ namespace FertileNotify.Infrastructure.Persistence
                     && w.EventTrigger.ToLower() == eventTrigger.ToLower())
                 .ToListAsync();
 
-        public void UpdateAsync(AutomationWorkflow workflow) => _context.AutomationWorkflows.Update(workflow);
+        public void Update(AutomationWorkflow workflow) => _context.AutomationWorkflows.Update(workflow);
+
+        public Task UpdateAsync(AutomationWorkflow workflow)
+        {
+            Update(workflow);
+            return Task.CompletedTask;
+        }
         
         public async Task SaveChangesAsync() 
             => await _context.SaveChangesAsync();
