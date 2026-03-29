@@ -1,6 +1,6 @@
 ﻿namespace FertileNotify.Application.UseCases.RegisterSubscriber
 {
-    public class RegisterSubscriberHandler
+    public class RegisterSubscriberHandler : ICommandHandler<RegisterSubscriberCommand, Guid>
     {
         private readonly ISubscriberRepository _userRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
@@ -18,7 +18,7 @@
             _logger = logger;
         }
 
-        public async Task<Guid> HandleAsync(RegisterSubscriberCommand command)
+        public async Task<Guid> Handle(RegisterSubscriberCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation(
                 "Subscriber registration is underway. Subscriber Name: {CompanyName}, Contact: {Email} & {PhoneNumber}, Plan: {Plan}",
