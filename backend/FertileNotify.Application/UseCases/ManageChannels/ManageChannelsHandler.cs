@@ -1,11 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Application.UseCases.ManageChannels
 {
-    public class ManageChannelsHandler
+    public class ManageChannelsHandler: IRequestHandler<ManageChannelsCommand, Unit>
     {
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
@@ -16,7 +11,7 @@ namespace FertileNotify.Application.UseCases.ManageChannels
             _subscriptionRepository = subscriptionRepository;
         }
 
-        public async Task HandleAsync(ManageChannelsCommand command)
+        public async Task<Unit> Handle(ManageChannelsCommand command, CancellationToken cancellationToken)
         {
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found.");
@@ -30,6 +25,7 @@ namespace FertileNotify.Application.UseCases.ManageChannels
                 subscriber.DisableChannel(channel);
 
             await _subscriberRepository.SaveAsync(subscriber);
+            return Unit.Value;
         }
     }
 }

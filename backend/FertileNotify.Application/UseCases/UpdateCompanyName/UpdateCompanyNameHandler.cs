@@ -1,11 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Application.UseCases.UpdateCompanyName
 {
-    public class UpdateCompanyNameHandler
+    public class UpdateCompanyNameHandler : IRequestHandler<UpdateCompanyNameCommand, Unit>
     {
         private readonly ISubscriberRepository _subscriberRepository;
 
@@ -14,7 +9,7 @@ namespace FertileNotify.Application.UseCases.UpdateCompanyName
             _subscriberRepository = subscriberRepository;
         }
 
-        public async Task HandleAsync(UpdateCompanyNameCommand command)
+        public async Task<Unit> Handle(UpdateCompanyNameCommand command, CancellationToken cancellationToken)
         {
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found.");
@@ -23,6 +18,7 @@ namespace FertileNotify.Application.UseCases.UpdateCompanyName
 
             subscriber.WithCompanyName(companyName);
             await _subscriberRepository.SaveAsync(subscriber);
+            return Unit.Value;
         }
     }
 }

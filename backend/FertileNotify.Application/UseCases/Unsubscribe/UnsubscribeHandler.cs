@@ -1,10 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Application.UseCases.Unsubscribe
 {
-    public class UnsubscribeHandler
+    public class UnsubscribeHandler : IRequestHandler<UnsubscribeCommand, Unit>
     {
         private readonly IBlacklistRepository _blacklistRepository;
         private readonly ISecurityService _securityService;
@@ -15,12 +11,12 @@ namespace FertileNotify.Application.UseCases.Unsubscribe
             _securityService = securityService;
         }
 
-        public async Task<bool> HandleAsync(UnsubscribeCommand command)
+        public async Task<Unit> Handle(UnsubscribeCommand command, CancellationToken cancellationToken)
         {
             bool isValid = _securityService.VerifyUnsubscribeToken(command.Recipient, command.SubscriberId, command.Token);
 
             if (!isValid)
-                return false;
+                return Unit.Value;
 
             var forbiddenRecipient = new ForbiddenRecipient(
                 command.SubscriberId,
@@ -29,7 +25,7 @@ namespace FertileNotify.Application.UseCases.Unsubscribe
             );
             await _blacklistRepository.AddOrUpdateAsync(forbiddenRecipient);
 
-            return true;
+            return Unit.Value;
         }
     }
 }

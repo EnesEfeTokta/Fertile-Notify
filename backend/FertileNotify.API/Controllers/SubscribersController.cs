@@ -3,6 +3,7 @@ using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.DTOs;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.CreateApiKey;
+using FertileNotify.Application.UseCases.DeleteAccount;
 using FertileNotify.Application.UseCases.ManageChannels;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Application.UseCases.RevokeApiKey;
@@ -10,7 +11,7 @@ using FertileNotify.Application.UseCases.SetChannelSetting;
 using FertileNotify.Application.UseCases.UpdateCompanyName;
 using FertileNotify.Application.UseCases.UpdateContactInfo;
 using FertileNotify.Application.UseCases.UpdatePassword;
-using FertileNotify.Application.UseCases.DeleteAccount;
+using MediatR;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
 using FertileNotify.Domain.Exceptions;
@@ -26,46 +27,20 @@ namespace FertileNotify.API.Controllers
     [Route("api/subscribers")]
     public class SubscriberController : ControllerBase
     {
-        private readonly RegisterSubscriberHandler _registerSubscriberHandler;
-        private readonly UpdateContactInfoHandler _updateContactInfoHandler;
-        private readonly UpdateCompanyNameHandler _updateCompanyNameHandler;
-        private readonly ManageChannelsHandler _manageChannelsHandler;
-        private readonly UpdatePasswordHandler _updatePasswordHandler;
-        private readonly CreateApiKeyHandler _createApiKeyHandler;
-        private readonly RevokeApiKeyHandler _revokeApiKeyHandler;
-        private readonly SetChannelSettingHandler _setChannelSettingHandler;
-        private readonly DeleteAccountHandler _deleteAccountHandler;
-
+        private readonly IMediator _mediator;
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IApiKeyRepository _apiKeyRepository;
         private readonly ISubscriberChannelRepository _subscriberChannelRepository;
 
         public SubscriberController(
-            RegisterSubscriberHandler registerSubscriberHandler,
-            UpdateContactInfoHandler updateContactInfoHandler,
-            UpdateCompanyNameHandler updateCompanyNameHandler,
-            ManageChannelsHandler manageChannelsHandler,
-            UpdatePasswordHandler updatePasswordHandler,
-            CreateApiKeyHandler createApiKeyHandler,
-            RevokeApiKeyHandler revokeApiKeyHandler,
-            SetChannelSettingHandler setChannelSettingHandler,
-            DeleteAccountHandler deleteAccountHandler,
+            IMediator mediator,
             ISubscriptionRepository subscriptionRepository,
             ISubscriberRepository subscriberRepository,
             IApiKeyRepository apiKeyRepository,
             ISubscriberChannelRepository subscriberChannelRepository)
         {
-            _registerSubscriberHandler = registerSubscriberHandler;
-            _updateContactInfoHandler = updateContactInfoHandler;
-            _updateCompanyNameHandler = updateCompanyNameHandler;
-            _manageChannelsHandler = manageChannelsHandler;
-            _updatePasswordHandler = updatePasswordHandler;
-            _createApiKeyHandler = createApiKeyHandler;
-            _revokeApiKeyHandler = revokeApiKeyHandler;
-            _setChannelSettingHandler = setChannelSettingHandler;
-            _deleteAccountHandler = deleteAccountHandler;
-
+            _mediator = mediator;
             _subscriptionRepository = subscriptionRepository;
             _subscriberRepository = subscriberRepository;
             _apiKeyRepository = apiKeyRepository;
@@ -103,7 +78,7 @@ namespace FertileNotify.API.Controllers
         [HttpPut("contact")]
         public async Task<IActionResult> UpdateContactInfo([FromBody] UpdateContactRequest request)
         {
-            await _updateContactInfoHandler.HandleAsync(new UpdateContactInfoCommand
+            await _mediator.Send(new UpdateContactInfoCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Email = request.Email,
@@ -115,7 +90,7 @@ namespace FertileNotify.API.Controllers
         [HttpPut("company-name")]
         public async Task<IActionResult> UpdateCompany([FromBody] UpdateCompanyNameRequest request)
         {
-            await _updateCompanyNameHandler.HandleAsync(new UpdateCompanyNameCommand
+            await _mediator.Send(new UpdateCompanyNameCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 CompanyName = request.CompanyName
@@ -126,7 +101,7 @@ namespace FertileNotify.API.Controllers
         [HttpPost("channels")]
         public async Task<IActionResult> UpdateChannels([FromBody] ManageChannelRequest request)
         {
-            await _manageChannelsHandler.HandleAsync(new ManageChannelsCommand
+            await _mediator.Send(new ManageChannelsCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Channel = request.Channel,
@@ -144,14 +119,14 @@ namespace FertileNotify.API.Controllers
                 CurrentPassword = request.CurrentPassword,
                 NewPassword = request.NewPassword
             };
-            await _updatePasswordHandler.HandleAsync(command);
+            await _mediator.Send(command);
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's password has been updated."));
         }
 
         [HttpDelete("delete-account")]
         public async Task<IActionResult> DeleteAccount()
         {
-            await _deleteAccountHandler.HandleAsync(new DeleteAccountCommand
+            await _mediator.Send(new DeleteAccountCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims()
             });
@@ -163,7 +138,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterSubscriberRequest request)
         {
             Enum.TryParse<SubscriptionPlan>(request.Plan, ignoreCase: true, out var plan);
-            await _registerSubscriberHandler.HandleAsync(new RegisterSubscriberCommand
+            await _mediator.Send(new RegisterSubscriberCommand
             {
                 CompanyName = CompanyName.Create(request.CompanyName),
                 Password = Password.Create(request.Password),
@@ -184,7 +159,7 @@ namespace FertileNotify.API.Controllers
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Name = request.Name
             };
-            var rawApiKey = await _createApiKeyHandler.HandleAsync(command);
+            var rawApiKey = await _mediator.Send(command);
             return Ok(ApiResponse<object>.SuccessResult(new { ApiKey = rawApiKey }, "Please save this key securely. You won't be able to see it again."));
         }
 
@@ -206,7 +181,7 @@ namespace FertileNotify.API.Controllers
         [HttpDelete("api-keys/{apiKeyId}")]
         public async Task<IActionResult> RevokeApiKey(Guid apiKeyId)
         {
-            await _revokeApiKeyHandler.HandleAsync(new RevokeApiKeyCommand
+            await _mediator.Send(new RevokeApiKeyCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 ApiKeyId = apiKeyId
@@ -217,7 +192,7 @@ namespace FertileNotify.API.Controllers
         [HttpPost("settings/channel-setting")]
         public async Task<IActionResult> SetChannelSetting([FromBody] ChannelSettingRequest request)
         {
-            await _setChannelSettingHandler.HandleAsync(new SetChannelSettingCommand
+            await _mediator.Send(new SetChannelSettingCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 Channel = request.Channel,

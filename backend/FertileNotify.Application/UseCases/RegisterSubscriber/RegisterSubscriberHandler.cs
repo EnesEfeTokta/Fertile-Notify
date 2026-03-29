@@ -1,11 +1,6 @@
-﻿using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Rules;
-using Microsoft.Extensions.Logging;
-
-namespace FertileNotify.Application.UseCases.RegisterSubscriber
+﻿namespace FertileNotify.Application.UseCases.RegisterSubscriber
 {
-    public class RegisterSubscriberHandler
+    public class RegisterSubscriberHandler : ICommandHandler<RegisterSubscriberCommand, Guid>
     {
         private readonly ISubscriberRepository _userRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
@@ -23,7 +18,7 @@ namespace FertileNotify.Application.UseCases.RegisterSubscriber
             _logger = logger;
         }
 
-        public async Task<Guid> HandleAsync(RegisterSubscriberCommand command)
+        public async Task<Guid> Handle(RegisterSubscriberCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation(
                 "Subscriber registration is underway. Subscriber Name: {CompanyName}, Contact: {Email} & {PhoneNumber}, Plan: {Plan}",

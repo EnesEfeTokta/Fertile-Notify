@@ -1,30 +1,25 @@
-﻿using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
-
 namespace FertileNotify.Application.UseCases.NotificationComplaint
 {
-    public class NotificationComplaintHandler
+    public class NotificationComplaintHandler : ICommandHandler<NotificationComplaintCommand>
     {
-        private readonly IEmailService _emailService;
-        private readonly INotificationComplaintRepository _notificationComplaintRepository;
-        private readonly ILogger<NotificationComplaintHandler> _logger;
         private readonly ISubscriberRepository _subscriberRepository;
+        private readonly INotificationComplaintRepository _complaintRepository;
+        private readonly ILogger<NotificationComplaintHandler> _logger;
+        private readonly IEmailService _emailService;
 
         public NotificationComplaintHandler(
-            IEmailService emailService, 
-            INotificationComplaintRepository notificationComplaintRepository, 
+            ISubscriberRepository subscriberRepository,
+            INotificationComplaintRepository complaintRepository,
             ILogger<NotificationComplaintHandler> logger,
-            ISubscriberRepository subscriberRepository
-        )
+            IEmailService emailService)
         {
-            _emailService = emailService;
-            _notificationComplaintRepository = notificationComplaintRepository;
-            _logger = logger;
             _subscriberRepository = subscriberRepository;
+            _complaintRepository = complaintRepository;
+            _logger = logger;
+            _emailService = emailService;
         }
 
-        public async Task HandleAsync(NotificationComplaintCommand command)
+        public async Task<Unit> Handle(NotificationComplaintCommand command, CancellationToken cancellationToken)
         {
             try
             {
@@ -35,7 +30,7 @@ namespace FertileNotify.Application.UseCases.NotificationComplaint
                     command.Description,
                     new NotificationContent(command.Subject, command.Body)
                 );
-                await _notificationComplaintRepository.SaveAsync(complaint);
+                await _complaintRepository.SaveAsync(complaint);
                 _logger.LogInformation("Notification complaint recorded: {ComplaintId}", complaint.Id);
 
                 var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId);
@@ -45,6 +40,7 @@ namespace FertileNotify.Application.UseCases.NotificationComplaint
                     "New Notification Complaint", 
                     $"A new complaint has been filed by {command.ReporterEmail} for SubscriberId: {command.SubscriberId}. Reason: {command.Reason}. Description: {command.Description}"
                 );
+                return Unit.Value;
             }
             catch (Exception ex)
             {

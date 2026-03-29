@@ -1,6 +1,6 @@
-﻿namespace FertileNotify.Application.UseCases.NotificationComplaint
+namespace FertileNotify.Application.UseCases.NotificationComplaint
 {
-    public class NotificationComplaintCommand
+    public class NotificationComplaintCommand : ICommand
     {
         public Guid SubscriberId { get; set; }
         public string ReporterEmail { get; set; } = null!;

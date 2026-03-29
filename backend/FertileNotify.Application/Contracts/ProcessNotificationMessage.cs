@@ -1,6 +1,8 @@
-﻿namespace FertileNotify.Application.Contracts
+using MediatR;
+
+namespace FertileNotify.Application.Contracts
 {
-    public class ProcessNotificationMessage
+    public class ProcessNotificationMessage : IRequest
     {
         public Guid SubscriberId { get; init; }
         public Guid? WorkflowId { get; init; }

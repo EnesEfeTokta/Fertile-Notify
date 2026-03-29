@@ -1,11 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
-
 namespace FertileNotify.Application.UseCases.ForgotPassword
 {
-    public class ForgotPasswordHandler
+    public class ForgotPasswordHandler: IRequestHandler<ForgotPasswordCommand, Unit>
     {
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly IOtpService _otpService;
@@ -24,7 +19,7 @@ namespace FertileNotify.Application.UseCases.ForgotPassword
             _logger = logger;
         }
 
-        public async Task HandleAsync(ForgotPasswordCommand command)
+        public async Task<Unit> Handle(ForgotPasswordCommand command, CancellationToken ct)
         {
             var emailAddress = EmailAddress.Create(command.Email);
 
@@ -40,6 +35,7 @@ namespace FertileNotify.Application.UseCases.ForgotPassword
             );
 
             _logger.LogInformation("Password reset OTP sent to {Email}", command.Email);
+            return Unit.Value;
         }
     }
 }

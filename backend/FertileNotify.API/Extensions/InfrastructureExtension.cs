@@ -70,6 +70,7 @@ namespace FertileNotify.API.Extensions
             services.AddHostedService<LogRetentionWorker>();
             services.AddHostedService<AutomationWorker>();
 
+
             return services;
         }
     }

@@ -1,6 +1,6 @@
 namespace FertileNotify.Application.UseCases.ManageChannels
 {
-    public class ManageChannelsCommand
+    public class ManageChannelsCommand : IRequest<Unit>
     {
         public Guid SubscriberId { get; set; }
         public string Channel { get; set; } = string.Empty;

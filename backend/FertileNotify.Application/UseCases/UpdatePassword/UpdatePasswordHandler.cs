@@ -1,12 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
-
 namespace FertileNotify.Application.UseCases.UpdatePassword
 {
-    public class UpdatePasswordHandler
+    public class UpdatePasswordHandler : IRequestHandler<UpdatePasswordCommand, Unit>
     {
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly IOtpService _otpService;
@@ -28,13 +22,14 @@ namespace FertileNotify.Application.UseCases.UpdatePassword
             _logger = logger;
         }
 
-        public async Task HandleAsync(UpdatePasswordCommand command)
+        public async Task<Unit> Handle(UpdatePasswordCommand command, CancellationToken cancellationToken)
         {
             var subscriber = await _subscriberRepository.GetByIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscriber not found.");
 
             subscriber.UpdatePassword(command.CurrentPassword, Password.Create(command.NewPassword));
             await _subscriberRepository.SaveAsync(subscriber);
+            return Unit.Value;
         }
     }
 }

@@ -17,6 +17,8 @@ namespace FertileNotify.Tests
         private readonly Mock<IWorkflowScheduleService> _mockWorkflowScheduleService;
         private readonly AutomationTriggerService _automationTriggerService;
         private readonly WorkflowNotificationHandler _handler;
+        private readonly CreateWorkflowNotificationHandler _createHandler;
+        private readonly TriggerWorkflowNotificationsHandler _triggerHandler;
         private readonly Guid _subscriberId;
 
         public WorkflowNotificationHandlerTests()
@@ -31,6 +33,10 @@ namespace FertileNotify.Tests
                 _mockAutomationRepository.Object,
                 _automationTriggerService,
                 _mockWorkflowScheduleService.Object);
+            _createHandler = new CreateWorkflowNotificationHandler(
+                _mockAutomationRepository.Object,
+                _mockWorkflowScheduleService.Object);
+            _triggerHandler = new TriggerWorkflowNotificationsHandler(_automationTriggerService);
             _subscriberId = Guid.NewGuid();
         }
 
@@ -59,7 +65,7 @@ namespace FertileNotify.Tests
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _handler.TriggerAsync(command);
+            var result = await _triggerHandler.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().Be(1);
@@ -77,7 +83,7 @@ namespace FertileNotify.Tests
 
             // Act & Assert
             await Assert.ThrowsAsync<BusinessRuleException>(
-                () => _handler.TriggerAsync(command));
+                () => _triggerHandler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
@@ -105,7 +111,7 @@ namespace FertileNotify.Tests
                 .Returns(Task.CompletedTask);
 
             // Act
-            await _handler.TriggerAsync(command);
+            await _triggerHandler.Handle(command, CancellationToken.None);
 
             // Assert - No exception thrown
         }
@@ -141,7 +147,7 @@ namespace FertileNotify.Tests
                 .Returns(Task.CompletedTask);
 
             // Act
-            var workflowId = await _handler.CreateAsync(command);
+            var workflowId = await _createHandler.Handle(command, CancellationToken.None);
 
             // Assert
             workflowId.Should().NotBe(Guid.Empty);
@@ -168,7 +174,7 @@ namespace FertileNotify.Tests
 
             // Act & Assert
             await Assert.ThrowsAsync<BusinessRuleException>(
-                () => _handler.CreateAsync(command));
+                () => _createHandler.Handle(command, CancellationToken.None));
         }
 
         [Fact]
@@ -202,7 +208,7 @@ namespace FertileNotify.Tests
                 .Returns(Task.CompletedTask);
 
             // Act
-            var workflowId = await _handler.CreateAsync(command);
+            var workflowId = await _createHandler.Handle(command, CancellationToken.None);
 
             // Assert
             workflowId.Should().NotBe(Guid.Empty);
@@ -230,7 +236,7 @@ namespace FertileNotify.Tests
             };
 
             // Act & Assert
-            await Assert.ThrowsAsync<BusinessRuleException>(() => _handler.CreateAsync(command));
+            await Assert.ThrowsAsync<BusinessRuleException>(() => _createHandler.Handle(command, CancellationToken.None));
         }
 
         [Fact]

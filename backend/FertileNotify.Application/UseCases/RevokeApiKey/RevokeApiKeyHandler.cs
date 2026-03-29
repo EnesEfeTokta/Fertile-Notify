@@ -1,10 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Exceptions;
-
 namespace FertileNotify.Application.UseCases.RevokeApiKey
 {
-    public class RevokeApiKeyHandler
+    public class RevokeApiKeyHandler : IRequestHandler<RevokeApiKeyCommand, Unit>
     {
         private readonly IApiKeyRepository _apiKeyRepository;
 
@@ -13,7 +9,7 @@ namespace FertileNotify.Application.UseCases.RevokeApiKey
             _apiKeyRepository = apiKeyRepository;
         }
 
-        public async Task HandleAsync(RevokeApiKeyCommand command)
+        public async Task<Unit> Handle(RevokeApiKeyCommand command, CancellationToken cancellationToken)
         {
             var apiKeys = await _apiKeyRepository.GetBySubscriberIdAsync(command.SubscriberId);
 
@@ -22,6 +18,7 @@ namespace FertileNotify.Application.UseCases.RevokeApiKey
 
             keyToRevoke.Revoke();
             await _apiKeyRepository.SaveAsync(keyToRevoke);
+            return Unit.Value;
         }
     }
 }

@@ -1,10 +1,6 @@
-using FertileNotify.Application.DTOs;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Exceptions;
-
 namespace FertileNotify.Application.UseCases.RefreshToken
 {
-    public class RefreshTokenHandler
+    public class RefreshTokenHandler: IRequestHandler<RefreshTokenCommand, LoginResponseDto>
     {
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
@@ -20,7 +16,7 @@ namespace FertileNotify.Application.UseCases.RefreshToken
             _tokenService = tokenService;
         }
 
-        public async Task<LoginResponseDto> HandleAsync(RefreshTokenCommand command)
+        public async Task<LoginResponseDto> Handle(RefreshTokenCommand command, CancellationToken ct)
         {
             var subscriber = await _subscriberRepository.GetByRefreshTokenAsync(command.RefreshToken)
                                 ?? throw new UnauthorizedException("Invalid or expired refresh token");
