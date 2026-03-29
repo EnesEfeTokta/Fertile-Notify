@@ -1,0 +1,14 @@
+global using FertileNotify.Application.DTOs;
+global using FertileNotify.Application.Interfaces;
+global using FertileNotify.Application.UseCases.Common;
+global using FertileNotify.Domain.Entities;
+global using FertileNotify.Domain.Enums;
+global using FertileNotify.Domain.Events;
+global using FertileNotify.Domain.Exceptions;
+global using FertileNotify.Domain.ValueObjects;
+global using FertileNotify.Application.Services;
+global using MediatR;
+global using Microsoft.Extensions.Logging;
+global using FertileNotify.Application.Contracts;
+global using FertileNotify.Domain.Rules;
+global using MassTransit;

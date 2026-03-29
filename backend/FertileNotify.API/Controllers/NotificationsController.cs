@@ -2,6 +2,7 @@ using FertileNotify.API.Models.Requests;
 using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.UseCases.SendNotification;
 using FertileNotify.Application.UseCases.Workflow;
+using MediatR;
 using FertileNotify.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +15,13 @@ namespace FertileNotify.API.Controllers
     [Route("api/notifications")]
     public class NotificationsController : ControllerBase
     {
-        private readonly SendNotificationHandler _sendNotificationHandler;
-        private readonly WorkflowNotificationHandler _workflowNotificationHandler;
+        private readonly IMediator _mediator;
+        private readonly ILogger<NotificationsController> _logger;
 
-        public NotificationsController(
-            SendNotificationHandler sendNotificationHandler,
-            WorkflowNotificationHandler workflowNotificationHandler)
+        public NotificationsController(IMediator mediator, ILogger<NotificationsController> logger)
         {
-            _sendNotificationHandler = sendNotificationHandler;
-            _workflowNotificationHandler = workflowNotificationHandler;
+            _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpPost("send")]
@@ -42,7 +41,7 @@ namespace FertileNotify.API.Controllers
                 }).ToList()
             };
 
-            int totalQueued = await _sendNotificationHandler.HandleAsync(command);
+            int totalQueued = await _mediator.Send(command);
 
             return Accepted(ApiResponse<object>.SuccessResult(
                 new
@@ -64,7 +63,7 @@ namespace FertileNotify.API.Controllers
                 return BadRequest(ApiResponse<object>.FailureResult(new List<string> { "eventTrigger cannot be empty." }));
             }
 
-            var totalQueued = await _workflowNotificationHandler.TriggerAsync(new TriggerWorkflowNotificationsCommand
+            var totalQueued = await _mediator.Send(new TriggerWorkflowNotificationsCommand
             {
                 SubscriberId = subscriberId,
                 EventTrigger = eventTrigger
@@ -84,7 +83,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> AddWorkflowNotification([FromBody] AddWorkflowNotificationRequest request)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            var workflowId = await _workflowNotificationHandler.CreateAsync(new CreateWorkflowNotificationCommand
+            var workflowId = await _mediator.Send(new CreateWorkflowNotificationCommand
             {
                 SubscriberId = subscriberId,
                 Name = request.Name,
@@ -115,7 +114,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> UpdateWorkflowNotification([FromBody] UpdateWorkflowNotificationRequest request)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            await _workflowNotificationHandler.UpdateAsync(new UpdateWorkflowNotificationCommand
+            await _mediator.Send(new UpdateWorkflowNotificationCommand
             {
                 SubscriberId = subscriberId,
                 Id = request.Id,
@@ -146,7 +145,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> ListWorkflowNotifications()
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            var workflows = await _workflowNotificationHandler.ListAsync(subscriberId);
+            var workflows = await _mediator.Send(new ListWorkflowNotificationsQuery { SubscriberId = subscriberId });
 
             var data = workflows.Select(w => new
             {
@@ -172,7 +171,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> GetWorkflowNotification(Guid id)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            var workflow = await _workflowNotificationHandler.GetAsync(new WorkflowNotificationByIdCommand
+            var workflow = await _mediator.Send(new GetWorkflowNotificationQuery
             {
                 SubscriberId = subscriberId,
                 Id = id
@@ -200,7 +199,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> DeleteWorkflowNotification(Guid id)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            await _workflowNotificationHandler.DeleteAsync(new WorkflowNotificationByIdCommand
+            await _mediator.Send(new DeleteWorkflowNotificationCommand
             {
                 SubscriberId = subscriberId,
                 Id = id
@@ -219,7 +218,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> ActivateWorkflowNotification(Guid id)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            await _workflowNotificationHandler.ActivateAsync(new WorkflowNotificationByIdCommand
+            await _mediator.Send(new ActivateWorkflowNotificationCommand
             {
                 SubscriberId = subscriberId,
                 Id = id
@@ -238,7 +237,7 @@ namespace FertileNotify.API.Controllers
         public async Task<IActionResult> DeactivateWorkflowNotification(Guid id)
         {
             var subscriberId = GetSubscriberIdFromClaims();
-            await _workflowNotificationHandler.DeactivateAsync(new WorkflowNotificationByIdCommand
+            await _mediator.Send(new DeactivateWorkflowNotificationCommand
             {
                 SubscriberId = subscriberId,
                 Id = id

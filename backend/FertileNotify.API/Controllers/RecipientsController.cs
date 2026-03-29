@@ -2,6 +2,7 @@ using FertileNotify.API.Models.Requests;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.NotificationComplaint;
 using FertileNotify.Application.UseCases.Unsubscribe;
+using MediatR;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using FertileNotify.Domain.Entities;
@@ -16,21 +17,18 @@ namespace FertileNotify.API.Controllers
     [Route("api/recipients")]
     public class RecipientsController : ControllerBase
     {
+        private readonly IMediator _mediator;
         private readonly IBlacklistRepository _blacklistRepository;
         private readonly INotificationComplaintRepository _complaintRepository;
-        private readonly NotificationComplaintHandler _complaintHandler;
-        private readonly UnsubscribeHandler _unsubscribeHandler;
 
         public RecipientsController(
+            IMediator mediator,
             IBlacklistRepository blacklistRepository,
-            INotificationComplaintRepository complaintRepository,
-            NotificationComplaintHandler complaintHandler,
-            UnsubscribeHandler unsubscribeHandler)
+            INotificationComplaintRepository complaintRepository)
         {
+            _mediator = mediator;
             _blacklistRepository = blacklistRepository;
             _complaintRepository = complaintRepository;
-            _complaintHandler = complaintHandler;
-            _unsubscribeHandler = unsubscribeHandler;
         }
 
         #region Public Processes
@@ -46,16 +44,15 @@ namespace FertileNotify.API.Controllers
                 Channels = request.Channels
             };
 
-            var success = await _unsubscribeHandler.HandleAsync(command);
-            return success ? Ok(ApiResponse<object>.SuccessResult(null!, "You have been successfully unsubscribed."))
-                : BadRequest(ApiResponse<object>.FailureResult(new List<string> { "Failed to unsubscribe." }, "Failed to unsubscribe."));
+            await _mediator.Send(command);
+            return Ok(ApiResponse<object>.SuccessResult(null!, "You have been successfully unsubscribed."));
         }
 
         [AllowAnonymous]
         [HttpPost("complaint")]
         public async Task<IActionResult> SubmitComplaint([FromBody] ComplaintRequest request)
         {
-            await _complaintHandler.HandleAsync(new NotificationComplaintCommand
+            await _mediator.Send(new NotificationComplaintCommand
             {
                 SubscriberId = request.SubscriberId,
                 ReporterEmail = request.ReporterEmail,

@@ -1,6 +1,6 @@
 namespace FertileNotify.Application.UseCases.SendNotification
 {
-    public class SendNotificationCommand
+    public class SendNotificationCommand : IRequest<int>
     {
         public Guid SubscriberId { get; set; }
         public string EventType { get; set; } = string.Empty;

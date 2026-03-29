@@ -6,7 +6,7 @@ namespace FertileNotify.Application.UseCases.Workflow
         public List<string> Recipients { get; set; } = new();
     }
 
-    public class CreateWorkflowNotificationCommand
+    public class CreateWorkflowNotificationCommand : IRequest<Guid>
     {
         public Guid SubscriberId { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -19,7 +19,7 @@ namespace FertileNotify.Application.UseCases.Workflow
         public List<WorkflowRecipientGroupCommand> To { get; set; } = new();
     }
 
-    public class UpdateWorkflowNotificationCommand
+    public class UpdateWorkflowNotificationCommand : IRequest<Unit>
     {
         public Guid SubscriberId { get; set; }
         public Guid Id { get; set; }
@@ -33,13 +33,42 @@ namespace FertileNotify.Application.UseCases.Workflow
         public List<WorkflowRecipientGroupCommand>? To { get; set; }
     }
 
+    public class GetWorkflowNotificationQuery : IRequest<WorkflowNotificationDto>
+    {
+        public Guid SubscriberId { get; set; }
+        public Guid Id { get; set; }
+    }
+
+    public class ListWorkflowNotificationsQuery : IRequest<List<WorkflowNotificationDto>>
+    {
+        public Guid SubscriberId { get; set; }
+    }
+
+    public class DeleteWorkflowNotificationCommand : IRequest<Unit>
+    {
+        public Guid SubscriberId { get; set; }
+        public Guid Id { get; set; }
+    }
+
+    public class ActivateWorkflowNotificationCommand : IRequest<Unit>
+    {
+        public Guid SubscriberId { get; set; }
+        public Guid Id { get; set; }
+    }
+
+    public class DeactivateWorkflowNotificationCommand : IRequest<Unit>
+    {
+        public Guid SubscriberId { get; set; }
+        public Guid Id { get; set; }
+    }
+
     public class WorkflowNotificationByIdCommand
     {
         public Guid SubscriberId { get; set; }
         public Guid Id { get; set; }
     }
 
-    public class TriggerWorkflowNotificationsCommand
+    public class TriggerWorkflowNotificationsCommand : IRequest<int>
     {
         public Guid SubscriberId { get; set; }
         public string EventTrigger { get; set; } = string.Empty;

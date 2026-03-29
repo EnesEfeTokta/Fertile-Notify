@@ -1,9 +1,6 @@
-﻿using FertileNotify.Domain.Enums;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Application.UseCases.RegisterSubscriber
 {
-    public class RegisterSubscriberCommand
+    public class RegisterSubscriberCommand : ICommand<Guid>
     {
         public CompanyName CompanyName { get; init; } = default!;
         public Password Password { get; init; } = default!;

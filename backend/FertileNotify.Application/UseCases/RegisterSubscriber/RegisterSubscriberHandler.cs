@@ -1,9 +1,4 @@
-﻿using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Rules;
-using Microsoft.Extensions.Logging;
-
-namespace FertileNotify.Application.UseCases.RegisterSubscriber
+﻿namespace FertileNotify.Application.UseCases.RegisterSubscriber
 {
     public class RegisterSubscriberHandler
     {

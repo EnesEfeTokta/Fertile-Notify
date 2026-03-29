@@ -1,10 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Application.UseCases.Login
 {
-    public class LoginHandler
+    public class LoginHandler: IRequestHandler<LoginCommand, Unit>
     {
         private readonly ISubscriberRepository _subscriberRepository;
         private readonly IOtpService _otpService;
@@ -17,7 +13,7 @@ namespace FertileNotify.Application.UseCases.Login
             _emailService = emailService;
         }
 
-        public async Task HandleAsync(LoginCommand command)
+        public async Task<Unit> Handle(LoginCommand command, CancellationToken ct)
         {
             var subscriber = await _subscriberRepository.GetByEmailAsync(EmailAddress.Create(command.Email))
                 ?? throw new NotFoundException("Subscriber not found");
@@ -27,6 +23,7 @@ namespace FertileNotify.Application.UseCases.Login
 
             var otpCode = await _otpService.GenerateOtpAsync(subscriber.Id);
             await _emailService.SendEmailAsync(subscriber.Email, "OTP", $"Code: {otpCode}");
+            return Unit.Value;
         }
     }
 }

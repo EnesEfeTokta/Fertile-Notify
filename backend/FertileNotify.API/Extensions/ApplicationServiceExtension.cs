@@ -1,3 +1,4 @@
+using FertileNotify.Application;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Security;
 using FertileNotify.Application.Services;
@@ -29,6 +30,8 @@ namespace FertileNotify.API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            services.AddApplication();
+
             // Repositories
             services.AddScoped<ISubscriberRepository, EfSubscriberRepository>();
             services.AddScoped<ISubscriptionRepository, EfSubscriptionRepository>();
@@ -53,25 +56,6 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<AutomationSchedulerService>();
             services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
             services.AddHttpClient();
-
-            // Use Cases
-            services.AddScoped<LoginHandler>();
-            services.AddScoped<VerifyCodeHandler>();
-            services.AddScoped<ForgotPasswordHandler>();
-            services.AddScoped<RefreshTokenHandler>();
-            services.AddScoped<SendNotificationHandler>();
-            services.AddScoped<RegisterSubscriberHandler>();
-            services.AddScoped<UnsubscribeHandler>();
-            services.AddScoped<UpdateContactInfoHandler>();
-            services.AddScoped<UpdateCompanyNameHandler>();
-            services.AddScoped<ManageChannelsHandler>();
-            services.AddScoped<UpdatePasswordHandler>();
-            services.AddScoped<CreateApiKeyHandler>();
-            services.AddScoped<RevokeApiKeyHandler>();
-            services.AddScoped<SetChannelSettingHandler>();
-            services.AddScoped<NotificationComplaintHandler>();
-            services.AddScoped<DeleteAccountHandler>();
-            services.AddScoped<WorkflowNotificationHandler>();
 
             // Notification Senders
             services.AddNotificationSenders();

@@ -1,10 +1,6 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Application.UseCases.SetChannelSetting
 {
-    public class SetChannelSettingHandler
+    public class SetChannelSettingHandler : IRequestHandler<SetChannelSettingCommand, Unit>
     {
         private readonly ISubscriberChannelRepository _subscriberChannelRepository;
 
@@ -13,12 +9,12 @@ namespace FertileNotify.Application.UseCases.SetChannelSetting
             _subscriberChannelRepository = subscriberChannelRepository;
         }
 
-        public async Task HandleAsync(SetChannelSettingCommand command)
+        public async Task<Unit> Handle(SetChannelSettingCommand command, CancellationToken cancellationToken)
         {
             var channel = NotificationChannel.From(command.Channel);
-            var channelSetting = new SubscriberChannelSetting(command.SubscriberId, channel, command.Settings);
-
-            await _subscriberChannelRepository.SaveAsync(channelSetting);
+            var setting = new SubscriberChannelSetting(command.SubscriberId, channel, command.Settings);
+            await _subscriberChannelRepository.SaveAsync(setting);
+            return Unit.Value;
         }
     }
 }

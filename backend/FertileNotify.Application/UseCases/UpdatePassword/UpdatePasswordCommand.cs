@@ -1,6 +1,6 @@
 namespace FertileNotify.Application.UseCases.UpdatePassword
 {
-    public class UpdatePasswordCommand
+    public class UpdatePasswordCommand : IRequest<Unit>
     {
         public Guid SubscriberId { get; set; }
         public string CurrentPassword { get; set; } = string.Empty;
