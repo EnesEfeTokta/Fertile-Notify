@@ -1,4 +1,4 @@
-﻿namespace FertileNotify.Application.UseCases.RegisterSubscriber
+namespace FertileNotify.Application.UseCases.RegisterSubscriber
 {
     public class RegisterSubscriberHandler : ICommandHandler<RegisterSubscriberCommand, Guid>
     {
@@ -23,9 +23,9 @@
             _logger.LogInformation(
                 "Subscriber registration is underway. Subscriber Name: {CompanyName}, Contact: {Email} & {PhoneNumber}, Plan: {Plan}",
                 command.CompanyName,
-                command.Email, 
-                string.IsNullOrEmpty(command.PhoneNumber?.Value) ? command.PhoneNumber?.Value : "[No Phone Number]", 
-                command.Email.Value
+                command.Email.Value,
+                string.IsNullOrEmpty(command.PhoneNumber?.Value) ? "[No Phone Number]" : command.PhoneNumber?.Value,
+                command.Plan
             );
 
             var user = new Subscriber(command.CompanyName, command.Password, command.Email, command.PhoneNumber);

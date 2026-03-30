@@ -15,7 +15,9 @@ namespace FertileNotify.Application.UseCases.UpdateContactInfo
                 ?? throw new NotFoundException("Subscriber not found.");
 
             var email = EmailAddress.Create(command.Email);
-            var phoneNumber = PhoneNumber.Create(command.PhoneNumber?.Trim() ?? string.Empty);
+            var phoneNumber = string.IsNullOrWhiteSpace(command.PhoneNumber)
+                ? null
+                : PhoneNumber.Create(command.PhoneNumber.Trim());
 
             subscriber.WithEmail(email).WithPhoneNumber(phoneNumber);
             await _subscriberRepository.SaveAsync(subscriber);

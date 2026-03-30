@@ -52,5 +52,15 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public async Task<bool> ExistsAsync(Guid id)
             => await _context.Subscribers.AnyAsync(u => u.Id == id);
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var subscriber = await _context.Subscribers.FindAsync(id);
+            if (subscriber is not null)
+            {
+                _context.Subscribers.Remove(subscriber);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace FertileNotify.Application.UseCases.Workflow
                 request.Description,
                 content,
                 channel,
-                request.EventTrigger.Trim(),
+                request.EventTrigger?.Trim() ?? string.Empty,
                 request.CronExpression,
                 1,
                 0,
