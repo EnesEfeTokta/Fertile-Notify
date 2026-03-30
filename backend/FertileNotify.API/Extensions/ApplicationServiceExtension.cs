@@ -50,7 +50,6 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<INotificationLogService, NotificationLogService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISecurityService, SecurityService>();
-            services.AddScoped<IWorkflowScheduleService, NoOpWorkflowScheduleService>();
             services.AddScoped<TemplateEngine>();
             services.AddScoped<AutomationTriggerService>();
             services.AddScoped<AutomationSchedulerService>();

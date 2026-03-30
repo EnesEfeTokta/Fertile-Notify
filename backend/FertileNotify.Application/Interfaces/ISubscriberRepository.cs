@@ -1,4 +1,4 @@
-﻿using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Application.Interfaces
@@ -12,5 +12,6 @@ namespace FertileNotify.Application.Interfaces
         Task<Subscriber?> GetByPhoneNumberAsync(PhoneNumber phoneNumber);
         Task<Subscriber?> GetByRefreshTokenAsync(string refreshToken);
         Task<bool> ExistsAsync(Guid id);
+        Task DeleteAsync(Guid id);
     }
 }
