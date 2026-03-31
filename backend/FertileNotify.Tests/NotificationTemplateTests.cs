@@ -1,7 +1,9 @@
+using System;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using FluentAssertions;
+using Xunit;
 
 namespace FertileNotify.Tests
 {
@@ -19,7 +21,7 @@ namespace FertileNotify.Tests
             var body = "Hi {{name}}, thanks for joining!";
 
             // Act
-            var template = NotificationTemplate.CreateGlobal(name, description, eventType, channel, subject, body);
+            var template = FertileNotify.Domain.Entities.NotificationTemplate.CreateGlobal(name, description, eventType, channel, subject, body);
 
             // Assert
             template.Id.Should().NotBeEmpty();
@@ -45,7 +47,7 @@ namespace FertileNotify.Tests
             var body = "Your order #{{orderId}} is being processed.";
 
             // Act
-            var template = NotificationTemplate.CreateCustom(subscriberId, name, description, eventType, channel, subject, body);
+            var template = FertileNotify.Domain.Entities.NotificationTemplate.CreateCustom(subscriberId, name, description, eventType, channel, subject, body);
 
             // Assert
             template.Id.Should().NotBeEmpty();
@@ -62,7 +64,7 @@ namespace FertileNotify.Tests
         public void Update_Should_ModifyOnlySpecificProperties()
         {
             // Arrange
-            var template = NotificationTemplate.CreateGlobal(
+            var template = FertileNotify.Domain.Entities.NotificationTemplate.CreateGlobal(
                 "Initial Name",
                 "Initial Description",
                 EventType.TestForDevelop,

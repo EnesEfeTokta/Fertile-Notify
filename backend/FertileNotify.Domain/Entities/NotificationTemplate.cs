@@ -1,4 +1,5 @@
-﻿using FertileNotify.Domain.Events;
+using System;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Domain.Entities
@@ -38,7 +39,6 @@ namespace FertileNotify.Domain.Entities
         {
             Name = name;
             Description = description;
-
             Subject = subject;
             Body = body;
         }
