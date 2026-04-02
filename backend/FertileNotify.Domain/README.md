@@ -22,6 +22,7 @@ Domain entities represent core business objects with unique identities:
 - **NotificationLog**: Historical records of notification delivery attempts and results.
 - **SubscriberChannelSetting**: Fine-grained control over active notification channels per subscriber.
 - **SubscriberDailyStats**: Usage statistics tracked on a daily basis for performance and billing.
+- **AutomationWorkflow**: Defines scheduled or event-triggered automated notification workflows with cron expressions.
 
 ### Value Objects
 
@@ -32,18 +33,23 @@ Immutable objects describing domain concepts without a unique identity:
 - **PhoneNumber**: Validates and represents standardized phone numbers.
 - **CompanyName**: Enforces business requirements for organization names.
 - **NotificationChannel**: Type-safe representation of delivery channels (Email, SMS, Discord, etc.).
+- **NotificationContent**: Encapsulates the subject and body of a notification message.
 - **RefreshToken**: Secure JWT refresh tokens with expiration tracking.
 
 ### Enums
 
 - **SubscriptionPlan**: Defines tiers (Free, Pro, Enterprise) with associated limits and features.
-- **NotificationStatus**: Tracks the lifecycle of a notification (Pending, Sent, Failed).
+- **DeliveryStatus**: Tracks the delivery status of a notification (Pending, Sent, Failed).
+- **ComplaintType**: Categorizes the type of a recipient complaint.
+- **EventType**: Defines the supported event types for notification triggers.
 
 ### Rules
 
 - **SubscriptionChannelPolicy**: Enforces channel access based on the subscriber's plan.
 - **SubscriptionEventPolicy**: Restricts allowed event types based on subscription tier.
-- **RateLimitRule**: Defines per-plan request limits (sliding window algorithm).
+- **SubscriptionRule**: Enforces monthly notification limits and quota tracking.
+- **ChannelPreferenceRule**: Validates and enforces per-channel recipient preferences.
+- **NotificationCostPolicy**: Calculates and applies credit costs per notification type.
 - **PasswordRule**: Security requirements for subscriber credentials.
 
 ## Domain Principles
@@ -80,5 +86,4 @@ Domain entities and value objects are designed for high testability. Unit tests 
 ## Dependencies
 
 - **BCrypt.Net-Next**: For secure password hashing.
-- **System.Text.Json**: For lightweight JSON operations.
 - This layer has no project references, sitting at the center of the architecture.
