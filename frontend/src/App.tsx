@@ -15,6 +15,7 @@ import ApiKeysPage from './pages/ApiKeysPage';
 import BlacklistPage from './pages/BlacklistPage';
 import BuyCreditsPage from './pages/BuyCreditsPage';
 import LogsPage from './pages/LogsPage';
+import WorkflowPage from './pages/WorkflowPage';
 
 // Info Pages
 import AboutUsPage from './pages/info/AboutUsPage';
@@ -33,6 +34,7 @@ function App() {
         <Route path="/channel-editor" element={<ChannelDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/logs" element={<LogsPage />} />
+        <Route path="/workflows" element={<WorkflowPage />} />
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/api-keys" element={<ApiKeysPage />} />
