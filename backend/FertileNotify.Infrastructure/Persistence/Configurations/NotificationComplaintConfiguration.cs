@@ -1,4 +1,5 @@
 ﻿using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -26,14 +27,16 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
             builder.Property(nc => nc.Description)
                 .HasMaxLength(500);
 
-            builder.OwnsOne(nc => nc.Content, nc =>
-            {
-                nc.Property(c => c.Subject)
-                    .HasMaxLength(200)
-                    .IsRequired();
-                nc.Property(c => c.Body)
-                    .IsRequired();
-            });
+            var content = builder.OwnsOne(typeof(NotificationContent), nameof(NotificationComplaint.Content));
+
+            content.Property<string>(nameof(NotificationContent.Subject))
+                .HasColumnName("NotificationSubject")
+                .HasMaxLength(200)
+                .IsRequired();
+
+            content.Property<string>(nameof(NotificationContent.Body))
+                .HasColumnName("NotificationBody")
+                .IsRequired();
         }
     }
 }

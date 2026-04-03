@@ -51,7 +51,7 @@ namespace FertileNotify.Application.UseCases.SendNotification
                         Channel = channel.Name,
                         Parameters = command.Parameters
                     }, context => {
-                        context.SetPriority(priority);
+                        context.Headers.Set("notification-priority", priority);
                     }, cancellationToken);
                     totalQueued++;
                 }
