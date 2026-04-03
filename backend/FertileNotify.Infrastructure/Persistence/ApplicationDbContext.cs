@@ -1,4 +1,6 @@
 using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Events;
+using FertileNotify.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -21,6 +23,8 @@ namespace FertileNotify.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Ignore<EventType>();
+            modelBuilder.Ignore<NotificationChannel>();
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
         }

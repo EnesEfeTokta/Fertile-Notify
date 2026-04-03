@@ -43,7 +43,7 @@ namespace FertileNotify.Application.UseCases.SendNotification
         {
             var channel = NotificationChannel.From(message.Channel);
             var eventType = EventType.From(message.EventType);
-            var notification = new NotificationContent(string.Empty, string.Empty);
+            NotificationContent? notification = null;
 
             try
             {
@@ -60,7 +60,13 @@ namespace FertileNotify.Application.UseCases.SendNotification
                     content = await PrepareContent(message.SubscriberId, eventType, channel, message.Parameters);
                 }
 
-                notification = notification.Update(content.Value.Subject, content.Value.Body);
+                if (string.IsNullOrWhiteSpace(content.Value.Subject) || string.IsNullOrWhiteSpace(content.Value.Body))
+                {
+                    throw new BusinessRuleException(
+                        $"Template content cannot be empty for event '{eventType.Name}' on channel '{channel.Name}'.");
+                }
+
+                notification = NotificationContent.Create(content.Value.Subject, content.Value.Body);
 
                 var sender = GetSender(channel);
                 var channelSetting = await _subscriberChannelRepository.GetSettingAsync(message.SubscriberId, channel);

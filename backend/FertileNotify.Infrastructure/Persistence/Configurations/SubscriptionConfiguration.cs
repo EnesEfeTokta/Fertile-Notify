@@ -11,16 +11,19 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Subscription> builder)
         {
             builder.HasKey(s => s.Id);
-            
-            builder.Property(s => s.AllowedEvents)
+
+            builder.Ignore(s => s.AllowedEvents);
+
+            builder.Property<HashSet<EventType>>("_allowedEvents")
+                .HasColumnName("AllowedEvents")
                 .HasConversion(
                     v => string.Join(',', v.Select(e => e.Name)),
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
                           .Select(EventType.From)
                           .ToHashSet())
                 .Metadata.SetValueComparer(
-                    new ValueComparer<IReadOnlyCollection<EventType>>(
-                    (c1, c2) => c1 != null && c2 != null && c1.SequenceEqual(c2),
+                    new ValueComparer<HashSet<EventType>>(
+                    (c1, c2) => c1 != null && c2 != null && c1.SetEquals(c2),
                      c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                      c => c.ToHashSet()));
         }

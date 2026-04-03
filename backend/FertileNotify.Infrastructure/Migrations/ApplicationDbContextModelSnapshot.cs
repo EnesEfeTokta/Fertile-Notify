@@ -345,10 +345,6 @@ namespace FertileNotify.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("AllowedEvents")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -363,6 +359,11 @@ namespace FertileNotify.Infrastructure.Migrations
 
                     b.Property<int>("UsedThisMonth")
                         .HasColumnType("integer");
+
+                    b.Property<string>("_allowedEvents")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("AllowedEvents");
 
                     b.HasKey("Id");
 
@@ -406,12 +407,14 @@ namespace FertileNotify.Infrastructure.Migrations
 
                             b1.Property<string>("Body")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("text")
+                                .HasColumnName("NotificationBody");
 
                             b1.Property<string>("Subject")
                                 .IsRequired()
                                 .HasMaxLength(200)
-                                .HasColumnType("character varying(200)");
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("NotificationSubject");
 
                             b1.HasKey("NotificationComplaintId");
 
@@ -434,12 +437,14 @@ namespace FertileNotify.Infrastructure.Migrations
 
                             b1.Property<string>("Body")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("text")
+                                .HasColumnName("Body");
 
                             b1.Property<string>("Subject")
                                 .IsRequired()
                                 .HasMaxLength(200)
-                                .HasColumnType("character varying(200)");
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Subject");
 
                             b1.HasKey("NotificationLogId");
 
@@ -462,12 +467,14 @@ namespace FertileNotify.Infrastructure.Migrations
 
                             b1.Property<string>("Body")
                                 .IsRequired()
-                                .HasColumnType("text");
+                                .HasColumnType("text")
+                                .HasColumnName("Body");
 
                             b1.Property<string>("Subject")
                                 .IsRequired()
                                 .HasMaxLength(200)
-                                .HasColumnType("character varying(200)");
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Subject");
 
                             b1.HasKey("NotificationTemplateId");
 
