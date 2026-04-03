@@ -109,6 +109,16 @@ export default function AppShell({ children, title, actions, companyName, plan }
                                     </svg>
                                 }
                             />
+                            <NavItem
+                                currentPath={location.pathname}
+                                path="/workflows"
+                                label="Workflows"
+                                icon={
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                }
+                            />
                         </div>
                     </div>
 
