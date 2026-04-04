@@ -1,19 +1,20 @@
 using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Contracts;
 using FertileNotify.Application.Services;
 using FertileNotify.Application.UseCases.Workflow;
 using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using FluentAssertions;
-using MassTransit;
 using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FertileNotify.Tests
 {
     public class WorkflowNotificationHandlerTests
     {
         private readonly Mock<IAutomationRepository> _mockAutomationRepository;
-        private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
+        private readonly Mock<INotificationDispatchService> _mockDispatchService;
         private readonly Mock<IWorkflowScheduleService> _mockWorkflowScheduleService;
         private readonly AutomationTriggerService _automationTriggerService;
         private readonly WorkflowNotificationHandler _handler;
@@ -24,11 +25,12 @@ namespace FertileNotify.Tests
         public WorkflowNotificationHandlerTests()
         {
             _mockAutomationRepository = new Mock<IAutomationRepository>();
-            _mockPublishEndpoint = new Mock<IPublishEndpoint>();
+            _mockDispatchService = new Mock<INotificationDispatchService>();
             _mockWorkflowScheduleService = new Mock<IWorkflowScheduleService>();
             _automationTriggerService = new AutomationTriggerService(
                 _mockAutomationRepository.Object,
-                _mockPublishEndpoint.Object);
+                _mockDispatchService.Object,
+                NullLogger<AutomationTriggerService>.Instance);
             _handler = new WorkflowNotificationHandler(
                 _mockAutomationRepository.Object,
                 _automationTriggerService,
@@ -60,8 +62,8 @@ namespace FertileNotify.Tests
                 .Setup(r => r.GetByEventTriggerAsync(_subscriberId, "user_signup"))
                 .ReturnsAsync(workflows);
 
-            _mockPublishEndpoint
-                .Setup(p => p.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            _mockDispatchService
+                .Setup(p => p.QueueAsync(It.IsAny<ProcessNotificationMessage>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -106,8 +108,8 @@ namespace FertileNotify.Tests
                 .Setup(r => r.GetByEventTriggerAsync(_subscriberId, "user_signup"))
                 .ReturnsAsync(workflows);
 
-            _mockPublishEndpoint
-                .Setup(p => p.Publish(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            _mockDispatchService
+                .Setup(p => p.QueueAsync(It.IsAny<ProcessNotificationMessage>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             // Act

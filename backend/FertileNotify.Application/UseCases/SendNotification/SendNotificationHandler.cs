@@ -2,25 +2,22 @@ namespace FertileNotify.Application.UseCases.SendNotification
 {
     public class SendNotificationHandler : IRequestHandler<SendNotificationCommand, int>
     {
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly INotificationDispatchService _dispatchService;
         private readonly IBlacklistRepository _blacklistRepository;
         private readonly ILogger<SendNotificationHandler> _logger;
 
         public SendNotificationHandler(
-            IPublishEndpoint publishEndpoint,
+            INotificationDispatchService dispatchService,
             IBlacklistRepository blacklistRepository,
             ILogger<SendNotificationHandler> logger)
         {
-            _publishEndpoint = publishEndpoint;
+            _dispatchService = dispatchService;
             _blacklistRepository = blacklistRepository;
             _logger = logger;
         }
 
         public async Task<int> Handle(SendNotificationCommand command, CancellationToken cancellationToken)
         {
-            var eventType = EventType.From(command.EventType);
-            byte priority = eventType.GetPriority();
-
             var allAddresses = command.To.SelectMany(g => g.Recipients).Distinct().ToList();
             var blacklistedItems = await _blacklistRepository.GetForRecipientsAsync(command.SubscriberId, allAddresses);
 
@@ -43,16 +40,16 @@ namespace FertileNotify.Application.UseCases.SendNotification
                         }
                     }
 
-                    await _publishEndpoint.Publish<ProcessNotificationMessage>(new
+                    var message = new ProcessNotificationMessage
                     {
                         SubscriberId = command.SubscriberId,
                         Recipient = recipientAddress,
                         EventType = command.EventType,
                         Channel = channel.Name,
                         Parameters = command.Parameters
-                    }, context => {
-                        context.Headers.Set("notification-priority", priority);
-                    }, cancellationToken);
+                    };
+
+                    await _dispatchService.QueueAsync(message, "api-send", cancellationToken);
                     totalQueued++;
                 }
             }

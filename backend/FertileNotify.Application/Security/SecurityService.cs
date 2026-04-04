@@ -1,7 +1,5 @@
-using System;
 using System.Security.Cryptography;
 using System.Text;
-using FertileNotify.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace FertileNotify.Application.Security

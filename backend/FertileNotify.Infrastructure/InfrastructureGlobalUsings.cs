@@ -1,0 +1,17 @@
+global using FertileNotify.Application.Interfaces.Automation;
+global using FertileNotify.Application.Interfaces.Notifications;
+global using FertileNotify.Application.Interfaces.Observability;
+global using FertileNotify.Application.Interfaces.Security;
+global using FertileNotify.Application.Interfaces.Subscribers;
+global using FertileNotify.Application.Services.Automation;
+global using FertileNotify.Application.Services.Notifications;
+global using FertileNotify.Application.Services.Observability;
+global using FertileNotify.Application.Services.Security;
+global using FertileNotify.Application.DTOs.Automation;
+global using FertileNotify.Application.DTOs.Notifications;
+global using FertileNotify.Application.DTOs.Observability;
+global using FertileNotify.Application.DTOs.Security;
+global using FertileNotify.Application.DTOs.Subscribers;
+global using FertileNotify.Infrastructure.BackgroundJobs.Automation;
+global using FertileNotify.Infrastructure.BackgroundJobs.Notifications;
+global using FertileNotify.Infrastructure.BackgroundJobs.Observability;

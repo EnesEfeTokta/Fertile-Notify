@@ -19,6 +19,12 @@ namespace FertileNotify.Infrastructure.Persistence
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddRangeAsync(IEnumerable<NotificationLog> logs)
+        {
+            await _context.Set<NotificationLog>().AddRangeAsync(logs);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<NotificationLog>> GetLatestBySubscriberIdAsync(Guid subscriberId, int count)
             => await _context.Set<NotificationLog>()
                 .AsNoTracking()
