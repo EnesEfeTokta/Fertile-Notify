@@ -69,6 +69,14 @@ namespace FertileNotify.API.Controllers
                 EventTrigger = eventTrigger
             });
 
+            if (totalQueued == 0)
+            {
+                return NotFound(ApiResponse<object>.FailureResult(new List<string>
+                {
+                    $"No active workflow matched eventTrigger '{eventTrigger}'."
+                }));
+            }
+
             return Accepted(ApiResponse<object>.SuccessResult(
                 new
                 {

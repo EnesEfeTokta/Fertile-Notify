@@ -1,5 +1,3 @@
-using MediatR;
-
 namespace FertileNotify.Application.Contracts
 {
     public class ProcessNotificationMessage : IRequest

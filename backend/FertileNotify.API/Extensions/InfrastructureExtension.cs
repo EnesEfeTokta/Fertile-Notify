@@ -69,6 +69,7 @@ namespace FertileNotify.API.Extensions
             // Background Workers
             services.AddHostedService<LogRetentionWorker>();
             services.AddHostedService<AutomationWorker>();
+            services.AddHostedService<RedisNotificationLogWorker>();
 
 
             return services;

@@ -2,25 +2,9 @@ using FertileNotify.Application;
 using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Security;
 using FertileNotify.Application.Services;
-using FertileNotify.Application.UseCases.RegisterSubscriber;
-using FertileNotify.Application.UseCases.SendNotification;
-using FertileNotify.Application.UseCases.Unsubscribe;
-using FertileNotify.Application.UseCases.UpdateContactInfo;
-using FertileNotify.Application.UseCases.UpdateCompanyName;
-using FertileNotify.Application.UseCases.ManageChannels;
-using FertileNotify.Application.UseCases.UpdatePassword;
-using FertileNotify.Application.UseCases.CreateApiKey;
-using FertileNotify.Application.UseCases.RevokeApiKey;
-using FertileNotify.Application.UseCases.SetChannelSetting;
-using FertileNotify.Application.UseCases.Login;
-using FertileNotify.Application.UseCases.VerifyCode;
-using FertileNotify.Application.UseCases.ForgotPassword;
-using FertileNotify.Application.UseCases.RefreshToken;
-using FertileNotify.Application.UseCases.DeleteAccount;
-using FertileNotify.Application.UseCases.Workflow;
 using FertileNotify.Infrastructure.Notifications;
 using FertileNotify.Infrastructure.Persistence;
-using FertileNotify.Application.UseCases.NotificationComplaint;
+using FertileNotify.Infrastructure.BackgroundJobs;
 
 using Mjml.Net;
 
@@ -47,7 +31,8 @@ namespace FertileNotify.API.Extensions
 
             // Application Services
             services.AddScoped<IStatisticsService, StatisticsService>();
-            services.AddScoped<INotificationLogService, NotificationLogService>();
+            services.AddScoped<INotificationLogService, RedisNotificationLogService>();
+            services.AddScoped<INotificationDispatchService, NotificationDispatchService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<TemplateEngine>();

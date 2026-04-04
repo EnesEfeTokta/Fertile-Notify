@@ -1,0 +1,14 @@
+namespace FertileNotify.Application.Interfaces.Subscribers
+{
+    public interface ISubscriberRepository
+    {
+        Task SaveAsync(Subscriber subscriber);
+        Task<Subscriber?> GetByIdAsync(Guid id);
+        Task<List<Guid>> GetExistingIdsAsync(List<Guid> ids);
+        Task<Subscriber?> GetByEmailAsync(EmailAddress email);
+        Task<Subscriber?> GetByPhoneNumberAsync(PhoneNumber phoneNumber);
+        Task<Subscriber?> GetByRefreshTokenAsync(string refreshToken);
+        Task<bool> ExistsAsync(Guid id);
+        Task DeleteAsync(Guid id);
+    }
+}
