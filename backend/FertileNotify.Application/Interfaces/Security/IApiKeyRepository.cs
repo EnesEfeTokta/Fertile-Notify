@@ -5,5 +5,6 @@
         Task SaveAsync(ApiKey apiKey);
         Task<ApiKey?> GetByKeyHashAsync(string keyHash);
         Task<List<ApiKey>> GetBySubscriberIdAsync(Guid subscriberId);
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
     }
 }

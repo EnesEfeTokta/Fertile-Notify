@@ -8,5 +8,6 @@
         Task<List<NotificationTemplate>> GetAllTemplatesAsync(Guid subscriberId);
         Task AddAsync(NotificationTemplate template);
         Task SaveAsync();
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
     }
 }

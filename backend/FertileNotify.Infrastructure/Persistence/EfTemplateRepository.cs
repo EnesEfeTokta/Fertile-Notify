@@ -54,5 +54,8 @@ namespace FertileNotify.Infrastructure.Persistence
                 .Where(t => t.SubscriberId == null || t.SubscriberId == subscriberId)
                 .ToListAsync();
         }
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.NotificationTemplates.Where(t => t.SubscriberId == subscriberId).ExecuteDeleteAsync();
     }
 }

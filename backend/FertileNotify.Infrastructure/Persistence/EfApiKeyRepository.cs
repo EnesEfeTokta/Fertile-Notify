@@ -23,6 +23,13 @@ namespace FertileNotify.Infrastructure.Persistence
             => await _context.ApiKeys.AsNoTracking().FirstOrDefaultAsync(k => k.KeyHash == keyHash);
 
         public async Task<List<ApiKey>> GetBySubscriberIdAsync(Guid subscriberId)
-            => await _context.ApiKeys.AsNoTracking().Where(k => k.SubscriberId == subscriberId).OrderByDescending(k => k.CreatedAt).ToListAsync();
+            => await _context.ApiKeys
+                .AsNoTracking()
+                .Where(k => k.SubscriberId == subscriberId)
+                .OrderByDescending(k => k.CreatedAt)
+                .ToListAsync();
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.ApiKeys.Where(k => k.SubscriberId == subscriberId).ExecuteDeleteAsync();
     }
 }

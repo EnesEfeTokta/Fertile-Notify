@@ -61,5 +61,8 @@ namespace FertileNotify.Infrastructure.Persistence
             _context.Set<NotificationLog>().RemoveRange(logsToDelete);
             await _context.SaveChangesAsync();
         }
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.Set<NotificationLog>().Where(l => l.SubscriberId == subscriberId).ExecuteDeleteAsync();
     }
 }

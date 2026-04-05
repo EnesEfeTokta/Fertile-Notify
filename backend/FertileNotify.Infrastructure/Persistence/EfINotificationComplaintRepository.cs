@@ -24,5 +24,9 @@
                 _context.NotificationComplaints.Update(complaint);
             await _context.SaveChangesAsync();
         }
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.NotificationComplaints.Where(nc => nc.SubscriberId == subscriberId).ExecuteDeleteAsync();
+
     }
 }

@@ -19,5 +19,8 @@ namespace FertileNotify.Infrastructure.Persistence
 
         public async Task<Subscription?> GetBySubscriberIdAsync(Guid subscriberId)
             => await _context.Subscriptions.AsNoTracking().FirstOrDefaultAsync(s => s.SubscriberId == subscriberId);
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.Subscriptions.Where(s => s.SubscriberId == subscriberId).ExecuteDeleteAsync();
     }
 }

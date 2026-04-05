@@ -57,5 +57,8 @@ namespace FertileNotify.Infrastructure.Persistence
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.Subscribers.Where(s => s.Id == subscriberId).ExecuteDeleteAsync();
     }
 }
