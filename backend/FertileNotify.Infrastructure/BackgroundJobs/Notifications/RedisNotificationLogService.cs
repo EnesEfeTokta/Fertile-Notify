@@ -1,6 +1,3 @@
-using FertileNotify.Application.Contracts;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Text.Json;
 

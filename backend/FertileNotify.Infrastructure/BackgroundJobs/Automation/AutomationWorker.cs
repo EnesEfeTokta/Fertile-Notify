@@ -1,7 +1,5 @@
-using FertileNotify.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FertileNotify.Application.Services;
 
 namespace FertileNotify.Infrastructure.BackgroundJobs.Automation
 {

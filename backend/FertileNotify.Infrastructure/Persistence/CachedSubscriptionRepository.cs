@@ -1,10 +1,6 @@
 using System.Text.Json;
-using FertileNotify.Domain.Entities;
 using FertileNotify.Domain.Enums;
-using FertileNotify.Domain.Events;
-using FertileNotify.Application.Interfaces;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Infrastructure.Persistence
 {

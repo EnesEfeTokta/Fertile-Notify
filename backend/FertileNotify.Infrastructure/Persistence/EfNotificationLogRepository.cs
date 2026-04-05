@@ -1,7 +1,3 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-
 namespace FertileNotify.Infrastructure.Persistence
 {
     public class EfNotificationLogRepository : INotificationLogRepository
@@ -31,6 +27,13 @@ namespace FertileNotify.Infrastructure.Persistence
                 .Where(l => l.SubscriberId == subscriberId)
                 .OrderByDescending(l => l.CreatedAt)
                 .Take(count)
+                .ToListAsync();
+
+        public async Task<List<NotificationLog>> GetAllBySubscriberIdAsync(Guid subscriberId)
+            => await _context.Set<NotificationLog>()
+                .AsNoTracking()
+                .Where(l => l.SubscriberId == subscriberId)
+                .OrderByDescending(l => l.CreatedAt)
                 .ToListAsync();
 
         public async Task<List<NotificationLog>> GetLogsForStatsAsync(Guid subscriberId, DateTime startDate)

@@ -1,7 +1,3 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Application.Services;
-using FertileNotify.Domain.Entities;
-
 namespace FertileNotify.Infrastructure.BackgroundJobs.Automation
 {
     public class RedisWorkflowScheduleService : IWorkflowScheduleService

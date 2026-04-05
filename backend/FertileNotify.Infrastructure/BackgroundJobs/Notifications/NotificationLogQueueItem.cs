@@ -1,9 +1,3 @@
-using FertileNotify.Application.Contracts;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Enums;
-using FertileNotify.Domain.Events;
-using FertileNotify.Domain.ValueObjects;
-
 namespace FertileNotify.Infrastructure.BackgroundJobs.Notifications
 {
     public sealed class NotificationLogQueueItem

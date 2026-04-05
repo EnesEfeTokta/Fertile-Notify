@@ -1,8 +1,4 @@
-﻿using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-
-namespace FertileNotify.Infrastructure.Persistence
+﻿namespace FertileNotify.Infrastructure.Persistence
 {
     public class EfINotificationComplaintRepository : INotificationComplaintRepository
     {

@@ -1,9 +1,4 @@
-﻿using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
-
-namespace FertileNotify.Infrastructure.Persistence
+﻿namespace FertileNotify.Infrastructure.Persistence
 {
     public class EfSubscriberChannelRepository : ISubscriberChannelRepository
     {
@@ -40,6 +35,14 @@ namespace FertileNotify.Infrastructure.Persistence
             return await _context.SubscriberChannelSettings
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.SubscriberId == subscriberId && s.Channel == channel);
+        }
+
+        public async Task<List<SubscriberChannelSetting>> GetAllSettingsAsync(Guid subscriberId)
+        {
+            return await _context.SubscriberChannelSettings
+                .AsNoTracking()
+                .Where(s => s.SubscriberId == subscriberId)
+                .ToListAsync();
         }
     }
 }
