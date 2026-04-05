@@ -1,9 +1,6 @@
 using System.Text.Json;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace FertileNotify.Infrastructure.BackgroundJobs.Notifications

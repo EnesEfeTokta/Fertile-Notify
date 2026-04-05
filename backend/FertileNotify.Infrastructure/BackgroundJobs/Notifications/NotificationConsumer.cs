@@ -1,7 +1,6 @@
 using FertileNotify.Application.Contracts;
 using MassTransit;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Infrastructure.BackgroundJobs.Notifications
 {

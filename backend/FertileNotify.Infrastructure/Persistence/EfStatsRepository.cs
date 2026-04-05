@@ -1,9 +1,3 @@
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Events;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
-
 namespace FertileNotify.Infrastructure.Persistence
 {
     public class EfStatsRepository : IStatsRepository

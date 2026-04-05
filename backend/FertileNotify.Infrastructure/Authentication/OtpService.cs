@@ -1,8 +1,6 @@
-using FertileNotify.Application.Interfaces;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace FertileNotify.Infrastructure.Authentication
 {

@@ -1,7 +1,3 @@
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Events;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace FertileNotify.Infrastructure.Persistence

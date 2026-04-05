@@ -5,6 +5,7 @@ namespace FertileNotify.Application.Interfaces.Notifications
         Task AddAsync(NotificationLog log);
         Task AddRangeAsync(IEnumerable<NotificationLog> logs);
         Task<List<NotificationLog>> GetLatestBySubscriberIdAsync(Guid subscriberId, int count);
+        Task<List<NotificationLog>> GetAllBySubscriberIdAsync(Guid subscriberId);
         Task<List<NotificationLog>> GetLogsForStatsAsync(Guid subscriberId, DateTime startDate);
         
         // GDPR Methods

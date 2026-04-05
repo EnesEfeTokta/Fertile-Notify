@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FertileNotify.API.Models.Requests;
 using FertileNotify.API.Models.Responses;
 using FertileNotify.Application.DTOs;
@@ -93,6 +94,69 @@ namespace FertileNotify.Tests.Integration
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task ExportData_ShouldReturnUnauthorized_WhenNoTokenProvided()
+        {
+            // Act
+            var response = await _client.GetAsync("/api/subscribers/export-data");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
+        public async Task ExportData_ShouldReturnDownloadableJson_WhenAuthenticated()
+        {
+            // Arrange
+            var token = await GetAccessTokenAsync("subtest@example.com");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Act
+            var response = await _client.GetAsync("/api/subscribers/export-data");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+            response.Content.Headers.ContentDisposition.Should().NotBeNull();
+            response.Content.Headers.ContentDisposition!.DispositionType.Should().Be("attachment");
+            response.Content.Headers.ContentDisposition.FileName.Should().NotBeNull();
+            response.Content.Headers.ContentDisposition.FileName!.Should().Contain("fertilenotify-export-");
+            response.Content.Headers.ContentDisposition.FileName!.Should().EndWith(".json");
+
+            var payload = await response.Content.ReadAsStringAsync();
+            using var document = JsonDocument.Parse(payload);
+            var root = document.RootElement;
+
+            root.TryGetProperty("DataOwnerSubscriberId", out var ownerId).Should().BeTrue();
+            ownerId.GetGuid().Should().NotBe(Guid.Empty);
+
+            root.TryGetProperty("ExportedAtUtc", out _).Should().BeTrue();
+            root.TryGetProperty("Subscriber", out var subscriber).Should().BeTrue();
+            subscriber.TryGetProperty("Email", out var email).Should().BeTrue();
+            email.GetString().Should().Be("subtest@example.com");
+
+            root.TryGetProperty("ApiKeys", out var apiKeys).Should().BeTrue();
+            apiKeys.ValueKind.Should().Be(JsonValueKind.Array);
+
+            root.TryGetProperty("NotificationLogs", out var logs).Should().BeTrue();
+            logs.ValueKind.Should().Be(JsonValueKind.Array);
+
+            root.TryGetProperty("NotificationTemplates", out var templates).Should().BeTrue();
+            templates.ValueKind.Should().Be(JsonValueKind.Array);
+
+            root.TryGetProperty("ChannelConfigurations", out var channelConfigurations).Should().BeTrue();
+            channelConfigurations.ValueKind.Should().Be(JsonValueKind.Array);
+
+            root.TryGetProperty("WorkflowNotifications", out var workflows).Should().BeTrue();
+            workflows.ValueKind.Should().Be(JsonValueKind.Array);
+
+            root.TryGetProperty("BlacklistEntries", out var blacklistEntries).Should().BeTrue();
+            blacklistEntries.ValueKind.Should().Be(JsonValueKind.Array);
+
+            root.TryGetProperty("NotificationComplaints", out var complaints).Should().BeTrue();
+            complaints.ValueKind.Should().Be(JsonValueKind.Array);
         }
     }
 }

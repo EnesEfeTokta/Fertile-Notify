@@ -54,7 +54,7 @@ namespace FertileNotify.Infrastructure.Notifications
                 var message = new Message()
                 {
                     Token = recipient,
-                    Notification = new Notification()
+                    Notification = new FirebaseAdmin.Messaging.Notification()
                     {
                         Title = content.Subject,
                         Body = content.Body

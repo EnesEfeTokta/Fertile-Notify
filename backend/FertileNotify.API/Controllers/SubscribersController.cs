@@ -1,9 +1,8 @@
 using FertileNotify.API.Models.Requests;
 using FertileNotify.API.Models.Responses;
-using FertileNotify.Application.DTOs;
-using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.UseCases.CreateApiKey;
 using FertileNotify.Application.UseCases.DeleteAccount;
+using FertileNotify.Application.UseCases.ExportData;
 using FertileNotify.Application.UseCases.ManageChannels;
 using FertileNotify.Application.UseCases.RegisterSubscriber;
 using FertileNotify.Application.UseCases.RevokeApiKey;
@@ -19,6 +18,8 @@ using FertileNotify.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 
 namespace FertileNotify.API.Controllers
 {
@@ -223,6 +224,25 @@ namespace FertileNotify.API.Controllers
             await _subscriberRepository.SaveAsync(subscriber);
 
             return Ok(ApiResponse<object>.SuccessResult(default!, $"{count} amount of extra credits have been added."));
+        }
+
+        [HttpGet("export-data")]
+        public async Task<IActionResult> ExportData()
+        {
+            var exportData = await _mediator.Send(new ExportDataQuery
+            {
+                SubscriberId = GetSubscriberIdFromClaims()
+            });
+
+            var json = JsonSerializer.Serialize(exportData, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            var bytes = Encoding.UTF8.GetBytes(json);
+            var fileName = $"fertilenotify-export-{DateTime.UtcNow:yyyyMMdd-HHmmss}.json";
+
+            return File(bytes, "application/json", fileName);
         }
 
         [NonAction]
