@@ -12,5 +12,7 @@
             Guid subscriberId, 
             DateTime startDate, 
             DateTime endDate);
+
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
     }
 }

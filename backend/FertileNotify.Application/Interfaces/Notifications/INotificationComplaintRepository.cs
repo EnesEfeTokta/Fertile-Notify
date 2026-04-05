@@ -5,5 +5,6 @@
         Task SaveAsync(NotificationComplaint complaint);
         Task<NotificationComplaint?> GetByIdAsync(Guid id);
         Task<List<NotificationComplaint>> GetComplaintsBySubscriberIdAsync(Guid subscriberId);
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
     }
 }

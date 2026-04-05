@@ -36,5 +36,8 @@ namespace FertileNotify.Infrastructure.Persistence
                 .AsNoTracking()
                 .Where(x => x.SubscriberId == subscriberId && x.Date >= startDate && x.Date <= endDate)
                 .ToListAsync();
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.DailyStats.Where(x => x.SubscriberId == subscriberId).ExecuteDeleteAsync();
     }
 }

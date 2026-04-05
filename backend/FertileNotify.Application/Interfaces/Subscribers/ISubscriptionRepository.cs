@@ -4,5 +4,6 @@ namespace FertileNotify.Application.Interfaces.Subscribers
     {
         Task SaveAsync(Guid subscriberId, Subscription subscription);
         Task<Subscription?> GetBySubscriberIdAsync(Guid subscriberId);
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
     }
 }

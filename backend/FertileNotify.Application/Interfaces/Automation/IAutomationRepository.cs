@@ -9,6 +9,7 @@ namespace FertileNotify.Application.Interfaces.Automation
         void Update(AutomationWorkflow workflow);
         Task UpdateAsync(AutomationWorkflow workflow);
         Task DeleteAsync(Guid id);
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
         Task SaveChangesAsync();
     }
 }

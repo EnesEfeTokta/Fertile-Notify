@@ -8,5 +8,6 @@ namespace FertileNotify.Application.Interfaces.Subscribers
         Task<ForbiddenRecipient?> GetByIdAsync(Guid id);
         Task AddOrUpdateAsync(ForbiddenRecipient recipient);
         Task DeleteAsync(Guid id);
+        Task DeleteBySubscriberIdAsync(Guid subscriberId);
     }
 }

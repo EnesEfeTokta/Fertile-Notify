@@ -44,5 +44,8 @@
                 .Where(s => s.SubscriberId == subscriberId)
                 .ToListAsync();
         }
+
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+            => await _context.SubscriberChannelSettings.Where(s => s.SubscriberId == subscriberId).ExecuteDeleteAsync();
     }
 }
