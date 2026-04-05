@@ -10,21 +10,22 @@ This project contains web API controllers, request/response models, validators, 
 
 ### Controllers
 
-- **AuthController**: Manages subscriber login flow, OTP verification, JWT token refresh, and password updates.
-- **NotificationsController**: Handles the orchestration of single and bulk notification delivery requests.
-- **SubscribersController**: Manages subscriber registration, profile retrieval, and active notification channels.
+- **AuthController**: Manages subscriber login flow, OTP verification, JWT token refresh, and password recovery.
+- **NotificationsController**: Handles single notification dispatch and workflow notification management (create, update, trigger, list, delete, activate/deactivate).
+- **SubscribersController**: Manages subscriber registration, profile retrieval, contact/company updates, API key management, and per-channel settings.
 - **StatisticsController**: Provides endpoints for accessing real-time usage metrics and quota tracking.
 - **LogController**: Allows subscribers to retrieve historical notification delivery logs.
-- **RecipientsController**: Manages recipient blacklist (forbidden recipients) and opt-out requests.
-- **TemplatesController**: Management of reusable notification templates.
+- **RecipientsController**: Manages recipient blacklist (forbidden recipients), opt-out requests, and complaint reporting.
+- **TemplatesController**: Management of reusable notification templates (list, query, create/update custom).
 
 ### Models (DTOs)
 
 The API project contains structured Request and Response objects (DTOs) organized by feature:
-- **Authentication**: `LoginRequest`, `VerifyOtpRequest`, `RefreshTokenRequest`.
-- **Subscriber**: `RegisterSubscriberRequest`, `UpdateChannelsRequest`, `GenerateApiKeyRequest`.
-- **Notification**: `SendNotificationRequest`, `BulkNotificationRequest`.
-- **Statistics**: `DailyStatsResponse`, `UsageSummaryResponse`.
+- **Authentication**: `UserLoginRequest`, `OtpRequest`, `RefreshTokenRequest`, `ForgotPasswordRequest`, `UpdatePasswordRequest`, `UserResetPasswordRequest`.
+- **Subscriber**: `RegisterSubscriberRequest`, `UpdateContactRequest`, `UpdateCompanyNameRequest`, `ManageChannelRequest`, `ChannelSettingRequest`, `CreateApiKeyRequest`.
+- **Notification**: `SendNotificationRequest`, `AddWorkflowNotificationRequest`, `UpdateWorkflowNotificationRequest`.
+- **Templates**: `CreateTemplateRequest`, `GetTemplatesRequest`.
+- **Recipients**: `UnsubscribeRequest`, `BanRecipientRequest`, `UpdateBanRequest`, `ComplaintRequest`.
 
 ### Validators
 
@@ -49,24 +50,51 @@ A dual authentication system that supports:
 
 ### Authentication
 - `POST /api/auth/login`: Email/password login flow (generates OTP).
-- `POST /api/auth/verify-otp`: Secure 2FA verification (returns JWT).
+- `POST /api/auth/verify-code`: Secure 2FA OTP verification (returns JWT).
 - `POST /api/auth/refresh-token`: Renew expired access tokens.
-- `PUT /api/auth/password`: Update security credentials.
+- `POST /api/auth/forgot-password`: Send a password reset OTP to the subscriber's email.
 
 ### Subscribers
-- `POST /api/subscribers/register`: New account creation with plan selection.
-- `GET /api/subscribers/profile`: Authenticated profile retrieval.
-- `PUT /api/subscribers/channels`: Management of active delivery channels.
-- `POST /api/subscribers/api-keys`: Create secure API keys.
-- `DELETE /api/subscribers/api-keys/{id}`: Instant key revocation.
+- `POST /api/subscribers/register`: New account creation.
+- `GET /api/subscribers/me`: Authenticated profile and subscription info retrieval.
+- `PUT /api/subscribers/contact`: Update contact email or phone number.
+- `PUT /api/subscribers/company-name`: Update organization name.
+- `POST /api/subscribers/channels`: Manage active notification delivery channels.
+- `PUT /api/subscribers/password`: Update security credentials.
+- `DELETE /api/subscribers/delete-account`: Permanently delete the subscriber account.
+- `POST /api/subscribers/create-api-key`: Create a secure API key for server-to-server use.
+- `GET /api/subscribers/api-keys`: List all active API keys.
+- `DELETE /api/subscribers/api-keys/{apiKeyId}`: Instant key revocation.
+- `POST /api/subscribers/settings/channel-setting`: Set per-channel configuration (e.g., webhook URL, SMTP creds).
+- `GET /api/subscribers/settings/channel-setting`: Retrieve per-channel configuration by channel name.
 
 ### Notifications
-- `POST /api/notifications/send`: High-performance notification dispatch.
-- `POST /api/notifications/bulk`: Efficiently send messages to multiple recipients.
+- `POST /api/notifications/send`: Dispatch a notification to one or more recipients across multiple channels.
+- `POST /api/notifications/workflow/send/{eventTrigger}`: Trigger workflow notifications by event name.
+- `POST /api/notifications/workflow/add`: Create a new scheduled/triggered workflow notification.
+- `PUT /api/notifications/workflow/update`: Update an existing workflow notification.
+- `GET /api/notifications/workflow/list`: List all workflow notifications for the subscriber.
+- `GET /api/notifications/workflow/get/{id}`: Retrieve a specific workflow notification by ID.
+- `DELETE /api/notifications/workflow/delete/{id}`: Delete a workflow notification.
+- `POST /api/notifications/workflow/activate/{id}`: Activate a workflow notification.
+- `POST /api/notifications/workflow/deactivate/{id}`: Deactivate a workflow notification.
+
+### Templates
+- `GET /api/templates`: List available notification templates.
+- `POST /api/templates/query`: Query templates with filters (channel, event type, etc.).
+- `POST /api/templates/create-or-update-custom`: Create or update a custom subscriber-owned template.
+
+### Recipients
+- `POST /api/recipients/unsubscribe`: Process a recipient opt-out request.
+- `POST /api/recipients/complaint`: Submit a notification complaint from a recipient.
+- `GET /api/recipients/complaints`: Retrieve a list of received complaints.
+- `GET /api/recipients/blacklist`: List all blacklisted recipients.
+- `POST /api/recipients/blacklist`: Manually add a recipient to the blacklist.
+- `DELETE /api/recipients/blacklist/{id}`: Remove a recipient from the blacklist.
 
 ### Analytics & Logs
-- `GET /api/statistics`: Usage summary and quota tracking.
-- `GET /api/logs`: Access delivery history and status updates.
+- `GET /api/statistics`: Usage summary and quota tracking for the authenticated subscriber.
+- `GET /api/logs/{limit}`: Access recent notification delivery history and status updates.
 
 ## Configuration
 
