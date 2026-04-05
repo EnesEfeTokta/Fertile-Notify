@@ -1,7 +1,8 @@
-namespace FertileNotify.Application.DTOs.Notifications;
-
-public class ChannelConfigurationDto
+namespace FertileNotify.Application.DTOs.Notifications
 {
-	public string Channel { get; set; } = string.Empty;
-	public Dictionary<string, string> Settings { get; set; } = new();
+    public class ChannelConfigurationDto
+    {
+        public string Channel { get; set; } = string.Empty;
+        public Dictionary<string, string> Settings { get; set; } = new();
+    }
 }
