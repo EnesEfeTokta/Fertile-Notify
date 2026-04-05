@@ -68,6 +68,12 @@ namespace FertileNotify.Infrastructure.Persistence
             await _cache.RemoveAsync($"sub:{userId}");
         }
 
+        public async Task DeleteBySubscriberIdAsync(Guid subscriberId)
+        {
+            await _decorated.DeleteBySubscriberIdAsync(subscriberId);
+            await _cache.RemoveAsync($"sub:{subscriberId}");
+        }
+
         private sealed class SubscriptionCacheDto
         {
             public Guid Id { get; init; }
