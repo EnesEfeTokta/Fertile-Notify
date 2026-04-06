@@ -42,23 +42,13 @@ namespace FertileNotify.Application.UseCases.ExportData
             var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(command.SubscriberId)
                 ?? throw new NotFoundException("Subscription not found.");
 
-            var apiKeysTask = _apiKeyRepository.GetBySubscriberIdAsync(command.SubscriberId);
-            var channelConfigurationsTask = _subscriberChannelRepository.GetAllSettingsAsync(command.SubscriberId);
-            var notificationLogsTask = _notificationLogRepository.GetAllBySubscriberIdAsync(command.SubscriberId);
-            var templatesTask = _templateRepository.GetAllTemplatesAsync(command.SubscriberId);
-            var workflowsTask = _automationRepository.GetBySubscriberIdAsync(command.SubscriberId);
-            var blacklistEntriesTask = _blacklistRepository.GetAllBySubscriberAsync(command.SubscriberId);
-            var complaintsTask = _notificationComplaintRepository.GetComplaintsBySubscriberIdAsync(command.SubscriberId);
-
-            await Task.WhenAll(
-                apiKeysTask,
-                channelConfigurationsTask,
-                notificationLogsTask,
-                templatesTask,
-                workflowsTask,
-                blacklistEntriesTask,
-                complaintsTask
-            );
+            var apiKeys = await _apiKeyRepository.GetBySubscriberIdAsync(command.SubscriberId);
+            var channelConfigurations = await _subscriberChannelRepository.GetAllSettingsAsync(command.SubscriberId);
+            var notificationLogs = await _notificationLogRepository.GetAllBySubscriberIdAsync(command.SubscriberId);
+            var templates = await _templateRepository.GetAllTemplatesAsync(command.SubscriberId);
+            var workflows = await _automationRepository.GetBySubscriberIdAsync(command.SubscriberId);
+            var blacklistEntries = await _blacklistRepository.GetAllBySubscriberAsync(command.SubscriberId);
+            var complaints = await _notificationComplaintRepository.GetComplaintsBySubscriberIdAsync(command.SubscriberId);
 
             var exportData = new ExportDataDto
             {
@@ -79,7 +69,7 @@ namespace FertileNotify.Application.UseCases.ExportData
                         ExpiresAt = subscription.ExpiresAt
                     }
                 },
-                ApiKeys = apiKeysTask.Result
+                ApiKeys = apiKeys
                     .Select(key => new ApiKeyDto
                     {
                         Id = key.Id,
@@ -89,14 +79,14 @@ namespace FertileNotify.Application.UseCases.ExportData
                         CreatedAt = key.CreatedAt
                     })
                     .ToList(),
-                ChannelConfigurations = channelConfigurationsTask.Result
+                ChannelConfigurations = channelConfigurations
                     .Select(setting => new ChannelConfigurationDto
                     {
                         Channel = setting.Channel.Name,
                         Settings = new Dictionary<string, string>(setting.Settings)
                     })
                     .ToList(),
-                NotificationLogs = notificationLogsTask.Result
+                NotificationLogs = notificationLogs
                     .Select(log => new NotificationLogDto
                     {
                         Id = log.Id,
@@ -110,7 +100,7 @@ namespace FertileNotify.Application.UseCases.ExportData
                         CreatedAt = log.CreatedAt
                     })
                     .ToList(),
-                NotificationTemplates = templatesTask.Result
+                NotificationTemplates = templates
                     .Select(template => new NotificationTemplateDto
                     {
                         Id = template.Id,
@@ -123,7 +113,7 @@ namespace FertileNotify.Application.UseCases.ExportData
                         Source = template.SubscriberId == null ? "Default" : "Custom"
                     })
                     .ToList(),
-                WorkflowNotifications = workflowsTask.Result
+                WorkflowNotifications = workflows
                     .Select(workflow => new WorkflowNotificationDto
                     {
                         Id = workflow.Id,
@@ -139,7 +129,7 @@ namespace FertileNotify.Application.UseCases.ExportData
                         Body = workflow.Content.Body
                     })
                     .ToList(),
-                BlacklistEntries = blacklistEntriesTask.Result
+                BlacklistEntries = blacklistEntries
                     .Select(entry => new BlacklistEntryDto
                     {
                         Id = entry.Id,
@@ -149,7 +139,7 @@ namespace FertileNotify.Application.UseCases.ExportData
                         CreatedAt = entry.CreatedAt
                     })
                     .ToList(),
-                NotificationComplaints = complaintsTask.Result
+                NotificationComplaints = complaints
                     .Select(complaint => new NotificationComplaintDto
                     {
                         Id = complaint.Id,
