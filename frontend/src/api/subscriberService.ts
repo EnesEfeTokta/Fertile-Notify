@@ -40,5 +40,23 @@ export const subscriberService = {
     },
     buyCredits: async (count: number): Promise<void> => {
         await axiosClient.patch("/subscribers/add-extra-credits", { count });
-    }
+    },
+    deleteAccount: async (): Promise<void> => {
+        await axiosClient.delete("/subscribers/delete-account");
+    },
+    exportData: async (): Promise<void> => {
+        const response = await axiosClient.get("/subscribers/export-data", {
+            responseType: "blob",
+        });
+        const blob = new Blob([response.data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const fileName = `fertilenotify-export-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },
 };
