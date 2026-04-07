@@ -15,16 +15,10 @@ namespace FertileNotify.Application.UseCases.Workflow
 
         public async Task<Guid> Handle(CreateWorkflowNotificationCommand request, CancellationToken cancellationToken)
         {
-            var recipients = CollectRecipients(request.To);
-            if (recipients.Count == 0)
-            {
-                throw new BusinessRuleException("At least one recipient is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.EventTrigger) && string.IsNullOrWhiteSpace(request.CronExpression))
-            {
-                throw new BusinessRuleException("Either EventTrigger or CronExpression is required.");
-            }
+            var recipients = request.To.SelectMany(x => x.Recipients)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(); ;
 
             var resolvedChannel = ResolveChannel(request.Channel, request.To);
             var channel = NotificationChannel.From(resolvedChannel);
@@ -64,15 +58,6 @@ namespace FertileNotify.Application.UseCases.Workflow
             }
 
             return firstChannel;
-        }
-
-        private static List<string> CollectRecipients(List<WorkflowRecipientGroupCommand> groups)
-        {
-            return groups
-                .SelectMany(x => x.Recipients)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
         }
     }
 }

@@ -10,13 +10,6 @@ namespace FertileNotify.Application.UseCases.Workflow
         }
 
         public async Task<int> Handle(TriggerWorkflowNotificationsCommand request, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(request.EventTrigger))
-            {
-                throw new BusinessRuleException("eventTrigger cannot be empty.");
-            }
-
-            return await _automationTriggerService.TriggerWorkflowsAsync(request.SubscriberId, request.EventTrigger.Trim());
-        }
+            => await _automationTriggerService.TriggerWorkflowsAsync(request.SubscriberId, request.EventTrigger.Trim());
     }
 }

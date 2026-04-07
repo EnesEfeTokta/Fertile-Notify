@@ -61,15 +61,8 @@ namespace FertileNotify.API.Validators
 
         private static bool IsValidChannel(string channel)
         {
-            try
-            {
-                NotificationChannel.From(channel);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            try { NotificationChannel.From(channel); return true; }
+            catch { return false; }
         }
 
         private static bool HaveSingleChannelAndMatchRequestChannel(UpdateWorkflowNotificationRequest request)
