@@ -1,4 +1,5 @@
 using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using FluentAssertions;
 
@@ -23,7 +24,7 @@ namespace FertileNotify.Tests
 
             // Act
             var workflow = new AutomationWorkflow(
-                subscriberId, name, description, content, channel, 
+                subscriberId, name, description, content, EventType.TestForDevelop, channel, 
                 eventTrigger, cronExpression, recipients);
 
             // Assert
@@ -47,11 +48,11 @@ namespace FertileNotify.Tests
 
             // Act
             var workflow1 = new AutomationWorkflow(
-                _subscriberId, "W1", "D1", content, NotificationChannel.Email, 
+                _subscriberId, "W1", "D1", content, EventType.TestForDevelop, NotificationChannel.Email, 
                 "event1", "", new List<string> { "u1@example.com" });
 
             var workflow2 = new AutomationWorkflow(
-                _subscriberId, "W2", "D2", content, NotificationChannel.SMS, 
+                _subscriberId, "W2", "D2", content, EventType.TestForDevelop, NotificationChannel.SMS, 
                 "event2", "", new List<string> { "+1234567890" });
 
             // Assert
@@ -64,7 +65,7 @@ namespace FertileNotify.Tests
             // Arrange
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Test", "Test", NotificationContent.Create("S", "B"), 
-                NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
+                EventType.TestForDevelop, NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
             workflow.Deactivate();
 
             // Act
@@ -80,7 +81,7 @@ namespace FertileNotify.Tests
             // Arrange
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Test", "Test", NotificationContent.Create("S", "B"), 
-                NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
+                EventType.TestForDevelop, NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
 
             // Act
             workflow.Deactivate();
@@ -95,7 +96,7 @@ namespace FertileNotify.Tests
             // Arrange
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Old Name", "Old Description", NotificationContent.Create("S", "B"), 
-                NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
+                EventType.TestForDevelop, NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
 
             // Act
             workflow.UpdateDetails("New Name", "New Description");
@@ -113,7 +114,7 @@ namespace FertileNotify.Tests
             var newContent = NotificationContent.Create("New Subject", "New Body");
 
             var workflow = new AutomationWorkflow(
-                _subscriberId, "Test", "Test", oldContent, NotificationChannel.Email, 
+                _subscriberId, "Test", "Test", oldContent, EventType.TestForDevelop, NotificationChannel.Email, 
                 "event", "", new List<string> { "user@example.com" });
 
             // Act
@@ -129,7 +130,7 @@ namespace FertileNotify.Tests
             // Arrange
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Test", "Test", NotificationContent.Create("S", "B"), 
-                NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
+                EventType.TestForDevelop, NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
 
             // Act
             workflow.UpdateChannel(NotificationChannel.SMS);
@@ -147,7 +148,7 @@ namespace FertileNotify.Tests
 
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Test", "Test", NotificationContent.Create("S", "B"), 
-                NotificationChannel.Email, "event", "", oldRecipients);
+                EventType.TestForDevelop, NotificationChannel.Email, "event", "", oldRecipients);
 
             // Act
             workflow.UpdateRecipients(newRecipients);
@@ -162,7 +163,7 @@ namespace FertileNotify.Tests
             // Arrange
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Test", "Test", NotificationContent.Create("S", "B"), 
-                NotificationChannel.Email, "old_event", "0 0 * * *", new List<string> { "user@example.com" });
+                EventType.TestForDevelop, NotificationChannel.Email, "old_event", "0 0 * * *", new List<string> { "user@example.com" });
 
             // Act
             workflow.UpdateSchedule("new_event", "0 12 * * *");
@@ -178,7 +179,7 @@ namespace FertileNotify.Tests
             // Arrange
             var workflow = new AutomationWorkflow(
                 _subscriberId, "Original", "Description", NotificationContent.Create("Subject", "Body"), 
-                NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
+                EventType.TestForDevelop, NotificationChannel.Email, "event", "", new List<string> { "user@example.com" });
             var originalId = workflow.Id;
             var originalSubscriberId = workflow.SubscriberId;
             var originalCreatedAt = workflow.CreatedAt;

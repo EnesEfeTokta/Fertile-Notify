@@ -1,6 +1,3 @@
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FertileNotify.Infrastructure.Persistence.Configurations
@@ -10,6 +7,10 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<AutomationWorkflow> builder)
         {
             builder.HasKey(a => a.Id);
+
+            builder.Property(t => t.EventType)
+                .HasMaxLength(50)
+                .IsRequired();
 
             builder.Property(t => t.Channel)
                 .HasConversion(

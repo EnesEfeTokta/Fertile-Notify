@@ -23,17 +23,17 @@ namespace FertileNotify.Application.UseCases.Workflow
             var resolvedChannel = ResolveChannel(request.Channel, request.To);
             var channel = NotificationChannel.From(resolvedChannel);
             var content = NotificationContent.Create(request.Subject, request.Body);
+            var eventType = EventType.From(request.EventType);
 
             var workflow = new AutomationWorkflow(
                 request.SubscriberId,
                 request.Name,
                 request.Description,
                 content,
+                eventType,
                 channel,
                 request.EventTrigger?.Trim() ?? string.Empty,
                 request.CronExpression,
-                1,
-                0,
                 recipients);
 
             await _automationRepository.CreateAsync(workflow);

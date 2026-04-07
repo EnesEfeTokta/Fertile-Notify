@@ -5,6 +5,7 @@ namespace FertileNotify.Application.DTOs.Automation
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string EventType { get; set; } = string.Empty;
         public string Channel { get; set; } = string.Empty;
         public string EventTrigger { get; set; } = string.Empty;
         public string CronExpression { get; set; } = string.Empty;

@@ -27,6 +27,7 @@ namespace FertileNotify.Application.UseCases.Workflow
                 Id = workflow.Id,
                 Name = workflow.Name,
                 Description = workflow.Description,
+                EventType = workflow.EventType,
                 Channel = workflow.Channel.Name,
                 EventTrigger = workflow.EventTrigger,
                 CronExpression = workflow.CronExpression,

@@ -1,8 +1,7 @@
-using FertileNotify.Application.Interfaces;
 using FertileNotify.Application.Contracts;
-using FertileNotify.Application.Services;
 using FertileNotify.Application.UseCases.Workflow;
 using FertileNotify.Domain.Entities;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.Exceptions;
 using FertileNotify.Domain.ValueObjects;
 using FluentAssertions;
@@ -55,7 +54,7 @@ namespace FertileNotify.Tests
             var workflows = new List<AutomationWorkflow>
             {
                 new(_subscriberId, "W1", "D1", NotificationContent.Create("S", "B"),
-                    NotificationChannel.Email, "user_signup", "", new List<string> { "user@example.com" })
+                    EventType.TestForDevelop, NotificationChannel.Email, "user_signup", "", new List<string> { "user@example.com" })
             };
 
             _mockAutomationRepository
@@ -86,7 +85,7 @@ namespace FertileNotify.Tests
             var workflows = new List<AutomationWorkflow>
             {
                 new(_subscriberId, "W1", "D1", NotificationContent.Create("S", "B"),
-                    NotificationChannel.Email, "user_signup", "", new List<string> { "user@example.com" })
+                    EventType.TestForDevelop, NotificationChannel.Email, "user_signup", "", new List<string> { "user@example.com" })
             };
 
             _mockAutomationRepository
@@ -112,6 +111,7 @@ namespace FertileNotify.Tests
                 SubscriberId = _subscriberId,
                 Name = "Welcome Email",
                 Description = "Send welcome email to new users",
+                EventType = "TestForDevelop",
                 Channel = "email",
                 EventTrigger = "user_signup",
                 CronExpression = "",
@@ -152,6 +152,7 @@ namespace FertileNotify.Tests
                 SubscriberId = _subscriberId,
                 Name = "Test",
                 Description = "Test",
+                EventType = "TestForDevelop",
                 Channel = "email",
                 EventTrigger = "",
                 CronExpression = "0 9 * * *",
@@ -190,6 +191,7 @@ namespace FertileNotify.Tests
                 "Workflow",
                 "Description",
                 NotificationContent.Create("Subject", "Body"),
+                EventType.TestForDevelop,
                 NotificationChannel.Email,
                 "event",
                 "0 8 * * *",
@@ -248,10 +250,10 @@ namespace FertileNotify.Tests
             var workflows = new List<AutomationWorkflow>
             {
                 new(_subscriberId, "Workflow 1", "Desc 1", 
-                    NotificationContent.Create("S1", "B1"), NotificationChannel.Email, "event1", "", 
+                    NotificationContent.Create("S1", "B1"), EventType.TestForDevelop, NotificationChannel.Email, "event1", "", 
                     new List<string> { "user1@example.com" }),
                 new(_subscriberId, "Workflow 2", "Desc 2", 
-                    NotificationContent.Create("S2", "B2"), NotificationChannel.SMS, "event2", "", 
+                    NotificationContent.Create("S2", "B2"), EventType.TestForDevelop, NotificationChannel.SMS, "event2", "", 
                     new List<string> { "+1234567890" })
             };
 
@@ -277,6 +279,7 @@ namespace FertileNotify.Tests
                 "Test Workflow",
                 "Test Description",
                 NotificationContent.Create("Subject", "Body"),
+                EventType.TestForDevelop,
                 NotificationChannel.Email,
                 "test_event",
                 "",
@@ -328,6 +331,7 @@ namespace FertileNotify.Tests
                 "Test",
                 "Test",
                 NotificationContent.Create("S", "B"),
+                EventType.TestForDevelop,
                 NotificationChannel.Email,
                 "event",
                 "",
@@ -357,6 +361,7 @@ namespace FertileNotify.Tests
                 "Test",
                 "Test",
                 NotificationContent.Create("S", "B"),
+                EventType.TestForDevelop,
                 NotificationChannel.Email,
                 "event",
                 "",
@@ -396,6 +401,7 @@ namespace FertileNotify.Tests
                 "Test",
                 "Test",
                 NotificationContent.Create("S", "B"),
+                EventType.TestForDevelop,
                 NotificationChannel.Email,
                 "event",
                 "",
@@ -439,6 +445,7 @@ namespace FertileNotify.Tests
                 "Test",
                 "Test",
                 NotificationContent.Create("S", "B"),
+                EventType.TestForDevelop,
                 NotificationChannel.Email,
                 "event",
                 "",

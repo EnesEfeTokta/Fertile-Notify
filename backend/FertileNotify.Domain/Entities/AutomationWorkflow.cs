@@ -1,3 +1,4 @@
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Domain.Entities
@@ -8,6 +9,7 @@ namespace FertileNotify.Domain.Entities
         public Guid SubscriberId { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
+        public string EventType { get; private set; } = string.Empty;
         public NotificationChannel Channel { get; private set; } = default!;
         public NotificationContent Content { get; private set; } = default!;
         public string EventTrigger { get; private set; } = string.Empty;
@@ -25,6 +27,7 @@ namespace FertileNotify.Domain.Entities
             string name,
             string description,
             NotificationContent content,
+            EventType eventType,
             NotificationChannel channel,
             string eventTrigger,
             string cronExpression,
@@ -34,6 +37,7 @@ namespace FertileNotify.Domain.Entities
                 name,
                 description,
                 content,
+                eventType,
                 channel,
                 eventTrigger,
                 cronExpression,
@@ -47,6 +51,7 @@ namespace FertileNotify.Domain.Entities
             string name,
             string description,
             NotificationContent content,
+            EventType eventType,
             NotificationChannel channel,
             string eventTrigger,
             string cronExpression,
@@ -59,6 +64,7 @@ namespace FertileNotify.Domain.Entities
             Name = name;
             Description = description;
             Content = content;
+            EventType = eventType.Name;
             Channel = channel;
             EventTrigger = eventTrigger;
             CronExpression = cronExpression;
@@ -81,6 +87,7 @@ namespace FertileNotify.Domain.Entities
 
         public void UpdateContent(NotificationContent content) => Content = content;
         public void UpdateChannel(NotificationChannel channel) => Channel = channel;
+        public void UpdateEventType(EventType eventType) => EventType = eventType.Name;
         public void UpdateRecipients(List<string> recipients) => Recipients = recipients;
 
         public void UpdateSchedule(string eventTrigger, string cronExpression)

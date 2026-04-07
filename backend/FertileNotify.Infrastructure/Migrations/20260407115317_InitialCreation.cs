@@ -36,6 +36,7 @@ namespace FertileNotify.Infrastructure.Migrations
                     SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
+                    EventType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Channel = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Content_Subject = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Content_Body = table.Column<string>(type: "text", nullable: false),

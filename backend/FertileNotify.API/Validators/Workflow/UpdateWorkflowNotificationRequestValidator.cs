@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using FertileNotify.API.Models.Requests;
+using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
 using FluentValidation;
 
@@ -20,6 +21,10 @@ namespace FertileNotify.API.Validators
 
             RuleFor(x => x.Description)
                 .MaximumLength(500).WithMessage("Description must be at most 500 characters.");
+
+            RuleFor(x => x.EventType)
+                .Must(v => v == null || IsValidEventType(v))
+                .WithMessage("Invalid EventType: '{PropertyValue}'.");
 
             RuleFor(x => x.EventTrigger)
                 .MaximumLength(100).WithMessage("EventTrigger must be at most 100 characters.")
@@ -62,6 +67,12 @@ namespace FertileNotify.API.Validators
         private static bool IsValidChannel(string channel)
         {
             try { NotificationChannel.From(channel); return true; }
+            catch { return false; }
+        }
+
+        private static bool IsValidEventType(string eventType)
+        {
+            try { EventType.From(eventType); return true; }
             catch { return false; }
         }
 
