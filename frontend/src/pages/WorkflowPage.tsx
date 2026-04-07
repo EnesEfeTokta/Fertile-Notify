@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AppShell from '../components/AppShell';
 import { workflowService } from '../api/workflowService';
 import { NOTIFICATION_CHANNELS } from '../constants/channels';
+import { EVENT_TYPES } from '../constants/eventTypes';
 import type { Workflow, CreateWorkflowRequest, UpdateWorkflowRequest } from '../types/workflow';
 
 /* ─── helpers ─────────────────────────────────────────── */
@@ -13,6 +14,7 @@ const fmtDate = (iso: string) => {
 const EMPTY_FORM: CreateWorkflowRequest = {
     name: '',
     description: '',
+    eventType: '',
     channels: 'email',
     eventTrigger: '',
     cronExpression: '',
@@ -98,6 +100,7 @@ export default function WorkflowPage() {
         setForm({
             name: w.name,
             description: w.description,
+            eventType: w.eventType ?? '',
             channels: w.channel,
             eventTrigger: w.eventTrigger,
             cronExpression: w.cronExpression,
@@ -112,6 +115,7 @@ export default function WorkflowPage() {
     /* ── save (create or update) ── */
     const handleSave = async () => {
         if (!form.name.trim()) return showToast('Name is required.', 'error');
+        if (!form.eventType.trim()) return showToast('Event type is required.', 'error');
         setSaving(true);
         try {
             // Build recipients from inputs
@@ -124,6 +128,7 @@ export default function WorkflowPage() {
                     id: editTarget.id,
                     name: form.name,
                     description: form.description,
+                    eventType: form.eventType,
                     channel: form.channels,
                     eventTrigger: form.eventTrigger,
                     cronExpression: form.cronExpression,
@@ -291,6 +296,11 @@ export default function WorkflowPage() {
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-tertiary border border-primary rounded-md text-[10px] font-semibold text-secondary uppercase tracking-wider">
                                             {NOTIFICATION_CHANNELS.find(c => c.id === w.channel?.toLowerCase())?.icon ?? '🔔'} {w.channel}
                                         </span>
+                                        {w.eventType && (
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-[10px] font-semibold text-indigo-300">
+                                                {EVENT_TYPES.find(et => et.value === w.eventType)?.icon ?? '🏷️'} {EVENT_TYPES.find(et => et.value === w.eventType)?.label ?? w.eventType}
+                                            </span>
+                                        )}
                                         {(w.eventTrigger || w.cronExpression) && (
                                             <TriggerBadge label={w.eventTrigger || w.cronExpression} />
                                         )}
@@ -402,6 +412,20 @@ export default function WorkflowPage() {
                                         value={form.description}
                                         onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="text-[11px] font-bold uppercase tracking-widest text-muted block mb-1.5">Event Type <span className="text-red-400">*</span></label>
+                                    <select
+                                        className="input-modern text-sm bg-primary cursor-pointer"
+                                        value={form.eventType}
+                                        onChange={e => setForm(f => ({ ...f, eventType: e.target.value }))}
+                                    >
+                                        <option value="">Select event type</option>
+                                        {EVENT_TYPES.map(et => (
+                                            <option key={et.value} value={et.value}>{et.icon} {et.label}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 {/* Trigger section */}
