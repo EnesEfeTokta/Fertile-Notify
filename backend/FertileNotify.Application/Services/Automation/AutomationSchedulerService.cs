@@ -25,7 +25,7 @@ namespace FertileNotify.Application.Services.Automation
                     SubscriberId = workflow.SubscriberId,
                     WorkflowId = workflow.Id,
                     Recipient = recipient,
-                    EventType = "Campaign",
+                    EventType = workflow.EventType,
                     Channel = workflow.Channel.Name,
                     Parameters = new Dictionary<string, string>(),
                     DirectSubject = workflow.Content.Subject,

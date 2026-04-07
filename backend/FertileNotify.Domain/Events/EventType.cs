@@ -10,25 +10,30 @@ namespace FertileNotify.Domain.Events
         }
 
         // --- AUTH & ACCOUNT ---
-        public static readonly EventType SubscriberRegistered = new("SubscriberRegistered"); // Yeni üye
-        public static readonly EventType PasswordReset = new("PasswordReset"); // Şifre sıfırlama
-        public static readonly EventType EmailVerified = new("EmailVerified"); // E-posta doğrulandı
-        public static readonly EventType LoginAlert = new("LoginAlert"); // Yeni cihazdan giriş yapıldı
-        public static readonly EventType AccountLocked = new("AccountLocked"); // Hesap kilitlendi
+        public static readonly EventType SubscriberRegistered = new("SubscriberRegistered");
+        public static readonly EventType PasswordReset = new("PasswordReset");
+        public static readonly EventType EmailVerified = new("EmailVerified");
+        public static readonly EventType LoginAlert = new("LoginAlert");
+        public static readonly EventType AccountLocked = new("AccountLocked");
 
         // --- E-COMMERCE ---
-        public static readonly EventType OrderCreated = new("OrderCreated"); // Sipariş alındı
-        public static readonly EventType OrderShipped = new("OrderShipped"); // Kargo yola çıktı
-        public static readonly EventType OrderDelivered = new("OrderDelivered"); // Teslim edildi
-        public static readonly EventType OrderCancelled = new("OrderCancelled"); // İptal edildi
-        public static readonly EventType PaymentFailed = new("PaymentFailed"); // Ödeme başarısız
-        public static readonly EventType SubscriptionRenewed = new("SubscriptionRenewed"); // Abonelik yenilendi (Firma müşterisi için)
+        public static readonly EventType OrderCreated = new("OrderCreated");
+        public static readonly EventType OrderShipped = new("OrderShipped");
+        public static readonly EventType OrderDelivered = new("OrderDelivered");
+        public static readonly EventType OrderCancelled = new("OrderCancelled");
+        public static readonly EventType PaymentFailed = new("PaymentFailed");
+        public static readonly EventType SubscriptionRenewed = new("SubscriptionRenewed");
 
         // --- GENERAL & MARKETING ---
-        public static readonly EventType Campaign = new("Campaign"); // Genel kampanya
-        public static readonly EventType MonthlyNewsletter = new("MonthlyNewsletter"); // Bülten
-        public static readonly EventType SupportTicketUpdated = new("SupportTicketUpdated"); // Destek talebi güncellendi
-        public static readonly EventType TestForDevelop = new("TestForDevelop"); // Geliştirme testi
+        public static readonly EventType Campaign = new("Campaign");
+        public static readonly EventType MonthlyNewsletter = new("MonthlyNewsletter");
+        public static readonly EventType SupportTicketUpdated = new("SupportTicketUpdated");
+
+        // --- WORKFLOW & AUTOMATION ---
+        public static readonly EventType WorkflowTriggered = new("WorkflowTriggered");
+
+        // --- FOR TESTING PURPOSES ---
+        public static readonly EventType TestForDevelop = new("TestForDevelop");
 
         public static EventType From(string name)
         {

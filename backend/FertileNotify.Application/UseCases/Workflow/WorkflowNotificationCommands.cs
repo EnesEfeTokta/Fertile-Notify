@@ -11,6 +11,7 @@ namespace FertileNotify.Application.UseCases.Workflow
         public Guid SubscriberId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string EventType { get; set; } = string.Empty;
         public string? Channel { get; set; }
         public string EventTrigger { get; set; } = string.Empty;
         public string CronExpression { get; set; } = string.Empty;
@@ -25,6 +26,7 @@ namespace FertileNotify.Application.UseCases.Workflow
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
+        public string? EventType { get; set; }
         public string? Channel { get; set; }
         public string? EventTrigger { get; set; }
         public string? CronExpression { get; set; }

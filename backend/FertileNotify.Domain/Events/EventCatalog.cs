@@ -22,7 +22,10 @@
             // General
             EventType.Campaign,
             EventType.MonthlyNewsletter,
-            EventType.SupportTicketUpdated
+            EventType.SupportTicketUpdated,
+
+            // For Test
+            EventType.TestForDevelop
         ];
 
         public static bool IsSupported(EventType eventType) => _events.Contains(eventType);

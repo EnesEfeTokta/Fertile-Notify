@@ -20,6 +20,12 @@ namespace FertileNotify.Application.UseCases.Workflow
                 workflow.UpdateDetails(request.Name ?? workflow.Name, request.Description ?? workflow.Description);
             }
 
+            if (!string.IsNullOrWhiteSpace(request.EventType))
+            {
+                var eventType = EventType.From(request.EventType);
+                workflow.UpdateEventType(eventType);
+            }
+
             if (!string.IsNullOrWhiteSpace(request.Subject) || !string.IsNullOrWhiteSpace(request.Body))
             {
                 var currentContent = workflow.Content;

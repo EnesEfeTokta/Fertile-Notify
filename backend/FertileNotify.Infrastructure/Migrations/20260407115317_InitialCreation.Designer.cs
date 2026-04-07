@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FertileNotify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260403071524_InitialCreation")]
+    [Migration("20260407115317_InitialCreation")]
     partial class InitialCreation
     {
         /// <inheritdoc />
@@ -88,6 +88,11 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.Property<string>("EventTrigger")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
