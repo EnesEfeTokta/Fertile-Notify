@@ -26,7 +26,7 @@ namespace FertileNotify.Application.UseCases.NotificationComplaint
                 var complaint = Domain.Entities.NotificationComplaint.Create(
                     command.SubscriberId,
                     EmailAddress.Create(command.ReporterEmail),
-                    Enum.Parse<Domain.Enums.ComplaintType>(command.Reason, ignoreCase: true),
+                    Enum.Parse<ComplaintType>(command.Reason, ignoreCase: true),
                     command.Description,
                     new NotificationContent(command.Subject, command.Body)
                 );

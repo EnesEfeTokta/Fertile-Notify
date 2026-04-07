@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using FertileNotify.Domain.ValueObjects;
 
 namespace FertileNotify.Domain.Entities
