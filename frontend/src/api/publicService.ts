@@ -18,9 +18,9 @@ export interface ComplaintRequest {
 
 export const publicService = {
     unsubscribe: async (data: UnsubscribeRequest): Promise<void> => {
-        await axiosClient.post("/notifications/unsubscribe", data);
+        await axiosClient.post("/recipients/unsubscribe", data);
     },
     submitComplaint: async (data: ComplaintRequest): Promise<void> => {
-        await axiosClient.post("/complaints", data);
+        await axiosClient.post("/recipients/complaint", data);
     }
 };
