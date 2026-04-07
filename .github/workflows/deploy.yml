@@ -67,10 +67,10 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            docker-compose --profile prod pull
+            docker compose --profile prod pull
 
-            docker-compose --profile prod down --remove-orphans
-            docker-compose --profile prod up -d
+            docker compose --profile prod down --remove-orphans
+            docker compose --profile prod up -d
 
             docker image prune -f
 
