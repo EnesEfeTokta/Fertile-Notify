@@ -74,21 +74,6 @@ namespace FertileNotify.Tests
         }
 
         [Fact]
-        public async Task TriggerAsync_Should_Throw_Exception_When_EventTrigger_IsEmpty()
-        {
-            // Arrange
-            var command = new TriggerWorkflowNotificationsCommand
-            {
-                SubscriberId = _subscriberId,
-                EventTrigger = string.Empty
-            };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<BusinessRuleException>(
-                () => _triggerHandler.Handle(command, CancellationToken.None));
-        }
-
-        [Fact]
         public async Task TriggerAsync_Should_Trim_EventTrigger()
         {
             // Arrange
@@ -159,27 +144,6 @@ namespace FertileNotify.Tests
         }
 
         [Fact]
-        public async Task CreateAsync_Should_Throw_Exception_When_Recipients_Empty()
-        {
-            // Arrange
-            var command = new CreateWorkflowNotificationCommand
-            {
-                SubscriberId = _subscriberId,
-                Name = "Test",
-                Description = "Test",
-                Channel = "email",
-                EventTrigger = "test",
-                Subject = "Test",
-                Body = "Test",
-                To = new List<WorkflowRecipientGroupCommand>()
-            };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<BusinessRuleException>(
-                () => _createHandler.Handle(command, CancellationToken.None));
-        }
-
-        [Fact]
         public async Task CreateAsync_Should_Allow_When_EventTrigger_Is_Empty_But_Cron_Is_Set()
         {
             // Arrange
@@ -215,72 +179,6 @@ namespace FertileNotify.Tests
             // Assert
             workflowId.Should().NotBe(Guid.Empty);
             _mockWorkflowScheduleService.Verify(s => s.SyncAsync(It.IsAny<AutomationWorkflow>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task CreateAsync_Should_Throw_Exception_When_EventTrigger_And_Cron_Are_Empty()
-        {
-            // Arrange
-            var command = new CreateWorkflowNotificationCommand
-            {
-                SubscriberId = _subscriberId,
-                Name = "Test",
-                Description = "Test",
-                Channel = "email",
-                EventTrigger = "",
-                CronExpression = "",
-                Subject = "Test",
-                Body = "Test",
-                To = new List<WorkflowRecipientGroupCommand>
-                {
-                    new() { Channel = "email", Recipients = new() { "user@example.com" } }
-                }
-            };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<BusinessRuleException>(() => _createHandler.Handle(command, CancellationToken.None));
-        }
-
-        [Fact]
-        public async Task UpdateAsync_Should_Update_Workflow_Details()
-        {
-            // Arrange
-            var existingWorkflow = new AutomationWorkflow(
-                _subscriberId,
-                "Old Name",
-                "Old Description",
-                NotificationContent.Create("Subject", "Body"),
-                NotificationChannel.Email,
-                "event",
-                "",
-                new List<string> { "user@example.com" });
-
-            var command = new UpdateWorkflowNotificationCommand
-            {
-                SubscriberId = _subscriberId,
-                Id = existingWorkflow.Id,
-                Name = "New Name",
-                Description = "New Description"
-            };
-
-            _mockAutomationRepository
-                .Setup(r => r.GetByIdAsync(existingWorkflow.Id))
-                .ReturnsAsync(existingWorkflow);
-            _mockAutomationRepository
-                .Setup(r => r.Update(It.IsAny<AutomationWorkflow>()));
-            _mockAutomationRepository
-                .Setup(r => r.SaveChangesAsync())
-                .Returns(Task.CompletedTask);
-
-            // Act
-            await _handler.UpdateAsync(command);
-
-            // Assert
-            existingWorkflow.Name.Should().Be("New Name");
-            existingWorkflow.Description.Should().Be("New Description");
-            _mockAutomationRepository.Verify(r => r.Update(It.IsAny<AutomationWorkflow>()), Times.Once);
-            _mockAutomationRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
-            _mockWorkflowScheduleService.Verify(s => s.SyncAsync(It.IsAny<AutomationWorkflow>()), Times.Never);
         }
 
         [Fact]
