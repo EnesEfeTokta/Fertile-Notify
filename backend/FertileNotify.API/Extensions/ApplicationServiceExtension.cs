@@ -28,6 +28,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<IBlacklistRepository, EfBlacklistRepository>();
             services.AddScoped<INotificationComplaintRepository, EfINotificationComplaintRepository>();
             services.AddScoped<IAutomationRepository, EfAutomationRepository>();
+            services.AddScoped<ISystemNotificationRepository, EfSystemNotificationRepository>();
 
             // Application Services
             services.AddScoped<IStatisticsService, StatisticsService>();
@@ -38,6 +39,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<TemplateEngine>();
             services.AddScoped<AutomationTriggerService>();
             services.AddScoped<AutomationSchedulerService>();
+            services.AddScoped<ISystemNotificationService, SystemNotificationService>();
             services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
             services.AddHttpClient();
 
