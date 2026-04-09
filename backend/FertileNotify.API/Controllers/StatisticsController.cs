@@ -1,11 +1,4 @@
-﻿using FertileNotify.API.Models.Responses;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Domain.Exceptions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-
-namespace FertileNotify.API.Controllers
+﻿namespace FertileNotify.API.Controllers
 {
     [Authorize]
     [ApiController]

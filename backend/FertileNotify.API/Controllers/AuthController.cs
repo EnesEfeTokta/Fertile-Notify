@@ -1,13 +1,3 @@
-using FertileNotify.API.Models.Requests;
-using FertileNotify.API.Models.Responses;
-using FertileNotify.Application.DTOs;
-using FertileNotify.Application.UseCases.ForgotPassword;
-using FertileNotify.Application.UseCases.Login;
-using FertileNotify.Application.UseCases.RefreshToken;
-using FertileNotify.Application.UseCases.VerifyCode;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-
 namespace FertileNotify.API.Controllers
 {
     [ApiController]
