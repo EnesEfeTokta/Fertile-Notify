@@ -1,26 +1,3 @@
-using FertileNotify.API.Models.Requests;
-using FertileNotify.API.Models.Responses;
-using FertileNotify.Application.UseCases.CreateApiKey;
-using FertileNotify.Application.UseCases.DeleteAccount;
-using FertileNotify.Application.UseCases.ExportData;
-using FertileNotify.Application.UseCases.ManageChannels;
-using FertileNotify.Application.UseCases.RegisterSubscriber;
-using FertileNotify.Application.UseCases.RevokeApiKey;
-using FertileNotify.Application.UseCases.SetChannelSetting;
-using FertileNotify.Application.UseCases.UpdateCompanyName;
-using FertileNotify.Application.UseCases.UpdateContactInfo;
-using FertileNotify.Application.UseCases.UpdatePassword;
-using MediatR;
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.Enums;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-
 namespace FertileNotify.API.Controllers
 {
     [Authorize]

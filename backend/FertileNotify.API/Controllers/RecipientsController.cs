@@ -1,16 +1,3 @@
-using FertileNotify.API.Models.Requests;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Application.UseCases.NotificationComplaint;
-using FertileNotify.Application.UseCases.Unsubscribe;
-using MediatR;
-using FertileNotify.Domain.Exceptions;
-using FertileNotify.Domain.ValueObjects;
-using FertileNotify.Domain.Entities;
-using FertileNotify.API.Models.Responses;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-
 namespace FertileNotify.API.Controllers
 {
     [ApiController]

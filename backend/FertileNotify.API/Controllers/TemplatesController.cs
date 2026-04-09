@@ -1,14 +1,4 @@
-﻿using FertileNotify.API.Models.Requests;
-using FertileNotify.API.Models.Responses;
-using FertileNotify.Application.UseCases.Templates;
-using FertileNotify.Domain.Exceptions;
-using MediatR;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-
-namespace FertileNotify.API.Controllers
+﻿namespace FertileNotify.API.Controllers
 {
     [ApiController]
     [Route("api/templates")]
