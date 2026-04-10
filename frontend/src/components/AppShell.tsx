@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import SystemNotificationsDropdown from "./SystemNotificationsDropdown";
 
 interface AppShellProps {
     children: ReactNode;
@@ -214,7 +215,10 @@ export default function AppShell({ children, title, actions, companyName, plan }
                 {/* Sticky top bar */}
                 <header className="sticky top-0 z-50 border-b border-primary bg-primary/85 backdrop-blur-md px-8 py-4 flex justify-between items-center">
                     <h1 className="font-display font-bold text-xl tracking-tight">{title}</h1>
-                    {actions && <div className="flex items-center gap-2">{actions}</div>}
+                    <div className="flex items-center gap-4">
+                        {actions && <div className="flex items-center gap-2">{actions}</div>}
+                        <SystemNotificationsDropdown />
+                    </div>
                 </header>
 
                 {/* Page content */}

@@ -213,37 +213,6 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.ToTable("NotificationLogs");
                 });
 
-            modelBuilder.Entity("FertileNotify.Domain.Entities.SystemNotification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("SubscriberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubscriberId", "IsRead");
-
-                    b.ToTable("SystemNotifications");
-                });
-
             modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -404,6 +373,37 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.SystemNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SubscriberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriberId", "IsRead");
+
+                    b.ToTable("SystemNotifications");
                 });
 
             modelBuilder.Entity("FertileNotify.Domain.Entities.AutomationWorkflow", b =>
