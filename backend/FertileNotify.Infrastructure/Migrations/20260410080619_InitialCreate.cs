@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FertileNotify.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreation : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -193,6 +193,22 @@ namespace FertileNotify.Infrastructure.Migrations
                     table.PrimaryKey("PK_Subscriptions", x => x.Id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SystemNotifications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SystemNotifications", x => x.Id);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_DailyStats_SubscriberId_Channel",
                 table: "DailyStats",
@@ -202,6 +218,11 @@ namespace FertileNotify.Infrastructure.Migrations
                 name: "IX_SubscriberChannelSettings_SubscriberId_Channel",
                 table: "SubscriberChannelSettings",
                 columns: new[] { "SubscriberId", "Channel" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemNotifications_SubscriberId_IsRead",
+                table: "SystemNotifications",
+                columns: new[] { "SubscriberId", "IsRead" });
         }
 
         /// <inheritdoc />
@@ -236,6 +257,9 @@ namespace FertileNotify.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Subscriptions");
+
+            migrationBuilder.DropTable(
+                name: "SystemNotifications");
         }
     }
 }
