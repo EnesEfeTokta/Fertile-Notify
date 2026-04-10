@@ -35,17 +35,12 @@ namespace FertileNotify.Application.UseCases.Workflow
                 workflow.UpdateContent(updatedContent);
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Channel))
-            {
-                workflow.UpdateChannel(NotificationChannel.From(request.Channel));
-            }
-
             if (request.To != null && request.To.Count > 0)
             {
-                var recipients = CollectRecipients(request.To);
-                if (recipients.Count > 0)
+                var recipientGroups = BuildRecipientGroups(request.To);
+                if (recipientGroups.Count > 0)
                 {
-                    workflow.UpdateRecipients(recipients);
+                    workflow.UpdateRecipientGroups(recipientGroups);
                 }
             }
 
@@ -72,12 +67,20 @@ namespace FertileNotify.Application.UseCases.Workflow
             return Unit.Value;
         }
 
-        private static List<string> CollectRecipients(List<WorkflowRecipientGroupCommand> groups)
+        private static List<WorkflowRecipientGroup> BuildRecipientGroups(List<WorkflowRecipientGroupCommand> groups)
         {
             return groups
-                .SelectMany(x => x.Recipients)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(group => !string.IsNullOrWhiteSpace(group.Channel))
+                .GroupBy(group => group.Channel.Trim(), StringComparer.OrdinalIgnoreCase)
+                .Select(group => new WorkflowRecipientGroup(
+                    group.Key,
+                    group
+                        .SelectMany(x => x.Recipients)
+                        .Where(recipient => !string.IsNullOrWhiteSpace(recipient))
+                        .Select(recipient => recipient.Trim())
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList()))
+                .Where(group => group.Recipients.Count > 0)
                 .ToList();
         }
     }

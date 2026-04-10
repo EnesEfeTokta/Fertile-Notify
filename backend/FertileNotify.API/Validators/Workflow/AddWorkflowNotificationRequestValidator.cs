@@ -1,7 +1,5 @@
 using System.Text.RegularExpressions;
-using FertileNotify.API.Models.Requests;
 using FertileNotify.Domain.Events;
-using FertileNotify.Domain.ValueObjects;
 using FluentValidation;
 
 namespace FertileNotify.API.Validators
@@ -35,10 +33,6 @@ namespace FertileNotify.API.Validators
             RuleFor(x => x.Body)
                 .NotEmpty().WithMessage("Body is required.");
 
-            RuleFor(x => x.Channels)
-                .Must(v => string.IsNullOrWhiteSpace(v) || IsValidChannel(v))
-                .WithMessage("Channels must be a valid notification channel.");
-
             RuleFor(x => x.To)
                 .NotEmpty().WithMessage("Recipient list ('To') cannot be empty.")
                 .Must(HaveRecipients).WithMessage("At least one recipient is required.");
@@ -55,9 +49,9 @@ namespace FertileNotify.API.Validators
                     .WithMessage("Recipient addresses cannot be empty or whitespace.");
             });
 
-            RuleFor(x => x)
-                .Must(HaveSingleChannelAndMatchRequestChannel)
-                .WithMessage("All recipient groups must use the same channel and it must match 'Channels' when provided.");
+            RuleFor(x => x.To)
+                .Must(HaveUniqueChannels)
+                .WithMessage("Each channel can appear only once in 'To'.");
         }
 
         private static bool IsValidChannel(string channel)
@@ -75,24 +69,15 @@ namespace FertileNotify.API.Validators
         private static bool HaveRecipients(List<ChannelRecipientGroup> groups)
             => groups.Any(g => g.Recipients.Any(addr => !string.IsNullOrWhiteSpace(addr)));
 
-        private static bool HaveSingleChannelAndMatchRequestChannel(AddWorkflowNotificationRequest request)
+        private static bool HaveUniqueChannels(List<ChannelRecipientGroup> groups)
         {
-            if (request.To == null || request.To.Count == 0)
-                return false;
-
-            var distinctChannels = request.To
+            var distinctChannels = groups
                 .Select(g => g.Channel)
                 .Where(c => !string.IsNullOrWhiteSpace(c))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (distinctChannels.Count != 1)
-                return false;
-
-            if (string.IsNullOrWhiteSpace(request.Channels))
-                return true;
-
-            return string.Equals(request.Channels, distinctChannels[0], StringComparison.OrdinalIgnoreCase);
+            return distinctChannels.Count == groups.Count;
         }
     }
 }

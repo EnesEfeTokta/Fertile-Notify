@@ -119,10 +119,14 @@ namespace FertileNotify.Application.UseCases.ExportData
                         Id = workflow.Id,
                         Name = workflow.Name,
                         Description = workflow.Description,
-                        Channel = workflow.Channel.Name,
+                        EventType = workflow.EventType,
                         EventTrigger = workflow.EventTrigger,
                         CronExpression = workflow.CronExpression,
-                        Recipients = workflow.Recipients,
+                        To = workflow.To.Select(group => new WorkflowRecipientGroupDto
+                        {
+                            Channel = group.Channel,
+                            Recipients = group.Recipients
+                        }).ToList(),
                         IsActive = workflow.IsActive,
                         CreatedAt = workflow.CreatedAt,
                         Subject = workflow.Content.Subject,

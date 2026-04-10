@@ -8,10 +8,9 @@ export interface Workflow {
     name: string;
     description: string;
     eventType: string;
-    channel: string;
     eventTrigger: string;
     cronExpression: string;
-    recipients: ChannelRecipientGroup[];
+    to: ChannelRecipientGroup[];
     isActive: boolean;
     createdAt: string;
     subject: string;
@@ -22,7 +21,6 @@ export interface CreateWorkflowRequest {
     name: string;
     description: string;
     eventType: string;
-    channels: string;
     eventTrigger: string;
     cronExpression: string;
     subject: string;
@@ -35,7 +33,6 @@ export interface UpdateWorkflowRequest {
     name?: string;
     description?: string;
     eventType?: string;
-    channel?: string;
     eventTrigger?: string;
     cronExpression?: string;
     subject?: string;
