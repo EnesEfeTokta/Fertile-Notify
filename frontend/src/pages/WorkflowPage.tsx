@@ -15,7 +15,6 @@ const EMPTY_FORM: CreateWorkflowRequest = {
     name: '',
     description: '',
     eventType: '',
-    channels: 'email',
     eventTrigger: '',
     cronExpression: '',
     subject: '',
@@ -101,14 +100,13 @@ export default function WorkflowPage() {
             name: w.name,
             description: w.description,
             eventType: w.eventType ?? '',
-            channels: w.channel,
             eventTrigger: w.eventTrigger,
             cronExpression: w.cronExpression,
             subject: w.subject,
             body: w.body,
-            to: w.recipients ?? [],
+            to: w.to ?? [],
         });
-        setRecipientInputs((w.recipients ?? []).map(r => ({ channel: r.channel, value: r.recipients.join(', ') })));
+        setRecipientInputs((w.to ?? []).map(r => ({ channel: r.channel, value: r.recipients.join(', ') })));
         setModalOpen(true);
     };
 
@@ -129,7 +127,6 @@ export default function WorkflowPage() {
                     name: form.name,
                     description: form.description,
                     eventType: form.eventType,
-                    channel: form.channels,
                     eventTrigger: form.eventTrigger,
                     cronExpression: form.cronExpression,
                     subject: form.subject,
@@ -282,6 +279,10 @@ export default function WorkflowPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
                             {workflows.map(w => (
                                 <div key={w.id} className="card p-5 flex flex-col gap-4 hover:border-hover transition-all group">
+                                    {(() => {
+                                        const uniqueChannels = Array.from(new Set((w.to ?? []).map(group => group.channel?.toLowerCase())));
+                                        return (
+                                            <>
                                     {/* Header row */}
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex-1 min-w-0">
@@ -293,9 +294,11 @@ export default function WorkflowPage() {
 
                                     {/* Meta row */}
                                     <div className="flex flex-wrap gap-2">
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-tertiary border border-primary rounded-md text-[10px] font-semibold text-secondary uppercase tracking-wider">
-                                            {NOTIFICATION_CHANNELS.find(c => c.id === w.channel?.toLowerCase())?.icon ?? '🔔'} {w.channel}
-                                        </span>
+                                        {uniqueChannels.map(channel => (
+                                            <span key={channel} className="inline-flex items-center gap-1 px-2 py-0.5 bg-tertiary border border-primary rounded-md text-[10px] font-semibold text-secondary uppercase tracking-wider">
+                                                {NOTIFICATION_CHANNELS.find(c => c.id === channel)?.icon ?? '🔔'} {channel}
+                                            </span>
+                                        ))}
                                         {w.eventType && (
                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-md text-[10px] font-semibold text-indigo-300">
                                                 {EVENT_TYPES.find(et => et.value === w.eventType)?.icon ?? '🏷️'} {EVENT_TYPES.find(et => et.value === w.eventType)?.label ?? w.eventType}
@@ -351,6 +354,9 @@ export default function WorkflowPage() {
                                             </button>
                                         </div>
                                     </div>
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </div>
@@ -380,7 +386,7 @@ export default function WorkflowPage() {
                             {/* Modal body */}
                             <div className="px-6 py-5 space-y-5">
                                 {/* Name + Description */}
-                                <div className="grid grid-cols-2 gap-4">
+                                <div>
                                     <div>
                                         <label className="text-[11px] font-bold uppercase tracking-widest text-muted block mb-1.5">Name <span className="text-red-400">*</span></label>
                                         <input
@@ -389,18 +395,6 @@ export default function WorkflowPage() {
                                             value={form.name}
                                             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                                         />
-                                    </div>
-                                    <div>
-                                        <label className="text-[11px] font-bold uppercase tracking-widest text-muted block mb-1.5">Channel</label>
-                                        <select
-                                            className="input-modern text-sm bg-primary cursor-pointer"
-                                            value={form.channels}
-                                            onChange={e => setForm(f => ({ ...f, channels: e.target.value }))}
-                                        >
-                                            {NOTIFICATION_CHANNELS.map(c => (
-                                                <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-                                            ))}
-                                        </select>
                                     </div>
                                 </div>
 

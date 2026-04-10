@@ -1,5 +1,6 @@
 using FertileNotify.Domain.Events;
 using FertileNotify.Domain.ValueObjects;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FertileNotify.Domain.Entities
 {
@@ -10,15 +11,26 @@ namespace FertileNotify.Domain.Entities
         public string Name { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
         public string EventType { get; private set; } = string.Empty;
-        public NotificationChannel Channel { get; private set; } = default!;
+        public List<WorkflowRecipientGroup> To { get; private set; } = new();
         public NotificationContent Content { get; private set; } = default!;
         public string EventTrigger { get; private set; } = string.Empty;
         public string CronExpression { get; private set; } = string.Empty;
         public int MaxRepeatCount { get; private set; } = 1;
         public int CurrentRepeatCount { get; private set; } = 0;
-        public List<string> Recipients { get; private set; } = new();
         public bool IsActive { get; private set; } = true;
         public DateTime CreatedAt { get; private set; }
+
+        [NotMapped]
+        public NotificationChannel? Channel =>
+            string.IsNullOrWhiteSpace(To.FirstOrDefault()?.Channel)
+                ? null
+                : NotificationChannel.From(To[0].Channel);
+
+        [NotMapped]
+        public List<string> Recipients => To
+            .SelectMany(group => group.Recipients)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         private AutomationWorkflow() { }
 
@@ -38,12 +50,11 @@ namespace FertileNotify.Domain.Entities
                 description,
                 content,
                 eventType,
-                channel,
+                BuildRecipientGroups(channel, recipients),
                 eventTrigger,
                 cronExpression,
                 1,
-                0,
-                recipients)
+                0)
         { }
 
         public AutomationWorkflow(
@@ -58,6 +69,30 @@ namespace FertileNotify.Domain.Entities
             int maxRepeatCount,
             int currentRepeatCount,
             List<string> recipients)
+            : this(
+                subscriberId,
+                name,
+                description,
+                content,
+                eventType,
+                BuildRecipientGroups(channel, recipients),
+                eventTrigger,
+                cronExpression,
+                maxRepeatCount,
+                currentRepeatCount)
+        { }
+
+        public AutomationWorkflow(
+            Guid subscriberId,
+            string name,
+            string description,
+            NotificationContent content,
+            EventType eventType,
+            List<WorkflowRecipientGroup> recipientGroups,
+            string eventTrigger,
+            string cronExpression,
+            int maxRepeatCount,
+            int currentRepeatCount)
         {
             Id = Guid.NewGuid();
             SubscriberId = subscriberId;
@@ -65,12 +100,11 @@ namespace FertileNotify.Domain.Entities
             Description = description;
             Content = content;
             EventType = eventType.Name;
-            Channel = channel;
+            To = recipientGroups;
             EventTrigger = eventTrigger;
             CronExpression = cronExpression;
             MaxRepeatCount = maxRepeatCount;
             CurrentRepeatCount = currentRepeatCount;
-            Recipients = recipients;
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -86,14 +120,38 @@ namespace FertileNotify.Domain.Entities
         }
 
         public void UpdateContent(NotificationContent content) => Content = content;
-        public void UpdateChannel(NotificationChannel channel) => Channel = channel;
         public void UpdateEventType(EventType eventType) => EventType = eventType.Name;
-        public void UpdateRecipients(List<string> recipients) => Recipients = recipients;
+        public void UpdateChannel(NotificationChannel channel)
+        {
+            if (To.Count == 0)
+            {
+                To = new List<WorkflowRecipientGroup> { new(channel.Name, new List<string>()) };
+                return;
+            }
+
+            To = To.Select(group => new WorkflowRecipientGroup(channel.Name, group.Recipients)).ToList();
+        }
+
+        public void UpdateRecipients(List<string> recipients)
+        {
+            var channel = To.FirstOrDefault()?.Channel ?? NotificationChannel.Email.Name;
+            To = new List<WorkflowRecipientGroup> { new(channel, recipients) };
+        }
+
+        public void UpdateRecipientGroups(List<WorkflowRecipientGroup> recipientGroups) => To = recipientGroups;
 
         public void UpdateSchedule(string eventTrigger, string cronExpression)
         {
             EventTrigger = eventTrigger;
             CronExpression = cronExpression;
+        }
+
+        private static List<WorkflowRecipientGroup> BuildRecipientGroups(NotificationChannel channel, List<string> recipients)
+        {
+            return new List<WorkflowRecipientGroup>
+            {
+                new(channel.Name, recipients)
+            };
         }
     }
 }

@@ -29,22 +29,25 @@ namespace FertileNotify.Application.Services.Automation
 
             foreach (var workflow in workflows)
             {
-                foreach (var recipient in workflow.Recipients)
+                foreach (var group in workflow.To)
                 {
-                    var message = new ProcessNotificationMessage
+                    foreach (var recipient in group.Recipients)
                     {
-                        SubscriberId = subscriberId,
-                        WorkflowId = workflow.Id,
-                        Recipient = recipient,
-                        EventType = "Campaign",
-                        Channel = workflow.Channel.Name,
-                        Parameters = new Dictionary<string, string>(),
-                        DirectSubject = workflow.Content.Subject,
-                        DirectBody = workflow.Content.Body
-                    };
+                        var message = new ProcessNotificationMessage
+                        {
+                            SubscriberId = subscriberId,
+                            WorkflowId = workflow.Id,
+                            Recipient = recipient,
+                            EventType = workflow.EventType,
+                            Channel = group.Channel,
+                            Parameters = new Dictionary<string, string>(),
+                            DirectSubject = workflow.Content.Subject,
+                            DirectBody = workflow.Content.Body
+                        };
 
-                    await _dispatchService.QueueAsync(message, "workflow-trigger");
-                    totalQueued++;
+                        await _dispatchService.QueueAsync(message, "workflow-trigger");
+                        totalQueued++;
+                    }
                 }
             }
 

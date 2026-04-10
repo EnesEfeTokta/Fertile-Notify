@@ -15,13 +15,7 @@ namespace FertileNotify.Application.UseCases.Workflow
 
         public async Task<Guid> Handle(CreateWorkflowNotificationCommand request, CancellationToken cancellationToken)
         {
-            var recipients = request.To.SelectMany(x => x.Recipients)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList(); ;
-
-            var resolvedChannel = ResolveChannel(request.Channel, request.To);
-            var channel = NotificationChannel.From(resolvedChannel);
+            var recipientGroups = BuildRecipientGroups(request.To);
             var content = NotificationContent.Create(request.Subject, request.Body);
             var eventType = EventType.From(request.EventType);
 
@@ -31,10 +25,11 @@ namespace FertileNotify.Application.UseCases.Workflow
                 request.Description,
                 content,
                 eventType,
-                channel,
+                recipientGroups,
                 request.EventTrigger?.Trim() ?? string.Empty,
                 request.CronExpression,
-                recipients);
+                1,
+                0);
 
             await _automationRepository.CreateAsync(workflow);
             await _automationRepository.SaveChangesAsync();
@@ -44,20 +39,21 @@ namespace FertileNotify.Application.UseCases.Workflow
             return workflow.Id;
         }
 
-        private static string ResolveChannel(string? commandChannel, List<WorkflowRecipientGroupCommand> recipients)
+        private static List<WorkflowRecipientGroup> BuildRecipientGroups(List<WorkflowRecipientGroupCommand> groups)
         {
-            if (!string.IsNullOrWhiteSpace(commandChannel))
-            {
-                return commandChannel;
-            }
-
-            var firstChannel = recipients.FirstOrDefault()?.Channel;
-            if (string.IsNullOrWhiteSpace(firstChannel))
-            {
-                throw new BusinessRuleException("Channel is required.");
-            }
-
-            return firstChannel;
+            return groups
+                .Where(group => !string.IsNullOrWhiteSpace(group.Channel))
+                .GroupBy(group => group.Channel.Trim(), StringComparer.OrdinalIgnoreCase)
+                .Select(group => new WorkflowRecipientGroup(
+                    group.Key,
+                    group
+                        .SelectMany(x => x.Recipients)
+                        .Where(recipient => !string.IsNullOrWhiteSpace(recipient))
+                        .Select(recipient => recipient.Trim())
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList()))
+                .Where(group => group.Recipients.Count > 0)
+                .ToList();
         }
     }
 }
