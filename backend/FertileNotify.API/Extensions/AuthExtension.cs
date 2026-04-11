@@ -1,7 +1,4 @@
-using System.Text;
 using FertileNotify.API.Authentication;
-using FertileNotify.Application.Interfaces;
-using FertileNotify.Application.Services;
 using FertileNotify.Infrastructure.Authentication;
 using Microsoft.IdentityModel.Tokens;
 

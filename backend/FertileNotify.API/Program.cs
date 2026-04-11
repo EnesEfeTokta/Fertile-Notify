@@ -2,6 +2,7 @@ using FertileNotify.API.Extensions;
 using FertileNotify.API.Middlewares;
 using FertileNotify.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 // --- INITIALIZATION ---
@@ -19,6 +20,12 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+// --- HOST CONFIGURATION ---
+builder.Host.ConfigureHostOptions(options =>
+{
+    options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+});
 
 // --- SERVICES REGISTRATION ---
 builder.Services

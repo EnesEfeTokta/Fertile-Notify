@@ -1,5 +1,3 @@
-using FertileNotify.Infrastructure.BackgroundJobs;
-using FertileNotify.Application.Interfaces;
 using FertileNotify.Infrastructure.Persistence;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
