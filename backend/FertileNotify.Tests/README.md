@@ -13,18 +13,13 @@ This project uses **xUnit** as its primary testing framework, alongside **Moq** 
 Comprehensive validation of use case orchestration:
 
 #### Use Case Handlers
-- **ProcessEventHandler / SendNotificationHandler**:
+- **SendNotificationHandlerTests**:
   - Verification of subscriber and subscription validation.
   - Ensuring monthly notification limits are strictly enforced.
   - Validating correct template retrieval and rendering.
   - Mocking external senders and database repositories.
   - Testing error scenarios (e.g., subscriber not found, exceeded quotas).
-
-#### Services
-- **TemplateEngineTests**:
-  - Validating placeholder replacement (`{{placeholder}}`).
-  - Testing complex payload data structures.
-  - Ensuring graceful failure for missing variables.
+- **WorkflowNotificationHandlerTests**: Validates the execution of workflow notifications, including template rendering and multi-channel dispatch.
 
 ### Domain Layer Tests
 
@@ -33,11 +28,15 @@ Pure unit tests for core business components (zero dependencies):
 #### Entities
 - **SubscriberTests**: Validation of identity and account creation.
 - **ForbiddenRecipientTests**: Management of blacklisted emails and phone numbers.
+- **AutomationWorkflowTests**: Validation of workflow entity creation, cron scheduling, activation/deactivation, and recipient management.
 
 #### Value Objects
 - **EmailAddressTests**: Format validation and immutability checks.
 - **PasswordTests**: Secure hashing with BCrypt and verification logic.
-- **PhoneNumberTests**: Standardized formatting and validation.
+
+#### Domain Concepts
+- **EventTypeTests**: Validation of supported event types and catalog lookups.
+- **WorkflowCronSchedulingTests**: Cron expression parsing and next-run calculation using `Cronos`.
 
 ### Infrastructure Layer Tests (Ongoing)
 
