@@ -10,47 +10,42 @@ namespace FertileNotify.API.Extensions
 
             var envValues = new Dictionary<string, string?>();
 
-            // JWT Mapping
-            MapEnv(envValues, "JWT_SECRET", "JwtSettings:SecretKey");
+            // DATABASE MAPPING
+            string? dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+            string? dbUser = Environment.GetEnvironmentVariable("DB_USER");
+            string? dbPass = Environment.GetEnvironmentVariable("DB_PASS");
 
-            // Database Mapping
-            var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-            var dbPass = Environment.GetEnvironmentVariable("DB_PASS");
-            if (!string.IsNullOrEmpty(dbUser) && !string.IsNullOrEmpty(dbPass))
+            if (!string.IsNullOrEmpty(dbHost) && !string.IsNullOrEmpty(dbUser))
             {
-                var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
                 var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
                 var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "FertileNotifyDb";
-                envValues["ConnectionStrings:DefaultConnection"] = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass};";
+
+                envValues["ConnectionStrings:DefaultConnection"] = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass};Include Error Detail=true;";
             }
 
-            // Redis Mapping
-            var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
+            // REDIS MAPPING
+            string? redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
             if (!string.IsNullOrEmpty(redisHost))
             {
                 var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
-                envValues["Redis:ConnectionString"] = $"{redisHost}:{redisPort},abortConnect=false";
+                var redisPass = Environment.GetEnvironmentVariable("REDIS_PASS");
+
+                string connectionString = $"{redisHost}:{redisPort},abortConnect=false";
+                if (!string.IsNullOrEmpty(redisPass)) connectionString += $",password={redisPass}";
+
+                envValues["Redis:ConnectionString"] = connectionString;
             }
 
-            // RabbitMQ Mapping
+            // RABBITMQ MAPPING
             MapEnv(envValues, "RABBITMQ_HOST", "RabbitMQ:Host");
             MapEnv(envValues, "RABBITMQ_USER", "RabbitMQ:Username");
             MapEnv(envValues, "RABBITMQ_PASS", "RabbitMQ:Password");
 
-            // OTP Mapping
-            MapEnv(envValues, "OTP_LENGTH", "OTPSettings:Length");
-            MapEnv(envValues, "OTP_EXPIRY_IN_MINUTES", "OTPSettings:ExpiryInMinutes");
-
-            // SMTP Mapping
+            MapEnv(envValues, "JWT_SECRET", "JwtSettings:SecretKey");
             MapEnv(envValues, "SYSTEM_SMTP_HOST", "SystemSmtp:Host");
             MapEnv(envValues, "SYSTEM_SMTP_PORT", "SystemSmtp:Port");
             MapEnv(envValues, "SYSTEM_SMTP_USER", "SystemSmtp:Username");
             MapEnv(envValues, "SYSTEM_SMTP_PASS", "SystemSmtp:Password");
-            MapEnv(envValues, "SYSTEM_SMTP_FROM", "SystemSmtp:From");
-            MapEnv(envValues, "SYSTEM_SMTP_DISPLAY_NAME", "SystemSmtp:DisplayName");
-
-            // SECURITY Mapping
-            MapEnv(envValues, "SECURITY_UNSUBSCRIBE_SECRET", "Security:UnsubscribeSecret");
 
             configuration.AddInMemoryCollection(envValues);
         }
