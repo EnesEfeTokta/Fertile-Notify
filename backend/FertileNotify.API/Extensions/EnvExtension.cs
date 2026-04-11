@@ -24,14 +24,18 @@ namespace FertileNotify.API.Extensions
             }
 
             // REDIS MAPPING
-            string? redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
+            var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
+            var redisPass = Environment.GetEnvironmentVariable("REDIS_PASS");
+
             if (!string.IsNullOrEmpty(redisHost))
             {
                 var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
-                var redisPass = Environment.GetEnvironmentVariable("REDIS_PASS");
 
-                string connectionString = $"{redisHost}:{redisPort},abortConnect=false";
-                if (!string.IsNullOrEmpty(redisPass)) connectionString += $",password={redisPass}";
+                var connectionString = $"{redisHost}:{redisPort},abortConnect=false";
+                if (!string.IsNullOrEmpty(redisPass))
+                {
+                    connectionString += $",password={redisPass}";
+                }
 
                 envValues["Redis:ConnectionString"] = connectionString;
             }
