@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace FertileNotify.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext
+    public partial class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -17,13 +17,32 @@ namespace FertileNotify.Infrastructure.Persistence
         public DbSet<NotificationComplaint> NotificationComplaints { get; set; }
         public DbSet<AutomationWorkflow> AutomationWorkflows { get; set; }
         public DbSet<SystemNotification> SystemNotifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Ignore<EventType>();
-            modelBuilder.Ignore<NotificationChannel>();
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            ConfigureIgnoredDomainTypes(modelBuilder);
+
+            foreach (var assembly in GetConfigurationAssemblies())
+            {
+                modelBuilder.ApplyConfigurationsFromAssembly(assembly);
+            }
+
+            OnModelCreatingPartial(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
+
+        protected virtual void ConfigureIgnoredDomainTypes(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Ignore<EventType>();
+            modelBuilder.Ignore<NotificationChannel>();
+        }
+
+        protected virtual IEnumerable<Assembly> GetConfigurationAssemblies()
+        {
+            yield return Assembly.GetExecutingAssembly();
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

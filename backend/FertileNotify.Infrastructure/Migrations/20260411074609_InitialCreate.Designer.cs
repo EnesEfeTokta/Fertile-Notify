@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FertileNotify.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260410103420_InitialCreate")]
+    [Migration("20260411074609_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -140,6 +140,20 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ForbiddenRecipients");
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("FertileNotify.Domain.Entities.NotificationComplaint", b =>
@@ -426,6 +440,36 @@ namespace FertileNotify.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("AutomationWorkflowId");
+                        });
+
+                    b.Navigation("Content")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FertileNotify.Domain.Entities.Notification", b =>
+                {
+                    b.OwnsOne("FertileNotify.Domain.ValueObjects.NotificationContent", "Content", b1 =>
+                        {
+                            b1.Property<Guid>("NotificationId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Body")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("Body");
+
+                            b1.Property<string>("Subject")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Subject");
+
+                            b1.HasKey("NotificationId");
+
+                            b1.ToTable("Notifications");
+
+                            b1.WithOwner()
+                                .HasForeignKey("NotificationId");
                         });
 
                     b.Navigation("Content")

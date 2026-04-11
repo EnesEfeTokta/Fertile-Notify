@@ -128,7 +128,7 @@ Fertile Notify follows **Clean Architecture** principles with a clear separation
 └─────────────────────────────────────────────┘
 ```
 
-For detailed architecture documentation, see [docs/architecture.md](docs/architecture.md).
+For detailed architecture documentation, see [docs/Architecture.md](docs/Architecture.md).
 
 ---
 
