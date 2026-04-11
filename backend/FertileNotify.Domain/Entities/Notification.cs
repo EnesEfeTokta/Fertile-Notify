@@ -8,6 +8,11 @@ namespace FertileNotify.Domain.Entities
         public NotificationContent Content { get; private set; }
         public DateTime CreateAt { get; private set; }
 
+        private Notification()
+        {
+            Content = default!;
+        }
+
         public Notification(NotificationContent content)
         {
             Id = Guid.NewGuid();
