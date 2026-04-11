@@ -31,11 +31,11 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ghcr.io/enesefetokta/fertile-notify-frontend:latest
+          tags: ghcr.io/${{ github.actor }}/fertile-notify-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_API_URL=https://api.enesefetokta.shop/api
 
       # API Build & Push
       - name: Build and push API
@@ -43,35 +43,18 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/enesefetokta/fertile-notify-api:latest
+          tags: ghcr.io/${{ github.actor }}/fertile-notify-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            set -e
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Trigger Coolify Deployment (API)
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK_API }}'
 
-            cd ~/Fertile-Notify
-
-            git fetch origin main
-            git reset --hard origin/main
-
-            docker compose --profile prod pull
-
-            docker compose --profile prod down --remove-orphans
-            docker compose --profile prod up -d
-
-            docker image prune -f
-
-            echo "✅ Deploy tamamlandı."
+      - name: Trigger Coolify Deployment (Frontend)
+        run: |
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK_FRONTEND }}'
