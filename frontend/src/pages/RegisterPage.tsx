@@ -59,6 +59,7 @@ export default function RegisterPage() {
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [agreed, setAgreed] = useState(false);
 
     const isPasswordValid = passwordRules.every(r => r.test(password));
 
@@ -224,10 +225,45 @@ export default function RegisterPage() {
                             )}
                         </div>
 
+                        <div className="flex items-start gap-3 py-2">
+                            <div className="flex h-5 items-center">
+                                <input
+                                    id="legal-agreement"
+                                    name="legal-agreement"
+                                    type="checkbox"
+                                    required
+                                    checked={agreed}
+                                    onChange={(e) => setAgreed(e.target.checked)}
+                                    className="h-4 w-4 rounded border-primary bg-secondary text-accent-primary focus:ring-accent-primary accent-accent-primary cursor-pointer"
+                                />
+                            </div>
+                            <div className="text-[13px] leading-5 text-secondary">
+                                <label htmlFor="legal-agreement" className="cursor-pointer">
+                                    I agree to the{" "}
+                                    <button 
+                                        type="button" 
+                                        onClick={() => navigate("/terms")}
+                                        className="text-accent-primary hover:underline font-medium"
+                                    >
+                                        Terms of Use
+                                    </button>
+                                    {" "}and{" "}
+                                    <button 
+                                        type="button" 
+                                        onClick={() => navigate("/privacy")}
+                                        className="text-accent-primary hover:underline font-medium"
+                                    >
+                                        Privacy Policy
+                                    </button>
+                                    .
+                                </label>
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
                             className="btn-primary w-full py-3 mt-2 text-[15px]"
-                            disabled={loading || !isPasswordValid}
+                            disabled={loading || !isPasswordValid || !agreed}
                         >
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">
