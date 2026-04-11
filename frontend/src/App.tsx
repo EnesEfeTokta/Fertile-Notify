@@ -21,7 +21,7 @@ import WorkflowPage from './pages/WorkflowPage';
 // Info Pages
 import AboutUsPage from './pages/info/AboutUsPage';
 import ContactPage from './pages/info/ContactPage';
-import PrivacyPage from './pages/info/PrivacyPage';
+import LegalPage from './pages/LegalPage';
 import DocumentationPage from './pages/info/DocumentationPage';
 import ChangelogPage from './pages/info/ChangelogPage';
 import ApiReferencePage from './pages/info/ApiReferencePage';
@@ -52,7 +52,8 @@ function App() {
         {/* Info Routes */}
         <Route path="/about" element={<AboutUsPage />} />
         <Route path="/contact" element={<ContactPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/privacy" element={<LegalPage type="privacy" />} />
+        <Route path="/terms" element={<LegalPage type="terms" />} />
         <Route path="/documentation" element={<DocumentationPage />} />
         <Route path="/changelog" element={<ChangelogPage />} />
         <Route path="/api-reference" element={<ApiReferencePage />} />
