@@ -51,6 +51,9 @@ namespace FertileNotify.API.Extensions
             MapEnv(envValues, "JWT_AUDIENCE", "JwtSettings:Audience");
             MapEnv(envValues, "JWT_EXPIRY_MINUTES", "JwtSettings:ExpirationInMinutes");
 
+            // SECURITY MAPPING
+            MapEnv(envValues, "UNSUBSCRIBE_SECRET", "Security:UnsubscribeSecret");
+
             // SMTP MAPPING
             MapEnv(envValues, "SYSTEM_SMTP_FROM", "SystemSmtp:FromEmail");
             MapEnv(envValues, "SYSTEM_SMTP_DISPLAY_NAME", "SystemSmtp:DisplayName");

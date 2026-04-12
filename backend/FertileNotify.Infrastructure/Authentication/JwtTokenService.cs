@@ -19,7 +19,7 @@ namespace FertileNotify.Infrastructure.Authentication
         public string GenerateToken(Subscriber user, SubscriptionPlan plan)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
-            var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!);
+            var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"] ?? "default_secret_key");
 
             var claims = new List<Claim>
             {
@@ -29,11 +29,13 @@ namespace FertileNotify.Infrastructure.Authentication
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            var expiryInMinutes = double.TryParse(jwtSettings["ExpiryInMinutes"], out var parsedExpiry) ? parsedExpiry : 60;
+
             var signingKey = new SymmetricSecurityKey(secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryInMinutes"]!)),
+                Expires = DateTime.UtcNow.AddMinutes(expiryInMinutes),
                 Issuer = jwtSettings["Issuer"],
                 Audience = jwtSettings["Audience"],
                 SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
