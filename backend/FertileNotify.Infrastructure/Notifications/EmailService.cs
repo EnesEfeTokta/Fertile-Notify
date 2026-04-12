@@ -25,7 +25,7 @@ namespace FertileNotify.Infrastructure.Notifications
             var port = int.Parse(_configuration["SystemSmtp:Port"] ?? "587");
             var username = _configuration["SystemSmtp:Username"];
             var password = _configuration["SystemSmtp:Password"];
-            var from = _configuration["SystemSmtp:From"];
+            var from = _configuration["SystemSmtp:FromEmail"];
             var displayName = _configuration["SystemSmtp:DisplayName"] ?? username;
 
             try
