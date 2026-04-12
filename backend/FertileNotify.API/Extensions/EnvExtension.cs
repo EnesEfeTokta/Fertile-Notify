@@ -46,6 +46,8 @@ namespace FertileNotify.API.Extensions
             MapEnv(envValues, "RABBITMQ_PASS", "RabbitMQ:Password");
 
             MapEnv(envValues, "JWT_SECRET", "JwtSettings:SecretKey");
+            MapEnv(envValues, "SYSTEM_SMTP_FROM", "SystemSmtp:FromEmail");
+            MapEnv(envValues, "SYSTEM_SMTP_DISPLAY_NAME", "SystemSmtp:DisplayName");
             MapEnv(envValues, "SYSTEM_SMTP_HOST", "SystemSmtp:Host");
             MapEnv(envValues, "SYSTEM_SMTP_PORT", "SystemSmtp:Port");
             MapEnv(envValues, "SYSTEM_SMTP_USER", "SystemSmtp:Username");
