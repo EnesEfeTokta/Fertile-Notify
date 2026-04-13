@@ -20,6 +20,8 @@ namespace FertileNotify.Infrastructure.Authentication
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secretKey = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"] ?? "default_secret_key");
+            var issuer = jwtSettings["Issuer"] ?? "fertile-notify-api";
+            var audience = jwtSettings["Audience"] ?? "fertile-notify-frontend";
 
             var claims = new List<Claim>
             {
@@ -36,8 +38,8 @@ namespace FertileNotify.Infrastructure.Authentication
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(expiryInMinutes),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
+                Issuer = issuer,
+                Audience = audience,
                 SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
             };
 
