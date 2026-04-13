@@ -19,16 +19,17 @@ namespace FertileNotify.API.Extensions
             })
             .AddJwtBearer("Bearer", options =>
             {
-                var jwtSettings = configuration.GetSection("JwtSettings");
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings["Issuer"],
-                    ValidAudience = jwtSettings["Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!))
+
+                    ValidIssuer = configuration["JwtSettings:Issuer"] ?? "fertile-notify-api",
+                    ValidAudience = configuration["JwtSettings:Audience"] ?? "fertile-notify-frontend",
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]!))
                 };
             })
             .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("ApiKey", null)
