@@ -31,6 +31,7 @@ global using FertileNotify.Application.UseCases.SystemNotification;
 global using FertileNotify.Application.UseCases.SendNotification;
 global using FertileNotify.Application.UseCases.Workflow;
 global using FertileNotify.Application.UseCases.NotificationComplaint;
+global using FertileNotify.Application.UseCases.Payments;
 global using FertileNotify.Application.UseCases.Unsubscribe;
 global using FertileNotify.Application.UseCases.CreateApiKey;
 global using FertileNotify.Application.UseCases.DeleteAccount;

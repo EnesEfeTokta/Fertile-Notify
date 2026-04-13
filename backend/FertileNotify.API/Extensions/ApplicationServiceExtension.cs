@@ -1,10 +1,9 @@
 using FertileNotify.Application;
-using FertileNotify.Application.Interfaces;
+using FertileNotify.Application.Interfaces.Payment;
 using FertileNotify.Application.Security;
-using FertileNotify.Application.Services;
 using FertileNotify.Infrastructure.Notifications;
+using FertileNotify.Infrastructure.Payment;
 using FertileNotify.Infrastructure.Persistence;
-using FertileNotify.Infrastructure.BackgroundJobs;
 
 using Mjml.Net;
 
@@ -40,6 +39,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<AutomationTriggerService>();
             services.AddScoped<AutomationSchedulerService>();
             services.AddScoped<ISystemNotificationService, SystemNotificationService>();
+            services.AddScoped<IPaymentService, StripePaymentService>();
             services.AddSingleton<IMjmlRenderer, MjmlRenderer>();
             services.AddHttpClient();
 

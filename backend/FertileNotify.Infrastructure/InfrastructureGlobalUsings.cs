@@ -4,6 +4,7 @@ global using FertileNotify.Application.Interfaces.Notifications;
 global using FertileNotify.Application.Interfaces.Observability;
 global using FertileNotify.Application.Interfaces.Security;
 global using FertileNotify.Application.Interfaces.Subscribers;
+global using FertileNotify.Application.Interfaces.Payment;
 
 // FertileNotify - Application Services
 global using FertileNotify.Application.Services.Automation;
