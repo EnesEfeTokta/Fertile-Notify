@@ -29,7 +29,7 @@ namespace FertileNotify.Infrastructure.Authentication
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var expiryInMinutes = double.TryParse(jwtSettings["ExpiryInMinutes"], out var parsedExpiry) ? parsedExpiry : 60;
+            var expiryInMinutes = double.TryParse(jwtSettings["ExpirationInMinutes"], out var parsedExpiry) ? parsedExpiry : 60;
 
             var signingKey = new SymmetricSecurityKey(secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
