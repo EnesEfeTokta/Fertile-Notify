@@ -43,7 +43,12 @@ namespace FertileNotify.API.Controllers
             Event stripeEvent;
             try
             {
-                stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], webhookSecret);
+                stripeEvent = EventUtility.ConstructEvent(
+                    json,
+                    Request.Headers["Stripe-Signature"],
+                    _configuration["Stripe:WebhookSecret"],
+                    throwOnApiVersionMismatch: false
+                );
             }
             catch (StripeException ex)
             {

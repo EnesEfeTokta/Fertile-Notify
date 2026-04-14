@@ -200,6 +200,7 @@ frontend/
    The frontend reads the API base URL from the `VITE_API_URL` environment variable. Create a `.env` file in the `frontend/` directory:
    ```env
    VITE_API_URL=http://localhost:8080/api
+   VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
    ```
    Update the URL to match the host and port where your Fertile Notify backend API is running.
 
