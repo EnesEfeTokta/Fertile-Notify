@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@stripe/react-stripe-js": "^6.1.0",
+    "@stripe/stripe-js": "^9.2.0",
     "axios": "^1.13.4",
     "grapesjs": "^0.22.14",
     "grapesjs-mjml": "^1.0.7",
