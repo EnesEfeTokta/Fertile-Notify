@@ -11,7 +11,7 @@ services:
       context: ./frontend
       args:
         - VITE_API_URL=${VITE_API_URL:-http://localhost:8080/api}
-        - VITE_STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE:-}
+        - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY:-}
     image: ghcr.io/enesefetokta/fertile-notify-frontend:latest
     ports:
       - "3000:80"

@@ -63,7 +63,6 @@ namespace FertileNotify.API.Extensions
             MapEnv(envValues, "SYSTEM_SMTP_PASS", "SystemSmtp:Password");
 
             // STRIPE MAPPING
-            MapEnv(envValues, "STRIPE_PUBLISHABLE", "Stripe:PublishableKey");
             MapEnv(envValues, "STRIPE_SECRET", "Stripe:SecretKey");
             MapEnv(envValues, "STRIPE_WEBHOOK_SECRET", "Stripe:WebhookSecret");
             MapEnv(envValues, "STRIPE_CREDIT_PRICE_CENTS", "Stripe:CreditPricePerUnitCents");
