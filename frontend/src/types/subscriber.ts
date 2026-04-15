@@ -1,6 +1,10 @@
 export interface SubscriberProfile {
     id: string;
     companyName: string;
+    companyDescription?: string;
+    logoUrl?: string;
+    websiteUrl?: string;
+    location?: string;
     email: string;
     phoneNumber?: string;
     activeChannels: string[];
@@ -17,6 +21,14 @@ export interface Subscription {
 
 export interface UpdateCompanyName {
     companyName: string;
+}
+
+export interface UpdateCompanyInfo {
+    companyName?: string;
+    companyDescription?: string;
+    logoUrl?: string;
+    websiteUrl?: string;
+    location?: string;
 }
 
 export interface UpdateContactInfo {

@@ -8,6 +8,7 @@ interface AppShellProps {
     actions?: ReactNode;
     companyName?: string;
     plan?: string;
+    logoUrl?: string;
 }
 
 const NavItem = ({
@@ -31,7 +32,7 @@ const NavItem = ({
     );
 };
 
-export default function AppShell({ children, title, actions, companyName, plan }: AppShellProps) {
+export default function AppShell({ children, title, actions, companyName, plan, logoUrl }: AppShellProps) {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -190,12 +191,30 @@ export default function AppShell({ children, title, actions, companyName, plan }
                 <div className="px-3 pb-4 border-t border-primary pt-4 space-y-3">
                     {companyName && (
                         <div className="px-3 py-2 rounded-lg bg-tertiary border border-primary">
-                            <p className="text-xs font-semibold text-primary truncate">{companyName}</p>
-                            {plan && (
-                                <span className={`inline-flex items-center mt-1 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border ${planColor}`}>
-                                    {plan}
-                                </span>
-                            )}
+                            <div className="flex items-center gap-2.5">
+                                {logoUrl ? (
+                                    <img
+                                        src={logoUrl}
+                                        alt={companyName}
+                                        className="w-7 h-7 rounded-md object-cover shrink-0 border border-primary"
+                                        onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                    />
+                                ) : (
+                                    <div className="w-7 h-7 rounded-md bg-accent-dim border border-blue-500/20 flex items-center justify-center shrink-0">
+                                        <span className="text-[9px] font-bold text-accent-primary">
+                                            {companyName.slice(0, 2).toUpperCase()}
+                                        </span>
+                                    </div>
+                                )}
+                                <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-primary truncate">{companyName}</p>
+                                    {plan && (
+                                        <span className={`inline-flex items-center mt-0.5 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border ${planColor}`}>
+                                            {plan}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     )}
                     <NavItem
