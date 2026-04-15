@@ -57,6 +57,10 @@ namespace FertileNotify.Application.UseCases.ExportData
                 Subscriber = new SubscriberDto
                 {
                     CompanyName = subscriber.CompanyName.Name,
+                    CompanyDescription = subscriber.CompanyDescription,
+                    LogoUrl = subscriber.LogoUrl?.Value,
+                    WebsiteUrl = subscriber.WebsiteUrl?.Value,
+                    Location = subscriber.Location,
                     Email = subscriber.Email.Value,
                     PhoneNumber = subscriber.PhoneNumber?.Value,
                     ActiveChannels = subscriber.ActiveChannels.Select(c => c.Name).ToList(),

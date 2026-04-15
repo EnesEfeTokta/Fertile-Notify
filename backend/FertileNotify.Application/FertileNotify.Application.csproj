@@ -24,6 +24,7 @@
   <ItemGroup>
     <Folder Include="Interfaces/Payment/" />
     <Folder Include="UseCases/ExportData/" />
+    <Folder Include="UseCases/UpdateCompanyDescription/" />
     <Folder Include="UseCases/VerifyCode/" />
   </ItemGroup>
 

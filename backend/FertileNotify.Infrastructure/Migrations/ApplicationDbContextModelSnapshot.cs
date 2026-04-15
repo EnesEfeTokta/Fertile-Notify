@@ -266,6 +266,11 @@ namespace FertileNotify.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("CompanyDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -279,6 +284,15 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.Property<int>("ExtraCredits")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -287,6 +301,10 @@ namespace FertileNotify.Infrastructure.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 

@@ -9,6 +9,10 @@ namespace FertileNotify.Domain.Entities
     {
         public Guid Id { get; private set; }
         public CompanyName CompanyName { get; private set; }
+        public string CompanyDescription { get; private set; } = string.Empty;
+        public CustomUrl? LogoUrl { get; private set; }
+        public CustomUrl? WebsiteUrl { get; private set; }
+        public string Location { get; private set; } = string.Empty;
         public Password Password { get; private set; }
         public EmailAddress Email { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
@@ -25,10 +29,22 @@ namespace FertileNotify.Domain.Entities
             Email = default!;
         }
 
-        public Subscriber(CompanyName companyName, Password password, EmailAddress email, PhoneNumber? phoneNumber)
+        public Subscriber(
+            CompanyName companyName,
+            string companyDescription,
+            CustomUrl? logoUrl,
+            CustomUrl? websiteUrl,
+            string location,
+            Password password,
+            EmailAddress email,
+            PhoneNumber? phoneNumber)
         {
             Id = Guid.NewGuid();
             CompanyName = companyName;
+            CompanyDescription = companyDescription;
+            LogoUrl = logoUrl;
+            WebsiteUrl = websiteUrl;
+            Location = location;
             Password = password;
             Email = email;
             PhoneNumber = phoneNumber;
@@ -39,6 +55,24 @@ namespace FertileNotify.Domain.Entities
         public Subscriber WithCompanyName(CompanyName companyName)
         {
             CompanyName = companyName;
+            return this;
+        }
+
+        public Subscriber WithCompanyDescription(string companyDescription)
+        {
+            CompanyDescription = companyDescription;
+            return this;
+        }
+
+        public Subscriber WithLogoUrl(CustomUrl? logoUrl)
+        {
+            LogoUrl = logoUrl;
+            return this;
+        }
+
+        public Subscriber WithWebsiteUrl(CustomUrl? websiteUrl)
+        {
+            WebsiteUrl = websiteUrl;
             return this;
         }
 
@@ -71,7 +105,7 @@ namespace FertileNotify.Domain.Entities
             Password = newPassword;
         }
 
-        public Subscriber SetRefreshToken(RefreshToken refreshToken) 
+        public Subscriber SetRefreshToken(RefreshToken refreshToken)
         {
             RefreshToken = refreshToken;
             return this;

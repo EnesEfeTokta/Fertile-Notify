@@ -1,6 +1,4 @@
-﻿using FertileNotify.API.Models.Requests;
-using FertileNotify.Domain.Enums;
-using FluentValidation;
+﻿using FluentValidation;
 using System.Text.RegularExpressions;
 
 namespace FertileNotify.API.Validators
@@ -11,6 +9,24 @@ namespace FertileNotify.API.Validators
         {
             RuleFor(x => x.CompanyName)
                 .NotEmpty().WithMessage("Company name is a required field.");
+
+            RuleFor(x => x.CompanyDescription)
+                .NotEmpty().WithMessage("Company description is a required field.")
+                .MaximumLength(500).WithMessage("Company description can be at most 500 characters.");
+
+            RuleFor(x => x.LogoUrl)
+                .NotEmpty().WithMessage("Logo URL is a required field.")
+                .Must(BeAValidAbsoluteUrl)
+                .WithMessage("Please enter a valid logo URL.");
+
+            RuleFor(x => x.WebsiteUrl)
+                .NotEmpty().WithMessage("Website URL is a required field.")
+                .Must(BeAValidAbsoluteUrl)
+                .WithMessage("Please enter a valid website URL.");
+
+            RuleFor(x => x.Location)
+                .NotEmpty().WithMessage("Location is a required field.")
+                .MaximumLength(150).WithMessage("Location can be at most 150 characters.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is a required field.")
@@ -33,6 +49,10 @@ namespace FertileNotify.API.Validators
 
         private bool BeAValidPhoneNumber(string? phoneNumber)
             => Regex.IsMatch(phoneNumber!, @"^[\d\s\-\+\(\)]+$");
+
+        private bool BeAValidAbsoluteUrl(string? value)
+            => Uri.TryCreate(value, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 
         private bool SubscriptionPlanValid(string plan)
             => Enum.TryParse<SubscriptionPlan>(plan, ignoreCase: true, out _);

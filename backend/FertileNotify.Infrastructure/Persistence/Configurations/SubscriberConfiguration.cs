@@ -1,6 +1,3 @@
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,6 +16,28 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
                 )
                 .HasMaxLength(100)
                 .IsRequired();
+
+            builder.Property(u => u.CompanyDescription)
+                .HasMaxLength(500)
+                .IsRequired();
+
+            builder.Property(u => u.Location)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder.Property(u => u.LogoUrl)
+                .HasConversion(
+                    logo => logo != null ? logo.Value : null,
+                    value => value != null ? CustomUrl.Create(value) : null
+                )
+                .HasMaxLength(200);
+
+            builder.Property(u => u.WebsiteUrl)
+                .HasConversion(
+                    website => website != null ? website.Value : null,
+                    value => value != null ? CustomUrl.Create(value) : null
+                )
+                .HasMaxLength(200);
 
             builder.Property(u => u.Password)
                 .HasConversion(
