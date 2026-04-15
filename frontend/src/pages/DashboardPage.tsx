@@ -53,7 +53,7 @@ export default function DashboardPage() {
     );
 
     return (
-        <AppShell title="Dashboard" actions={topActions} companyName={profile?.companyName} plan={profile?.subscription?.plan}>
+        <AppShell title="Dashboard" actions={topActions} companyName={profile?.companyName} plan={profile?.subscription?.plan} logoUrl={profile?.logoUrl}>
             <ToastContainer />
 
             {loading ? (
@@ -65,7 +65,35 @@ export default function DashboardPage() {
                         <div className="card p-8 h-full flex flex-col justify-between group overflow-hidden relative">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-accent-primary/5 blur-[100px] -mr-32 -mt-32 pointer-events-none" />
                             <div className="relative z-10">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-6">Service Status</h3>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted">Service Status</h3>
+                                    {/* Company Logo / Avatar */}
+                                    <div className="flex items-center gap-3">
+                                        {profile?.websiteUrl && (
+                                            <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer"
+                                                className="text-[11px] text-tertiary hover:text-accent-primary transition-colors flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                                Website
+                                            </a>
+                                        )}
+                                        {profile?.logoUrl ? (
+                                            <img
+                                                src={profile.logoUrl}
+                                                alt={profile.companyName}
+                                                className="h-9 w-9 rounded-lg object-cover border border-primary"
+                                                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                            />
+                                        ) : (
+                                            <div className="h-9 w-9 rounded-lg bg-accent-dim border border-blue-500/20 flex items-center justify-center">
+                                                <span className="text-xs font-bold text-accent-primary">
+                                                    {(profile?.companyName ?? 'FN').slice(0, 2).toUpperCase()}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-8">
                                     <div>
                                         <p className="text-sm text-secondary mb-1">Monthly Usage</p>

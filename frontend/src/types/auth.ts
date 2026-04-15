@@ -24,6 +24,10 @@ export interface VerifyOtpResponse {
 
 export interface RegisterRequest {
     companyName: string;
+    companyDescription?: string;
+    logoUrl?: string;
+    websiteUrl?: string;
+    location?: string;
     password: string;
     email: string;
     phoneNumber?: string;
