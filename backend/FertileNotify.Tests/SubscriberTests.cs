@@ -13,6 +13,10 @@ namespace FertileNotify.Tests
         {
             var subscriber = new Subscriber(
                 CompanyName.Create("Test LTC"),
+                "A sample company description",
+                CustomUrl.Create("https://example.com/logo.png"),
+                CustomUrl.Create("https://example.com"),
+                "Istanbul",
                 Password.Create("StrongP@ssw0rd"),
                 EmailAddress.Create("test@test.com"),
                 PhoneNumber.Create("+123-456-78-90")
@@ -29,6 +33,10 @@ namespace FertileNotify.Tests
         {
             var subscriber = new Subscriber(
                 CompanyName.Create("Test LTC"),
+                "A sample company description",
+                CustomUrl.Create("https://example.com/logo.png"),
+                CustomUrl.Create("https://example.com"),
+                "Istanbul",
                 Password.Create("StrongP@ssw0rd"),
                 EmailAddress.Create("test@test.com"),
                 null
@@ -45,6 +53,10 @@ namespace FertileNotify.Tests
         {
             var subscriber = new Subscriber(
                 CompanyName.Create("Test LTC"),
+                "A sample company description",
+                CustomUrl.Create("https://example.com/logo.png"),
+                CustomUrl.Create("https://example.com"),
+                "Istanbul",
                 Password.Create("StrongP@ssw0rd"),
                 EmailAddress.Create("test@test.com"),
                 null

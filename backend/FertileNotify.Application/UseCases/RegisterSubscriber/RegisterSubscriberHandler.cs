@@ -28,7 +28,15 @@ namespace FertileNotify.Application.UseCases.RegisterSubscriber
                 command.Plan
             );
 
-            var user = new Subscriber(command.CompanyName, command.Password, command.Email, command.PhoneNumber);
+            var user = new Subscriber(
+                command.CompanyName,
+                command.CompanyDescription,
+                command.LogoUrl,
+                command.WebsiteUrl,
+                command.Location,
+                command.Password,
+                command.Email,
+                command.PhoneNumber);
 
             var subscription = Subscription.Create(user.Id, command.Plan);
 

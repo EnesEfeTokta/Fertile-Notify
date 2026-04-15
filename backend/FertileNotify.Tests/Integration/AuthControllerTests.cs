@@ -35,6 +35,10 @@ namespace FertileNotify.Tests.Integration
             {
                 var subscriber = new Subscriber(
                     CompanyName.Create("Test Company"),
+                    "Test company description",
+                    CustomUrl.Create("https://example.com/logo.png"),
+                    CustomUrl.Create("https://example.com"),
+                    "Istanbul",
                     Password.Create("Password123!"),
                     EmailAddress.Create("test@example.com"),
                     PhoneNumber.Create("+1234567890"));

@@ -3,6 +3,10 @@
     public class SubscriberDto
     {
         public string CompanyName { get; set; } = string.Empty;
+        public string CompanyDescription { get; set; } = string.Empty;
+        public string? LogoUrl { get; set; }
+        public string? WebsiteUrl { get; set; }
+        public string Location { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public List<string> ActiveChannels { get; set; } = new();

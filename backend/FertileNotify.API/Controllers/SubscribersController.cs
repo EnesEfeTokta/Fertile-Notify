@@ -37,6 +37,10 @@ namespace FertileNotify.API.Controllers
             var response = new SubscriberDto
             {
                 CompanyName = subscriber.CompanyName.Name,
+                CompanyDescription = subscriber.CompanyDescription,
+                LogoUrl = subscriber.LogoUrl?.Value,
+                WebsiteUrl = subscriber.WebsiteUrl?.Value,
+                Location = subscriber.Location,
                 Email = subscriber.Email.Value,
                 PhoneNumber = subscriber.PhoneNumber?.Value,
                 ActiveChannels = subscriber.ActiveChannels.Select(c => c.Name).ToList(),
@@ -119,6 +123,10 @@ namespace FertileNotify.API.Controllers
             await _mediator.Send(new RegisterSubscriberCommand
             {
                 CompanyName = CompanyName.Create(request.CompanyName),
+                CompanyDescription = request.CompanyDescription,
+                LogoUrl = CustomUrl.Create(request.LogoUrl),
+                WebsiteUrl = CustomUrl.Create(request.WebsiteUrl),
+                Location = request.Location,
                 Password = Password.Create(request.Password),
                 Email = EmailAddress.Create(request.Email),
                 PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber)
