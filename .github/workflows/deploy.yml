@@ -34,7 +34,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VITE_API_URL=https://fertile-notify-api.enesefetokta.shop/api
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
+            VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
 
       - name: Build and push API
         uses: docker/build-push-action@v5
