@@ -76,6 +76,12 @@ namespace FertileNotify.Domain.Entities
             return this;
         }
 
+        public Subscriber WithLocation(string location)
+        {
+            Location = location;
+            return this;
+        }
+
         public Subscriber WithEmail(EmailAddress email)
         {
             Email = email;

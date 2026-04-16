@@ -1,5 +1,5 @@
 import axiosClient from "./axiosClient";
-import type { SubscriberProfile, UpdateCompanyName, UpdateContactInfo, UpdateChannel, UpdatePassword, CreateApiKey, ApiKeyResponse, ApiKey, ChannelSetting } from "../types/subscriber";
+import type { SubscriberProfile, UpdateCompanyName, UpdateContactInfo, UpdateCompanyInfo, UpdateChannel, UpdatePassword, CreateApiKey, ApiKeyResponse, ApiKey, ChannelSetting } from "../types/subscriber";
 
 export const subscriberService = {
     getProfile: async (): Promise<SubscriberProfile> => {
@@ -11,6 +11,9 @@ export const subscriberService = {
     },
     setContactInfo: async (data: UpdateContactInfo): Promise<void> => {
         await axiosClient.put("/subscribers/contact", data);
+    },
+    updateCompanyInfo: async (data: UpdateCompanyInfo): Promise<void> => {
+        await axiosClient.put("/subscribers/company-info", data);
     },
     setChannel: async (data: UpdateChannel): Promise<void> => {
         await axiosClient.post("/subscribers/channels", data);

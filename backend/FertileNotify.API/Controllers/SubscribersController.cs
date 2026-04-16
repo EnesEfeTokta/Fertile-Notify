@@ -80,6 +80,21 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(default!, "The subscriber's company name has been updated."));
         }
 
+        [HttpPut("company-info")]
+        public async Task<IActionResult> UpdateCompanyInfo([FromBody] UpdateCompanyInfoRequest request)
+        {
+            await _mediator.Send(new UpdateCompanyInfoCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                CompanyName = request.CompanyName,
+                CompanyDescription = request.CompanyDescription,
+                LogoUrl = request.LogoUrl,
+                WebsiteUrl = request.WebsiteUrl,
+                Location = request.Location
+            });
+            return Ok(ApiResponse<object>.SuccessResult(default!, "Your company information has been updated."));
+        }
+
         [HttpPost("channels")]
         public async Task<IActionResult> UpdateChannels([FromBody] ManageChannelRequest request)
         {
@@ -124,8 +139,8 @@ namespace FertileNotify.API.Controllers
             {
                 CompanyName = CompanyName.Create(request.CompanyName),
                 CompanyDescription = request.CompanyDescription,
-                LogoUrl = CustomUrl.Create(request.LogoUrl),
-                WebsiteUrl = CustomUrl.Create(request.WebsiteUrl),
+                LogoUrl = string.IsNullOrWhiteSpace(request.LogoUrl) ? null : CustomUrl.Create(request.LogoUrl),
+                WebsiteUrl = string.IsNullOrWhiteSpace(request.WebsiteUrl) ? null : CustomUrl.Create(request.WebsiteUrl),
                 Location = request.Location,
                 Password = Password.Create(request.Password),
                 Email = EmailAddress.Create(request.Email),
