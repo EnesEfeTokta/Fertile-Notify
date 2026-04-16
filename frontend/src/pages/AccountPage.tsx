@@ -15,7 +15,7 @@ const SectionCard = ({ title, subtitle, children, danger }: { title: string; sub
 );
 
 const FieldRow = ({ label, children, optional }: { label: string; children: React.ReactNode; optional?: boolean }) => (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 text-left">
         <label className="block text-xs font-semibold uppercase tracking-wider text-tertiary">
             {label}
             {optional && <span className="text-muted normal-case font-normal tracking-normal ml-1">(optional)</span>}
@@ -30,22 +30,22 @@ export default function AccountPage() {
     const [updating, setUpdating] = useState(false);
     const { showToast, ToastContainer } = useToast();
 
-    /* ── Contact & Company fields ── */
-    const [companyNameField, setCompanyNameField]             = useState('');
-    const [emailField, setEmailField]                         = useState('');
-    const [phoneField, setPhoneField]                         = useState('');
+    /* ── Combined Company Info states ── */
+    const [companyName, setCompanyName] = useState('');
+    const [description, setDescription] = useState('');
+    const [logoUrl, setLogoUrl] = useState('');
+    const [websiteUrl, setWebsiteUrl] = useState('');
+    const [location, setLocation] = useState('');
 
-    /* ── Read-only info fields (no update endpoint yet) ── */
-    const [logoUrlField, setLogoUrlField]                     = useState('');
-    const [websiteUrlField, setWebsiteUrlField]               = useState('');
-    const [locationField, setLocationField]                   = useState('');
-    const [descriptionField, setDescriptionField]             = useState('');
+    /* ── Contact fields ── */
+    const [emailField, setEmailField] = useState('');
+    const [phoneField, setPhoneField] = useState('');
 
     /* ── Security ── */
     const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword]         = useState('');
-    const [showCurrentPw, setShowCurrentPw]     = useState(false);
-    const [showNewPw, setShowNewPw]             = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [showCurrentPw, setShowCurrentPw] = useState(false);
+    const [showNewPw, setShowNewPw] = useState(false);
 
     /* ── Export ── */
     const [exporting, setExporting] = useState(false);
@@ -53,20 +53,20 @@ export default function AccountPage() {
     /* ── Delete account ── */
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
-    const [deleting, setDeleting]                   = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             const data = await subscriberService.getProfile();
             setProfile(data);
-            setCompanyNameField(data.companyName || '');
+            setCompanyName(data.companyName || '');
+            setDescription(data.companyDescription || '');
+            setLogoUrl(data.logoUrl || '');
+            setWebsiteUrl(data.websiteUrl || '');
+            setLocation(data.location || '');
             setEmailField(data.email || '');
             setPhoneField(data.phoneNumber || '');
-            setLogoUrlField(data.logoUrl || '');
-            setWebsiteUrlField(data.websiteUrl || '');
-            setLocationField(data.location || '');
-            setDescriptionField(data.companyDescription || '');
         } catch {
             showToast('Failed to load account data.', 'error');
         } finally {
@@ -76,21 +76,33 @@ export default function AccountPage() {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    const updateCompanyName = async () => {
-        if (!companyNameField.trim()) return;
+    const handleUpdateCompanyInfo = async () => {
+        if (!companyName.trim()) {
+            showToast('Company name is required.', 'error');
+            return;
+        }
         setUpdating(true);
         try {
-            await subscriberService.setCompanyName({ companyName: companyNameField });
-            showToast('Company name updated.');
+            await subscriberService.updateProfile({
+                companyName,
+                companyDescription: description,
+                logoUrl,
+                websiteUrl,
+                location
+            });
+            showToast('Company profile updated successfully.');
             fetchData();
-        } catch { showToast('Error updating name.', 'error'); }
-        finally { setUpdating(false); }
+        } catch {
+            showToast('Error updating company information.', 'error');
+        } finally {
+            setUpdating(false);
+        }
     };
 
     const updateContact = async () => {
         setUpdating(true);
         try {
-            await subscriberService.setContactInfo({ email: emailField, phoneNumber: phoneField });
+            await subscriberService.updateProfile({ email: emailField, phoneNumber: phoneField });
             showToast('Contact info updated.');
             fetchData();
         } catch { showToast('Error updating contact.', 'error'); }
@@ -149,135 +161,111 @@ export default function AccountPage() {
             {loading ? (
                 <div className="flex items-center gap-3 py-16"><div className="spinner" /></div>
             ) : (
-                <div className="space-y-4 max-w-[1400px]">
+                <div className="space-y-4 max-w-[1400px] pb-20">
 
-                    {/* ── Row 1: Company Identity ── */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <SectionCard title="Company Identity" subtitle="Your company name displayed across the platform">
-                            <FieldRow label="Company Name">
-                                <div className="flex gap-2">
-                                    <input
-                                        className="input-modern"
-                                        value={companyNameField}
-                                        onChange={e => setCompanyNameField(e.target.value)}
-                                    />
-                                    <button
-                                        className="btn-primary py-2 px-4 shrink-0"
-                                        onClick={updateCompanyName}
-                                        disabled={updating}
-                                    >
-                                        Save
-                                    </button>
-                                </div>
-                            </FieldRow>
+                    {/* ── Row 1: Company Profile (Merged) ── */}
+                    <SectionCard
+                        title="Company Profile"
+                        subtitle="Public information about your business used in notifications"
+                    >
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                            <FieldRow label="Company Description" optional>
-                                <textarea
-                                    className="input-modern resize-none"
-                                    rows={3}
-                                    value={descriptionField}
-                                    onChange={e => setDescriptionField(e.target.value)}
-                                    placeholder="A short description of your company…"
-                                    disabled
-                                />
-                                <p className="text-[10px] text-muted mt-1">
-                                    * Description can be set at registration. Contact support to update.
-                                </p>
-                            </FieldRow>
-                        </SectionCard>
-
-                        {/* ── Logo & Web Presence ── */}
-                        <SectionCard title="Web Presence" subtitle="Logo and website information">
-                            {/* Logo preview */}
-                            <div className="flex items-center gap-4">
-                                <div className="shrink-0">
-                                    {logoUrlField ? (
+                            {/* Left Col: Logo & Basic Info */}
+                            <div className="lg:col-span-1 space-y-6">
+                                <div className="flex flex-col items-center p-4 rounded-xl bg-accent-dim border border-blue-500/10">
+                                    {logoUrl ? (
                                         <img
-                                            src={logoUrlField}
-                                            alt="Company logo"
-                                            className="w-16 h-16 rounded-xl object-cover border border-primary"
-                                            onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                            src={logoUrl}
+                                            alt="Company logo preview"
+                                            className="w-24 h-24 rounded-2xl object-cover border-2 border-primary mb-4 shadow-lg"
+                                            onError={e => { (e.currentTarget as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=' + companyName; }}
                                         />
                                     ) : (
-                                        <div className="w-16 h-16 rounded-xl bg-accent-dim border border-blue-500/20 flex items-center justify-center">
-                                            <span className="text-lg font-bold text-accent-primary">
-                                                {(profile?.companyName ?? 'FN').slice(0, 2).toUpperCase()}
-                                            </span>
+                                        <div className="w-24 h-24 rounded-2xl bg-primary/10 border-2 border-dashed border-primary/30 flex items-center justify-center mb-4">
+                                            <span className="text-2xl font-bold text-accent-primary">{(companyName || 'FN').slice(0, 2).toUpperCase()}</span>
                                         </div>
                                     )}
+                                    <p className="text-sm font-bold text-primary">{companyName || 'Your Company'}</p>
+                                    <p className="text-[10px] text-tertiary mt-1 uppercase tracking-widest">{profile?.subscription?.plan || 'Free'} Plan</p>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-primary truncate">{profile?.companyName}</p>
-                                    {profile?.websiteUrl && (
-                                        <a
-                                            href={profile.websiteUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs text-accent-primary hover:underline flex items-center gap-1 mt-1"
-                                        >
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                            </svg>
-                                            {profile.websiteUrl}
-                                        </a>
-                                    )}
-                                    {profile?.location && (
-                                        <p className="text-xs text-tertiary flex items-center gap-1 mt-1">
-                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            {profile.location}
-                                        </p>
-                                    )}
-                                </div>
+
+                                <FieldRow label="Logo URL" optional>
+                                    <input
+                                        className="input-modern"
+                                        type="url"
+                                        value={logoUrl}
+                                        onChange={e => setLogoUrl(e.target.value)}
+                                        placeholder="https://…/logo.png"
+                                    />
+                                </FieldRow>
                             </div>
 
-                            <FieldRow label="Logo URL" optional>
-                                <input
-                                    className="input-modern"
-                                    type="url"
-                                    value={logoUrlField}
-                                    onChange={e => setLogoUrlField(e.target.value)}
-                                    placeholder="https://…/logo.png"
-                                    disabled
-                                />
-                            </FieldRow>
+                            {/* Right Col: Details */}
+                            <div className="lg:col-span-2 space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FieldRow label="Company Name">
+                                        <input
+                                            className="input-modern"
+                                            value={companyName}
+                                            onChange={e => setCompanyName(e.target.value)}
+                                            placeholder="Acme Corp"
+                                        />
+                                    </FieldRow>
+                                    <FieldRow label="Location">
+                                        <input
+                                            className="input-modern"
+                                            value={location}
+                                            onChange={e => setLocation(e.target.value)}
+                                            placeholder="City, Country"
+                                        />
+                                    </FieldRow>
+                                </div>
 
-                            <FieldRow label="Website URL" optional>
-                                <input
-                                    className="input-modern"
-                                    type="url"
-                                    value={websiteUrlField}
-                                    onChange={e => setWebsiteUrlField(e.target.value)}
-                                    placeholder="https://yourcompany.com"
-                                    disabled
-                                />
-                            </FieldRow>
+                                <FieldRow label="Website URL" optional>
+                                    <input
+                                        className="input-modern"
+                                        type="url"
+                                        value={websiteUrl}
+                                        onChange={e => setWebsiteUrl(e.target.value)}
+                                        placeholder="https://yourcompany.com"
+                                    />
+                                </FieldRow>
 
-                            <FieldRow label="Location" optional>
-                                <input
-                                    className="input-modern"
-                                    type="text"
-                                    value={locationField}
-                                    onChange={e => setLocationField(e.target.value)}
-                                    placeholder="San Francisco, CA"
-                                    disabled
-                                />
-                            </FieldRow>
+                                <FieldRow label="Company Description">
+                                    <textarea
+                                        className="input-modern resize-none"
+                                        rows={4}
+                                        value={description}
+                                        onChange={e => setDescription(e.target.value)}
+                                        placeholder="Describe your company…"
+                                    />
+                                </FieldRow>
 
-                            <div className="rounded-lg border border-blue-500/15 bg-blue-500/5 px-3 py-2 text-[11px] text-blue-400 flex items-start gap-2">
-                                <svg className="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Logo, website and location can be set during registration. Contact support to update these fields.
+                                <div className="pt-2 flex justify-end">
+                                    <button
+                                        className="btn-primary py-3 px-8 flex items-center gap-2 group"
+                                        onClick={handleUpdateCompanyInfo}
+                                        disabled={updating}
+                                    >
+                                        {updating ? (
+                                            <><div className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> Saving...</>
+                                        ) : (
+                                            <>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Save Profile Changes
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
-                        </SectionCard>
-                    </div>
+                        </div>
+                    </SectionCard>
 
                     {/* ── Row 2: Contact & Security ── */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <SectionCard title="Contact Information" subtitle="Update your email and phone number">
+                        <SectionCard title="Contact Information" subtitle="Update your communication details">
                             <FieldRow label="Email Address">
                                 <input
                                     className="input-modern"
@@ -303,7 +291,7 @@ export default function AccountPage() {
                             </button>
                         </SectionCard>
 
-                        <SectionCard title="Security" subtitle="Manage your password and account protection">
+                        <SectionCard title="Security" subtitle="Manage your password and protection">
                             <FieldRow label="Current Password">
                                 <div className="relative">
                                     <input
@@ -313,7 +301,7 @@ export default function AccountPage() {
                                         onChange={e => setCurrentPassword(e.target.value)}
                                     />
                                     <button
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-tertiary hover:text-primary transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-tertiary hover:text-primary"
                                         onClick={() => setShowCurrentPw(!showCurrentPw)}
                                     >
                                         {showCurrentPw ? '🙈' : '👁️'}
@@ -329,7 +317,7 @@ export default function AccountPage() {
                                         onChange={e => setNewPassword(e.target.value)}
                                     />
                                     <button
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-tertiary hover:text-primary transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-tertiary hover:text-primary"
                                         onClick={() => setShowNewPw(!showNewPw)}
                                     >
                                         {showNewPw ? '🙈' : '👁️'}
@@ -348,7 +336,7 @@ export default function AccountPage() {
 
                     {/* ── Row 3: Data & Danger Zone ── */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <SectionCard title="Data & Privacy" subtitle="Download a copy of all your account data">
+                        <SectionCard title="Data & Privacy" subtitle="Download a copy of your account data">
                             <p className="text-xs text-tertiary leading-relaxed">
                                 Export all data associated with your account — profile, subscriptions, API keys,
                                 and notification history — as a single JSON file.
@@ -375,8 +363,8 @@ export default function AccountPage() {
 
                         <SectionCard title="⚠ Danger Zone" subtitle="Irreversible and destructive actions" danger>
                             <p className="text-xs text-tertiary leading-relaxed">
-                                Deleting your account will permanently remove all of your data from our servers.
                                 This action <span className="text-red-400 font-semibold">cannot be undone</span>.
+                                Deleting your account will permanently remove all data from our servers.
                             </p>
 
                             {!showDeleteConfirm ? (
@@ -393,14 +381,14 @@ export default function AccountPage() {
                                     </p>
                                     <div className="flex gap-2">
                                         <input
-                                            className="input-modern py-2 border-red-500/30 focus:border-red-400 w-full text-xs"
+                                            className="input-modern py-2 border-red-500/30 w-full text-xs"
                                             placeholder="DELETE"
                                             value={deleteConfirmText}
                                             onChange={e => setDeleteConfirmText(e.target.value)}
                                             autoFocus
                                         />
                                         <button
-                                            className="py-2 px-4 rounded-lg text-xs font-semibold border border-red-500 text-red-400 bg-red-500/15 hover:bg-red-500/25 transition-all disabled:opacity-30"
+                                            className="py-2 px-4 rounded-lg text-xs font-semibold border border-red-500 text-red-400 bg-red-500/15 hover:bg-red-500/25 disabled:opacity-30"
                                             onClick={handleDeleteAccount}
                                             disabled={deleteConfirmText !== 'DELETE' || deleting}
                                         >

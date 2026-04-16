@@ -127,7 +127,10 @@ export default function RegisterPage() {
     const isPasswordValid = passwordRules.every(r => r.test(password));
 
     /* ── Validation per step ── */
-    const canProceedStep0 = companyName.trim().length > 0 && companyDescription.trim().length > 0 && location.trim().length > 0;
+    const canProceedStep0 = 
+        companyName.trim().length > 0 && 
+        companyDescription.trim().length > 0 && 
+        location.trim().length > 0;
     const canProceedStep1 = email.trim().length > 0 && isPasswordValid;
 
     const handleNext = () => {

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using System.Text.RegularExpressions;
 
 namespace FertileNotify.API.Validators
@@ -15,13 +15,13 @@ namespace FertileNotify.API.Validators
                 .MaximumLength(500).WithMessage("Company description can be at most 500 characters.");
 
             RuleFor(x => x.LogoUrl)
-                .NotEmpty().WithMessage("Logo URL is a required field.")
                 .Must(BeAValidAbsoluteUrl)
+                .When(x => !string.IsNullOrEmpty(x.LogoUrl))
                 .WithMessage("Please enter a valid logo URL.");
 
             RuleFor(x => x.WebsiteUrl)
-                .NotEmpty().WithMessage("Website URL is a required field.")
                 .Must(BeAValidAbsoluteUrl)
+                .When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
                 .WithMessage("Please enter a valid website URL.");
 
             RuleFor(x => x.Location)

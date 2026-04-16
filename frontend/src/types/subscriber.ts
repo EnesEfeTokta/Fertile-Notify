@@ -19,19 +19,12 @@ export interface Subscription {
     expiresAt: string;
 }
 
-export interface UpdateCompanyName {
-    companyName: string;
-}
-
-export interface UpdateCompanyInfo {
+export interface UpdateSubscriberProfile {
     companyName?: string;
     companyDescription?: string;
     logoUrl?: string;
     websiteUrl?: string;
     location?: string;
-}
-
-export interface UpdateContactInfo {
     email?: string;
     phoneNumber?: string;
 }

@@ -40,8 +40,6 @@ global using FertileNotify.Application.UseCases.ManageChannels;
 global using FertileNotify.Application.UseCases.RegisterSubscriber;
 global using FertileNotify.Application.UseCases.RevokeApiKey;
 global using FertileNotify.Application.UseCases.SetChannelSetting;
-global using FertileNotify.Application.UseCases.UpdateCompanyName;
-global using FertileNotify.Application.UseCases.UpdateContactInfo;
 global using FertileNotify.Application.UseCases.UpdatePassword;
 global using FertileNotify.Application.UseCases.Templates;
 
