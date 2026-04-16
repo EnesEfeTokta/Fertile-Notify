@@ -33,19 +33,19 @@ export default function AccountPage() {
     /* ── Combined Company Info states ── */
     const [companyName, setCompanyName] = useState('');
     const [description, setDescription] = useState('');
-    const [logoUrl, setLogoUrl]         = useState('');
-    const [websiteUrl, setWebsiteUrl]   = useState('');
-    const [location, setLocation]       = useState('');
+    const [logoUrl, setLogoUrl] = useState('');
+    const [websiteUrl, setWebsiteUrl] = useState('');
+    const [location, setLocation] = useState('');
 
     /* ── Contact fields ── */
-    const [emailField, setEmailField]   = useState('');
-    const [phoneField, setPhoneField]   = useState('');
+    const [emailField, setEmailField] = useState('');
+    const [phoneField, setPhoneField] = useState('');
 
     /* ── Security ── */
     const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword]         = useState('');
-    const [showCurrentPw, setShowCurrentPw]     = useState(false);
-    const [showNewPw, setShowNewPw]             = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [showCurrentPw, setShowCurrentPw] = useState(false);
+    const [showNewPw, setShowNewPw] = useState(false);
 
     /* ── Export ── */
     const [exporting, setExporting] = useState(false);
@@ -53,7 +53,7 @@ export default function AccountPage() {
     /* ── Delete account ── */
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteConfirmText, setDeleteConfirmText] = useState('');
-    const [deleting, setDeleting]                   = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -83,7 +83,7 @@ export default function AccountPage() {
         }
         setUpdating(true);
         try {
-            await subscriberService.updateCompanyInfo({
+            await subscriberService.updateProfile({
                 companyName,
                 companyDescription: description,
                 logoUrl,
@@ -102,7 +102,7 @@ export default function AccountPage() {
     const updateContact = async () => {
         setUpdating(true);
         try {
-            await subscriberService.setContactInfo({ email: emailField, phoneNumber: phoneField });
+            await subscriberService.updateProfile({ email: emailField, phoneNumber: phoneField });
             showToast('Contact info updated.');
             fetchData();
         } catch { showToast('Error updating contact.', 'error'); }
@@ -164,12 +164,12 @@ export default function AccountPage() {
                 <div className="space-y-4 max-w-[1400px] pb-20">
 
                     {/* ── Row 1: Company Profile (Merged) ── */}
-                    <SectionCard 
-                        title="Company Profile" 
+                    <SectionCard
+                        title="Company Profile"
                         subtitle="Public information about your business used in notifications"
                     >
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            
+
                             {/* Left Col: Logo & Basic Info */}
                             <div className="lg:col-span-1 space-y-6">
                                 <div className="flex flex-col items-center p-4 rounded-xl bg-accent-dim border border-blue-500/10">
@@ -363,7 +363,7 @@ export default function AccountPage() {
 
                         <SectionCard title="⚠ Danger Zone" subtitle="Irreversible and destructive actions" danger>
                             <p className="text-xs text-tertiary leading-relaxed">
-                                This action <span className="text-red-400 font-semibold">cannot be undone</span>. 
+                                This action <span className="text-red-400 font-semibold">cannot be undone</span>.
                                 Deleting your account will permanently remove all data from our servers.
                             </p>
 
