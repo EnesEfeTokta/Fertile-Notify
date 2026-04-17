@@ -17,6 +17,7 @@ import BlacklistPage from './pages/BlacklistPage';
 import BuyCreditsPage from './pages/BuyCreditsPage';
 import LogsPage from './pages/LogsPage';
 import WorkflowPage from './pages/WorkflowPage';
+import PaymentHistoryPage from './pages/PaymentHistoryPage';
 
 // Info Pages
 import AboutUsPage from './pages/info/AboutUsPage';
@@ -48,6 +49,7 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/pricing" element={<PricingPlanPage />} />
         <Route path="/buy-credits" element={<BuyCreditsPage />} />
+        <Route path="/payment-history" element={<PaymentHistoryPage />} />
 
         {/* Info Routes */}
         <Route path="/about" element={<AboutUsPage />} />
