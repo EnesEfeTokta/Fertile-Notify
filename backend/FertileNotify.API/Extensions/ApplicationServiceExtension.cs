@@ -28,6 +28,7 @@ namespace FertileNotify.API.Extensions
             services.AddScoped<INotificationComplaintRepository, EfINotificationComplaintRepository>();
             services.AddScoped<IAutomationRepository, EfAutomationRepository>();
             services.AddScoped<ISystemNotificationRepository, EfSystemNotificationRepository>();
+            services.AddScoped<IPaymentLogRepository, EfPaymentLogRepository>();
 
             // Application Services
             services.AddScoped<IStatisticsService, StatisticsService>();

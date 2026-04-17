@@ -18,6 +18,7 @@ namespace FertileNotify.Infrastructure.Persistence
         public DbSet<AutomationWorkflow> AutomationWorkflows { get; set; }
         public DbSet<SystemNotification> SystemNotifications { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<PaymentLog> PaymentLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

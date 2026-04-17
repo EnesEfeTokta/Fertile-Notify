@@ -1,6 +1,3 @@
-using FertileNotify.Domain.Entities;
-using FertileNotify.Domain.ValueObjects;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

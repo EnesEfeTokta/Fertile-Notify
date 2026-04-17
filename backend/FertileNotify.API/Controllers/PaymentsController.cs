@@ -30,6 +30,17 @@ namespace FertileNotify.API.Controllers
             return Ok(ApiResponse<object>.SuccessResult(result, "Payment intent created successfully."));
         }
 
+        [HttpGet("history")]
+        public async Task<IActionResult> GetPaymentHistory()
+        {
+            var result = await _mediator.Send(new GetPaymentHistoryQuery
+            {
+                SubscriberId = GetSubscriberIdFromClaims()
+            });
+
+            return Ok(ApiResponse<object>.SuccessResult(result, "Payment history retrieved successfully."));
+        }
+
         [AllowAnonymous]
         [HttpPost("webhook")]
         public async Task<IActionResult> HandleWebhook()
@@ -68,7 +79,8 @@ namespace FertileNotify.API.Controllers
                 {
                     SubscriberId = subscriberId,
                     Credits = credits,
-                    PaymentIntentId = paymentIntent.Id
+                    PaymentIntentId = paymentIntent.Id,
+                    AmountInCents = paymentIntent.AmountReceived > 0 ? paymentIntent.AmountReceived : paymentIntent.Amount
                 });
             }
 
