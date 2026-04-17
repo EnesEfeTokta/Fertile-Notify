@@ -156,6 +156,22 @@ namespace FertileNotify.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PaymentLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    SubscriberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    StripePaymentIntentId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SubscriberChannelSettings",
                 columns: table => new
                 {
@@ -232,6 +248,12 @@ namespace FertileNotify.Infrastructure.Migrations
                 columns: new[] { "SubscriberId", "Channel" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentLogs_StripePaymentIntentId",
+                table: "PaymentLogs",
+                column: "StripePaymentIntentId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SubscriberChannelSettings_SubscriberId_Channel",
                 table: "SubscriberChannelSettings",
                 columns: new[] { "SubscriberId", "Channel" });
@@ -268,6 +290,9 @@ namespace FertileNotify.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "NotificationTemplates");
+
+            migrationBuilder.DropTable(
+                name: "PaymentLogs");
 
             migrationBuilder.DropTable(
                 name: "SubscriberChannelSettings");

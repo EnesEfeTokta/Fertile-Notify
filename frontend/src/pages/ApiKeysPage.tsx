@@ -115,7 +115,7 @@ export default function ApiKeysPage() {
 
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-muted flex items-center justify-between px-1">
-                                Active Keys 
+                                Your API Keys 
                                 <span className="bg-primary/50 px-2 py-0.5 rounded text-[10px] font-mono">{apiKeys.length}</span>
                             </h3>
                             {loading ? (
@@ -130,11 +130,17 @@ export default function ApiKeysPage() {
                             ) : (
                                 <div className="space-y-3">
                                     {apiKeys.map(key => (
-                                        <div key={key.id} className="card p-4 flex items-center justify-between group hover:border-accent-primary/30 transition-all bg-secondary/20">
+                                        <div key={key.id} className={`card p-4 flex items-center justify-between group hover:border-accent-primary/30 transition-all ${key.isActive ? "bg-secondary/20" : "bg-secondary/5 opacity-60 grayscale-[0.5]"}`}>
                                             <div className="flex items-center gap-3 overflow-hidden">
-                                                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-[10px] font-bold text-tertiary border border-primary shrink-0">KEY</div>
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold border shrink-0 ${key.isActive ? "bg-primary text-tertiary border-primary" : "bg-secondary text-muted border-secondary"}`}>
+                                                    {key.isActive ? "ACT" : "PAS"}
+                                                </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-bold text-primary text-sm truncate">{key.name}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-bold text-primary text-sm truncate">{key.name}</p>
+                                                        {!key.isActive && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-500 font-bold border border-red-500/20">INACTIVE</span>}
+                                                        {key.isActive && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-500 font-bold border border-green-500/20 uppercase tracking-tighter">Active</span>}
+                                                    </div>
                                                     <p className="text-[11px] font-mono text-accent-light opacity-80">{key.prefix}••••••••</p>
                                                 </div>
                                             </div>
