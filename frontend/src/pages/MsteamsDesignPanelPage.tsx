@@ -5,26 +5,15 @@ import type { CreateOrUpdateCustom } from '../types/template';
 import { getChannelMetadata } from '../constants/channels';
 import { EVENT_TYPES } from '../constants/eventTypes';
 
-// Dynamic limits based on channel
-const getLimits = (channel: string) => {
-    switch (channel) {
-        case 'sms': return { title: 40, body: 160 };
-        case 'console': return { title: 100, body: 2000 };
-        case 'whatsapp': return { title: 100, body: 1024 };
-        case 'telegram': return { title: 128, body: 4096 };
-        case 'discord': return { title: 256, body: 2000 };
-        case 'slack': return { title: 150, body: 3000 };
-        case 'msteams': return { title: 150, body: 3000 };
-        default: return { title: 128, body: 2000 };
-    }
-};
+// MS Teams Limits
+const limits = { title: 150, body: 3000 };
 
-export default function ChannelDesignPanelPage() {
+export default function MsteamsDesignPanelPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
     // State initialization from location state (for new or existing templates)
-    const [channelId, setChannelId] = useState<string>(location.state?.channel || 'sms');
+    const [channelId] = useState<string>('msteams');
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [showSaveModal, setShowSaveModal] = useState(false);
@@ -32,31 +21,22 @@ export default function ChannelDesignPanelPage() {
     const [templateDescription, setTemplateDescription] = useState('');
     const [selectedEventType, setSelectedEventType] = useState('');
 
-    const channelInfo = getChannelMetadata(channelId);
-    const limits = getLimits(channelId);
+    const channelInfo = getChannelMetadata('msteams');
 
     useEffect(() => {
         if (location.state?.template) {
             const { template } = location.state;
-            setChannelId(template.channelId || template.channel || template.type?.toLowerCase() || 'sms');
             setTitle(template.subject || '');
             setMessage(template.body || '');
             setTemplateName(template.name || '');
             setTemplateDescription(template.description || '');
             setSelectedEventType(template.eventType || template.event || '');
-        } else if (location.state?.channel) {
-            setChannelId(location.state.channel);
         }
     }, [location.state]);
 
     const isTitleTooLong = title.length > limits.title;
     const isMessageTooLong = message.length > limits.body;
     const showWarning = isTitleTooLong || isMessageTooLong;
-
-    const truncateText = (text: string, maxLength: number) => {
-        if (text.length <= maxLength) return text;
-        return text.slice(0, maxLength) + '...';
-    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -244,39 +224,49 @@ export default function ChannelDesignPanelPage() {
                         <h2 className="text-[10px] font-bold text-secondary uppercase tracking-widest">Mockup Preview</h2>
                     </div>
 
-                    <div className="flex-1 flex items-center justify-center p-8">
-                        {/* Generic Mobile Notification Shell */}
-                        <div className="relative w-[280px] h-[580px]">
-                            <div className="absolute inset-0 bg-[#000] rounded-[3.2rem] border-[8px] border-[#1f1f1f] shadow-2xl overflow-hidden ring-1 ring-white/20">
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-[#000] rounded-b-2xl z-20"></div>
-
-                                <div className="h-full bg-gradient-to-b from-blue-900/20 to-black flex flex-col">
-                                    <div className="h-10 flex items-center justify-between px-8 pt-3">
-                                        <span className="text-white text-[10px] font-bold">9:41</span>
-                                        <div className="flex items-center gap-1.5 text-white/50 text-[10px]">▲ ●</div>
+                    <div className="flex-1 flex items-center justify-center p-8 bg-[#f5f5f5]">
+                        {/* MS Teams Desktop Mockup */}
+                        <div className="relative w-full max-w-2xl h-[500px]">
+                            <div className="absolute inset-0 bg-white rounded-md border border-gray-200 shadow-xl overflow-hidden flex flex-col font-sans">
+                                {/* MS Teams Header */}
+                                <div className="h-14 border-b border-gray-200 flex items-center px-4 gap-3 shrink-0 bg-[#f5f5f5] z-10">
+                                    <div className="w-8 h-8 rounded bg-[#6264a7] text-white flex items-center justify-center text-sm font-bold shadow-sm">
+                                        FN
                                     </div>
+                                    <span className="text-gray-800 font-semibold text-[15px]">Fertile Notify (App)</span>
+                                </div>
+                                {/* MS Teams Body */}
+                                <div className="py-4 px-6 overflow-y-auto flex-1 bg-white">
+                                    <div className="text-center text-xs text-gray-500 mb-6 border-b border-gray-200 leading-[0.1em]"><span className="bg-white px-2">Today {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>
 
-                                    <div className="mx-3 mt-6">
-                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-lg">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-5 h-5 rounded-md bg-primary-500 flex items-center justify-center text-[10px]">
-                                                        {channelInfo.icon}
-                                                    </div>
-                                                    <span className="text-[10px] font-bold text-white uppercase tracking-tight">{channelInfo.name}</span>
-                                                </div>
-                                                <span className="text-[9px] text-white/40">NOW</span>
+                                    {/* MS Teams Adaptive Card or Message */}
+                                    <div className="flex gap-4">
+                                        <div className="w-9 h-9 rounded-full bg-[#6264a7] flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                                            <span className="text-white text-base">{channelInfo.icon}</span>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-baseline gap-2 mb-1">
+                                                <span className="text-gray-900 font-semibold text-[14px]">Fertile Notify</span>
+                                                <span className="text-gray-500 text-[11px]">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
-
-                                            <div className="space-y-1">
-                                                <h4 className="text-[12px] font-bold text-white truncate">
-                                                    {truncateText(title || 'Template Subject', limits.title)}
-                                                </h4>
-                                                <p className="text-[12px] text-white/70 line-clamp-4 leading-snug">
-                                                    {truncateText(message || 'Your message content will be displayed here...', limits.body)}
-                                                </p>
+                                            {/* Adaptive Card styling */}
+                                            <div className="mt-2 border border-gray-200 rounded p-4 max-w-xl bg-white shadow-sm hover:shadow transition-shadow">
+                                                {title && (
+                                                    <div className="text-gray-900 font-semibold text-[17px] mb-2 leading-snug break-words">
+                                                        {title}
+                                                    </div>
+                                                )}
+                                                <div className="text-gray-700 text-[14px] leading-relaxed whitespace-pre-wrap break-words">
+                                                    {message || 'Your MS Teams message content will appear here...'}
+                                                </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                                {/* MS Teams Input */}
+                                <div className="px-6 pb-6 shrink-0 bg-white">
+                                    <div className="border border-gray-300 rounded h-11 flex items-center px-3 bg-[#f5f5f5]">
+                                        <span className="text-gray-400 text-[14px]">Type a new message</span>
                                     </div>
                                 </div>
                             </div>
