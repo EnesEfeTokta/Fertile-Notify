@@ -13,6 +13,8 @@ import SmsDesignPanelPage from './pages/SmsDesignPanelPage';
 import ConsoleDesignPanelPage from './pages/ConsoleDesignPanelPage';
 import WhatsappDesignPanelPage from './pages/WhatsappDesignPanelPage';
 import TelegramDesignPanelPage from './pages/TelegramDesignPanelPage';
+import DiscordDesignPanelPage from './pages/DiscordDesignPanelPage';
+import SlackDesignPanelPage from './pages/SlackDesignPanelPage';
 import TemplatesPage from './pages/TemplatesPage';
 import StatisticsPage from './pages/StatisticsPage';
 import AccountPage from './pages/AccountPage';
@@ -42,6 +44,8 @@ function App() {
         <Route path="/console-editor" element={<ConsoleDesignPanelPage />} />
         <Route path="/whatsapp-editor" element={<WhatsappDesignPanelPage />} />
         <Route path="/telegram-editor" element={<TelegramDesignPanelPage />} />
+        <Route path="/discord-editor" element={<DiscordDesignPanelPage />} />
+        <Route path="/slack-editor" element={<SlackDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/logs" element={<LogsPage />} />
         <Route path="/workflows" element={<WorkflowPage />} />
