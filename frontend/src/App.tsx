@@ -11,6 +11,7 @@ import PricingPlanPage from './pages/PricingPlanPage';
 import ChannelDesignPanelPage from './pages/ChannelDesignPanelPage';
 import SmsDesignPanelPage from './pages/SmsDesignPanelPage';
 import ConsoleDesignPanelPage from './pages/ConsoleDesignPanelPage';
+import WhatsappDesignPanelPage from './pages/WhatsappDesignPanelPage';
 import TemplatesPage from './pages/TemplatesPage';
 import StatisticsPage from './pages/StatisticsPage';
 import AccountPage from './pages/AccountPage';
@@ -38,6 +39,7 @@ function App() {
         <Route path="/channel-editor" element={<ChannelDesignPanelPage />} />
         <Route path="/sms-editor" element={<SmsDesignPanelPage />} />
         <Route path="/console-editor" element={<ConsoleDesignPanelPage />} />
+        <Route path="/whatsapp-editor" element={<WhatsappDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/logs" element={<LogsPage />} />
         <Route path="/workflows" element={<WorkflowPage />} />
