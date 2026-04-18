@@ -7,17 +7,17 @@ export interface ChannelMetadata {
 }
 
 export const NOTIFICATION_CHANNELS: ChannelMetadata[] = [
-    { id: 'console', name: 'Console', icon: '🖥️', color: '#3b82f6', editorRoute: '/channel-editor' },
+    { id: 'console', name: 'Console', icon: '🖥️', color: '#3b82f6', editorRoute: '/console-editor' },
     { id: 'email', name: 'Email', icon: '📧', color: '#8b5cf6', editorRoute: '/email-visual-editor' },
-    { id: 'sms', name: 'SMS', icon: '💬', color: '#f59e0b', editorRoute: '/channel-editor' },
-    { id: 'whatsapp', name: 'WhatsApp', icon: '📱', color: '#25d366', editorRoute: '/channel-editor' },
-    { id: 'telegram', name: 'Telegram', icon: '✈️', color: '#0088cc', editorRoute: '/channel-editor' },
-    { id: 'discord', name: 'Discord', icon: '🎮', color: '#5865f2', editorRoute: '/channel-editor' },
-    { id: 'slack', name: 'Slack', icon: '⌛', color: '#4a154b', editorRoute: '/channel-editor' },
-    { id: 'msteams', name: 'MS Teams', icon: '👥', color: '#6264a7', editorRoute: '/channel-editor' },
-    { id: 'firebasepush', name: 'Firebase Push', icon: '🔥', color: '#ffca28', editorRoute: '/channel-editor' },
-    { id: 'webpush', name: 'Web Push', icon: '🌐', color: '#ff6b6b', editorRoute: '/channel-editor' },
-    { id: 'webhook', name: 'Webhook', icon: '🔗', color: '#10b981', editorRoute: '/channel-editor' },
+    { id: 'sms', name: 'SMS', icon: '💬', color: '#f59e0b', editorRoute: '/sms-editor' },
+    { id: 'whatsapp', name: 'WhatsApp', icon: '📱', color: '#25d366', editorRoute: '/whatsapp-editor' },
+    { id: 'telegram', name: 'Telegram', icon: '✈️', color: '#0088cc', editorRoute: '/telegram-editor' },
+    { id: 'discord', name: 'Discord', icon: '🎮', color: '#5865f2', editorRoute: '/discord-editor' },
+    { id: 'slack', name: 'Slack', icon: '⌛', color: '#4a154b', editorRoute: '/slack-editor' },
+    { id: 'msteams', name: 'MS Teams', icon: '👥', color: '#6264a7', editorRoute: '/msteams-editor' },
+    { id: 'firebasepush', name: 'Firebase Push', icon: '🔥', color: '#ffca28', editorRoute: '/firebasepush-editor' },
+    { id: 'webpush', name: 'Web Push', icon: '🌐', color: '#ff6b6b', editorRoute: '/webpush-editor' },
+    { id: 'webhook', name: 'Webhook', icon: '🔗', color: '#10b981', editorRoute: '/webhook-editor' },
 ];
 
 export const getString = (val: any): string => {

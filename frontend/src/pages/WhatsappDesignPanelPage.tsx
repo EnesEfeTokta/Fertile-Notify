@@ -5,26 +5,13 @@ import type { CreateOrUpdateCustom } from '../types/template';
 import { getChannelMetadata } from '../constants/channels';
 import { EVENT_TYPES } from '../constants/eventTypes';
 
-// Dynamic limits based on channel
-const getLimits = (channel: string) => {
-    switch (channel) {
-        case 'sms': return { title: 40, body: 160 };
-        case 'console': return { title: 100, body: 2000 };
-        case 'whatsapp': return { title: 100, body: 1024 };
-        case 'telegram': return { title: 128, body: 4096 };
-        case 'discord': return { title: 256, body: 2000 };
-        case 'slack': return { title: 150, body: 3000 };
-        case 'msteams': return { title: 150, body: 3000 };
-        default: return { title: 128, body: 2000 };
-    }
-};
+const limits = { title: 100, body: 1024 };
 
-export default function ChannelDesignPanelPage() {
+export default function WhatsappDesignPanelPage() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // State initialization from location state (for new or existing templates)
-    const [channelId, setChannelId] = useState<string>(location.state?.channel || 'sms');
+    const [channelId] = useState<string>('whatsapp');
     const [title, setTitle] = useState('');
     const [message, setMessage] = useState('');
     const [showSaveModal, setShowSaveModal] = useState(false);
@@ -32,20 +19,16 @@ export default function ChannelDesignPanelPage() {
     const [templateDescription, setTemplateDescription] = useState('');
     const [selectedEventType, setSelectedEventType] = useState('');
 
-    const channelInfo = getChannelMetadata(channelId);
-    const limits = getLimits(channelId);
+    const channelInfo = getChannelMetadata('whatsapp');
 
     useEffect(() => {
         if (location.state?.template) {
             const { template } = location.state;
-            setChannelId(template.channelId || template.channel || template.type?.toLowerCase() || 'sms');
             setTitle(template.subject || '');
             setMessage(template.body || '');
             setTemplateName(template.name || '');
             setTemplateDescription(template.description || '');
             setSelectedEventType(template.eventType || template.event || '');
-        } else if (location.state?.channel) {
-            setChannelId(location.state.channel);
         }
     }, [location.state]);
 
@@ -245,38 +228,76 @@ export default function ChannelDesignPanelPage() {
                     </div>
 
                     <div className="flex-1 flex items-center justify-center p-8">
-                        {/* Generic Mobile Notification Shell */}
+                        {/* WhatsApp Mobile Mockup */}
                         <div className="relative w-[280px] h-[580px]">
-                            <div className="absolute inset-0 bg-[#000] rounded-[3.2rem] border-[8px] border-[#1f1f1f] shadow-2xl overflow-hidden ring-1 ring-white/20">
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-[#000] rounded-b-2xl z-20"></div>
+                            <div className="absolute inset-0 bg-black rounded-[3.2rem] border-[8px] border-[#1f1f1f] shadow-2xl overflow-hidden ring-1 ring-white/20 flex flex-col">
+                                {/* Notch Area */}
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-30"></div>
 
-                                <div className="h-full bg-gradient-to-b from-blue-900/20 to-black flex flex-col">
-                                    <div className="h-10 flex items-center justify-between px-8 pt-3">
-                                        <span className="text-white text-[10px] font-bold">9:41</span>
-                                        <div className="flex items-center gap-1.5 text-white/50 text-[10px]">▲ ●</div>
+                                {/* Status Bar */}
+                                <div className="h-10 flex items-center justify-between px-6 pt-2 bg-[#075e54] text-white z-20">
+                                    <span className="text-[10px] font-bold">9:41</span>
+                                    <div className="flex items-center gap-1 text-[10px]">
+                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5z" /></svg>
+                                    </div>
+                                </div>
+
+                                {/* WhatsApp Header */}
+                                <div className="h-14 bg-[#075e54] flex items-center px-4 gap-3 shadow-md z-10 shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center overflow-hidden">
+                                        <div className="w-full h-full bg-white flex items-center justify-center text-sm">{channelInfo.icon}</div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-white text-sm font-semibold leading-tight">Fertile Notify</h3>
+                                        <p className="text-white/80 text-[10px]">Business Account</p>
+                                    </div>
+                                    <div className="flex gap-4 text-white">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                    </div>
+                                </div>
+
+                                {/* Chat Background */}
+                                <div className="flex-1 overflow-y-auto bg-[#ece5dd] p-4 relative" style={{ backgroundImage: 'radial-gradient(#d3cbc1 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+
+                                    {/* Date Bubble */}
+                                    <div className="flex justify-center mb-4">
+                                        <div className="bg-[#e1f3fb] text-[#4a4a4a] text-[10px] px-3 py-1 rounded-lg shadow-sm">
+                                            TODAY
+                                        </div>
                                     </div>
 
-                                    <div className="mx-3 mt-6">
-                                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-lg">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-5 h-5 rounded-md bg-primary-500 flex items-center justify-center text-[10px]">
-                                                        {channelInfo.icon}
-                                                    </div>
-                                                    <span className="text-[10px] font-bold text-white uppercase tracking-tight">{channelInfo.name}</span>
-                                                </div>
-                                                <span className="text-[9px] text-white/40">NOW</span>
-                                            </div>
+                                    {/* Message Bubble */}
+                                    <div className="flex mb-4">
+                                        <div className="bg-white rounded-lg rounded-tl-none p-2 shadow-sm text-black max-w-[85%] relative border border-gray-100">
+                                            {/* Top left tail */}
+                                            <svg className="absolute -left-2 top-0 w-2 h-3 text-white" fill="currentColor" viewBox="0 0 8 13">
+                                                <path d="M5.188 1H0v11.156l5.188-5.188a3 3 0 00.879-2.121V3.121a3 3 0 00-.879-2.121z" />
+                                            </svg>
 
-                                            <div className="space-y-1">
-                                                <h4 className="text-[12px] font-bold text-white truncate">
-                                                    {truncateText(title || 'Template Subject', limits.title)}
-                                                </h4>
-                                                <p className="text-[12px] text-white/70 line-clamp-4 leading-snug">
-                                                    {truncateText(message || 'Your message content will be displayed here...', limits.body)}
-                                                </p>
+                                            {title && (
+                                                <div className="text-[12px] font-bold text-black mb-1 leading-tight break-words">
+                                                    {truncateText(title, limits.title)}
+                                                </div>
+                                            )}
+                                            <div className="text-[13px] leading-snug whitespace-pre-wrap break-words text-[#111111] pb-3">
+                                                {truncateText(message || 'Your WhatsApp message will appear here...', limits.body)}
+                                            </div>
+                                            <div className="absolute bottom-1 right-2 text-[9px] text-gray-500 font-medium">
+                                                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
                                         </div>
+                                    </div>
+
+                                </div>
+
+                                {/* Imposed Input Area */}
+                                <div className="h-14 bg-[#f0f0f0] flex items-center px-2 gap-2 shrink-0 border-t border-gray-300">
+                                    <div className="w-6 text-gray-500 text-center">+</div>
+                                    <div className="flex-1 h-9 bg-white rounded-full px-4 flex items-center text-gray-400 text-xs border border-gray-200">
+                                        Message
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-[#075e54] text-white flex items-center justify-center">
+                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                     </div>
                                 </div>
                             </div>

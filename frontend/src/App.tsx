@@ -8,7 +8,16 @@ import DashboardPage from './pages/DashboardPage';
 import EmailDesignAdvancedPanelPage from './pages/EmailDesignAdvancedPanelPage';
 import EmailDesignVisualPanelPage from './pages/EmailDesignVisualPanelPage';
 import PricingPlanPage from './pages/PricingPlanPage';
-import ChannelDesignPanelPage from './pages/ChannelDesignPanelPage';
+import SmsDesignPanelPage from './pages/SmsDesignPanelPage';
+import ConsoleDesignPanelPage from './pages/ConsoleDesignPanelPage';
+import WhatsappDesignPanelPage from './pages/WhatsappDesignPanelPage';
+import TelegramDesignPanelPage from './pages/TelegramDesignPanelPage';
+import DiscordDesignPanelPage from './pages/DiscordDesignPanelPage';
+import SlackDesignPanelPage from './pages/SlackDesignPanelPage';
+import MsteamsDesignPanelPage from './pages/MsteamsDesignPanelPage';
+import FirebasepushDesignPanelPage from './pages/FirebasepushDesignPanelPage';
+import WebpushDesignPanelPage from './pages/WebpushDesignPanelPage';
+import WebhookDesignPanelPage from './pages/WebhookDesignPanelPage';
 import TemplatesPage from './pages/TemplatesPage';
 import StatisticsPage from './pages/StatisticsPage';
 import AccountPage from './pages/AccountPage';
@@ -33,7 +42,16 @@ function App() {
       <Routes>
         <Route path="/email-advanced-editor" element={<EmailDesignAdvancedPanelPage />} />
         <Route path="/email-visual-editor" element={<EmailDesignVisualPanelPage />} />
-        <Route path="/channel-editor" element={<ChannelDesignPanelPage />} />
+        <Route path="/sms-editor" element={<SmsDesignPanelPage />} />
+        <Route path="/console-editor" element={<ConsoleDesignPanelPage />} />
+        <Route path="/whatsapp-editor" element={<WhatsappDesignPanelPage />} />
+        <Route path="/telegram-editor" element={<TelegramDesignPanelPage />} />
+        <Route path="/discord-editor" element={<DiscordDesignPanelPage />} />
+        <Route path="/slack-editor" element={<SlackDesignPanelPage />} />
+        <Route path="/msteams-editor" element={<MsteamsDesignPanelPage />} />
+        <Route path="/firebasepush-editor" element={<FirebasepushDesignPanelPage />} />
+        <Route path="/webpush-editor" element={<WebpushDesignPanelPage />} />
+        <Route path="/webhook-editor" element={<WebhookDesignPanelPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/logs" element={<LogsPage />} />
         <Route path="/workflows" element={<WorkflowPage />} />
