@@ -11,7 +11,7 @@ export const NOTIFICATION_CHANNELS: ChannelMetadata[] = [
     { id: 'email', name: 'Email', icon: '📧', color: '#8b5cf6', editorRoute: '/email-visual-editor' },
     { id: 'sms', name: 'SMS', icon: '💬', color: '#f59e0b', editorRoute: '/sms-editor' },
     { id: 'whatsapp', name: 'WhatsApp', icon: '📱', color: '#25d366', editorRoute: '/whatsapp-editor' },
-    { id: 'telegram', name: 'Telegram', icon: '✈️', color: '#0088cc', editorRoute: '/channel-editor' },
+    { id: 'telegram', name: 'Telegram', icon: '✈️', color: '#0088cc', editorRoute: '/telegram-editor' },
     { id: 'discord', name: 'Discord', icon: '🎮', color: '#5865f2', editorRoute: '/channel-editor' },
     { id: 'slack', name: 'Slack', icon: '⌛', color: '#4a154b', editorRoute: '/channel-editor' },
     { id: 'msteams', name: 'MS Teams', icon: '👥', color: '#6264a7', editorRoute: '/channel-editor' },
