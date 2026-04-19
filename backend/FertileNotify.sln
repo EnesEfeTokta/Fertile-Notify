@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FertileNotify.Infrastructur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FertileNotify.Tests", "FertileNotify.Tests\FertileNotify.Tests.csproj", "{B1BDCC63-E369-41FF-BAFB-8C00E0A9E3AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FertileNotify.MCPServer", "FertileNotify.MCPServer\FertileNotify.MCPServer.csproj", "{90E3749C-0700-4BC8-B456-48761E1915E7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,18 +83,6 @@ Global
 		{B1BDCC63-E369-41FF-BAFB-8C00E0A9E3AE}.Release|x64.Build.0 = Release|Any CPU
 		{B1BDCC63-E369-41FF-BAFB-8C00E0A9E3AE}.Release|x86.ActiveCfg = Release|Any CPU
 		{B1BDCC63-E369-41FF-BAFB-8C00E0A9E3AE}.Release|x86.Build.0 = Release|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Debug|x64.Build.0 = Debug|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Debug|x86.Build.0 = Debug|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Release|x64.ActiveCfg = Release|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Release|x64.Build.0 = Release|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Release|x86.ActiveCfg = Release|Any CPU
-		{90E3749C-0700-4BC8-B456-48761E1915E7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
