@@ -18,6 +18,8 @@ namespace FertileNotify.Domain.Entities
         public PhoneNumber? PhoneNumber { get; private set; }
         public RefreshToken? RefreshToken { get; private set; }
         public int ExtraCredits { get; private set; } = 0;
+        public bool IsServiceAccount { get; private set; } = false;
+        public string? McpApiKey { get; private set; }
 
         private readonly HashSet<NotificationChannel> _activeChannels = new();
         public IReadOnlyCollection<NotificationChannel> ActiveChannels => _activeChannels;
@@ -37,7 +39,9 @@ namespace FertileNotify.Domain.Entities
             string location,
             Password password,
             EmailAddress email,
-            PhoneNumber? phoneNumber)
+            PhoneNumber? phoneNumber,
+            bool isServiceAccount = false,
+            string? mcpApiKey = null)
         {
             Id = Guid.NewGuid();
             CompanyName = companyName;
@@ -48,6 +52,8 @@ namespace FertileNotify.Domain.Entities
             Password = password;
             Email = email;
             PhoneNumber = phoneNumber;
+            IsServiceAccount = isServiceAccount;
+            McpApiKey = mcpApiKey;
 
             _activeChannels.Add(NotificationChannel.Email);
         }
@@ -115,6 +121,12 @@ namespace FertileNotify.Domain.Entities
         {
             RefreshToken = refreshToken;
             return this;
+        }
+
+        public void EnableServiceAccount(string mcpApiKey)
+        {
+            IsServiceAccount = true;
+            McpApiKey = mcpApiKey;
         }
 
         public Subscriber AddCredits(int amount)
