@@ -34,6 +34,14 @@ The Application layer implements all major business operations, including:
 #### Notification Processing
 - **SendNotificationHandler**: Orchestrates the rendering and delivery of single notifications.
 - **NotificationComplaintHandler**: Processes complaints and feedback from recipients.
+- **DeleteAccountHandler**: Handles the permanent deletion of a subscriber account and all associated data.
+
+#### Workflow Automation
+- **CreateWorkflowNotificationHandler**: Creates a new scheduled or event-triggered workflow notification.
+- **UpdateWorkflowNotificationHandler**: Updates the configuration of an existing workflow notification.
+- **TriggerWorkflowNotificationsHandler**: Processes and dispatches all workflow notifications matching a given event trigger.
+- **WorkflowNotificationHandler**: Core handler that executes a single workflow notification (template rendering and delivery).
+- **WorkflowQueryAndActionHandlers**: Provides query handlers for listing/retrieving workflow notifications and command handlers for activating/deactivating/deleting them.
 
 ### Services
 
@@ -41,6 +49,8 @@ The Application layer implements all major business operations, including:
 - **ApiKeyService**: Handles the secure generation and validation of API keys.
 - **NotificationLogService**: Manages historical logs for all notification delivery attempts.
 - **StatisticsService**: Provides real-time and historical usage analytics and quota tracking.
+- **AutomationSchedulerService**: Schedules and manages automated workflow notifications using cron expressions (Redis-backed).
+- **AutomationTriggerService**: Evaluates and dispatches event-triggered workflow notifications.
 
 ### Interfaces
 
@@ -51,15 +61,22 @@ The Application layer defines contracts that are implemented by the Infrastructu
 - `ISubscriptionRepository`: Plan management and usage tracking.
 - `ITemplateRepository`: Notification template storage and retrieval.
 - `IApiKeyRepository`: Secure storage for API key metadata and hashes.
-- `IFatalRecipientRepository`: Management of blocked recipients.
+- `IBlacklistRepository`: Management of blocked (forbidden) recipients.
 - `INotificationLogRepository`: Access to delivery history logs.
 - `IStatsRepository`: Aggregated usage and performance statistics.
+- `ISubscriberChannelRepository`: Per-channel configuration storage and retrieval.
+- `INotificationComplaintRepository`: Storage and retrieval of notification complaints.
+- `IAutomationRepository`: Data access for workflow automation definitions.
 
 **Services:**
 - `INotificationSender`: Abstraction for multi-channel notification delivery (Email, SMS, Push, etc.).
 - `ITokenService`: JWT token generation, parsing, and validation.
 - `IOtpService`: Secure OTP generation and verification for 2FA login.
 - `IEmailService`: Specialized service for complex email operations (e.g., MJML rendering).
+- `ISecurityService`: Password hashing and cryptographic utilities.
+- `INotificationLogService`: Logging contract for notification delivery outcomes.
+- `IStatisticsService`: Contract for retrieving usage analytics.
+- `IWorkflowScheduleService`: Abstraction for scheduling workflow notifications (Redis or no-op implementation).
 
 ## Notification Workflow
 
@@ -90,6 +107,9 @@ The Application layer provides centralized error handling for:
 - **FertileNotify.Domain**: Core business logic and rules.
 - **FluentValidation**: Sophisticated input validation for all commands.
 - **MassTransit**: Integrated for asynchronous message-based communication.
+- **MediatR**: Implements the Command/Query pattern for use case dispatch.
+- **Cronos**: Cron expression parsing for workflow scheduling.
+- **Mjml.Net**: MJML email template compilation.
 - **Microsoft.Extensions.Logging**: Structured logging across all use cases.
 
 ## Testing

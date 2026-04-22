@@ -24,6 +24,10 @@ This project contains concrete implementations of external concerns such as data
 - **EfBlacklistRepository**: Management of blocked recipients.
 - **EfNotificationLogRepository**: Historical delivery tracking.
 - **EfStatsRepository**: Performance and usage analytics.
+- **EfSubscriberChannelRepository**: Per-channel configuration storage and retrieval.
+- **EfINotificationComplaintRepository**: Complaint record persistence and retrieval.
+- **EfAutomationRepository**: Workflow automation definition storage.
+- **CachedSubscriptionRepository**: Redis-backed caching layer for subscription data to reduce database load.
 
 #### Redis Caching
 - Distributed caching using **StackExchange.Redis**.
@@ -56,8 +60,11 @@ Concrete implementations of `INotificationSender` for a wide variety of channels
 
 ### Background Jobs
 
-- **LogRetentionWorker**: A .NET Hosted Service for cleaning up old logs and maintaining database performance.
-- **NotificationConsumer**: MassTransit consumer for processing queued notification requests.
+- **NotificationConsumer**: MassTransit consumer for processing queued notification requests from RabbitMQ.
+- **LogRetentionWorker**: A .NET Hosted Service for cleaning up old notification logs and maintaining database performance.
+- **AutomationWorker**: A background worker that triggers scheduled workflow notifications based on cron expressions.
+- **RedisSchedulerService**: Manages workflow schedule state in Redis for distributed scheduling.
+- **RedisWorkflowScheduleService**: Implements `IWorkflowScheduleService` using Redis for persistent, cross-instance workflow scheduling.
 
 ## Database Schema
 
@@ -88,13 +95,14 @@ Configuration is managed via `appsettings.json` and environment variables:
 
 ## Dependencies
 
-- **Microsoft.EntityFrameworkCore.PostgreSQL**: High-performance ORM provider.
+- **Microsoft.EntityFrameworkCore.PostgreSQL (Npgsql)**: High-performance ORM provider.
 - **MassTransit.RabbitMQ**: Enterprise-grade service bus.
-- **StackExchange.Redis**: Fast distributed caching.
-- **MailKit**: Advanced email delivery.
-- **FirebaseAdmin**: Push notification support for mobile.
-- **BCrypt.Net-Next**: Industry-standard hashing for security.
+- **StackExchange.Redis**: Fast distributed caching and workflow scheduling.
+- **MailKit / MimeKit**: Advanced email delivery and MIME construction.
+- **FirebaseAdmin**: Push notification support for mobile devices.
+- **WebPush**: Web Push notification support via VAPID.
 - **System.IdentityModel.Tokens.Jwt**: JWT generation and parsing.
+- **Scrutor**: Assembly scanning for automatic dependency injection registration.
 
 ## Architecture Role
 

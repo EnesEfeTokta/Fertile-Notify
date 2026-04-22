@@ -189,20 +189,51 @@ docker run -p 5080:8080 \
 
 ### Authentication
 - `POST /api/auth/login`: Login with email/password, generates OTP.
-- `POST /api/auth/verify-otp`: Verify OTP code and receive JWT token.
+- `POST /api/auth/verify-code`: Verify OTP code and receive JWT token.
 - `POST /api/auth/refresh-token`: Refresh expired JWT token.
-- `PUT /api/auth/password`: Update password.
+- `POST /api/auth/forgot-password`: Send password reset OTP.
 
 ### Subscribers
 - `POST /api/subscribers/register`: Register new subscriber.
-- `GET /api/subscribers/profile`: Get current subscriber profile.
-- `PUT /api/subscribers/channels`: Update notification channel preferences.
-- `POST /api/subscribers/api-keys`: Generate new API key.
-- `DELETE /api/subscribers/api-keys/{id}`: Revoke API key.
+- `GET /api/subscribers/me`: Get current subscriber profile and subscription info.
+- `PUT /api/subscribers/contact`: Update contact info (email/phone).
+- `PUT /api/subscribers/company-name`: Update company name.
+- `POST /api/subscribers/channels`: Update active notification channels.
+- `PUT /api/subscribers/password`: Update password.
+- `DELETE /api/subscribers/delete-account`: Delete subscriber account.
+- `POST /api/subscribers/create-api-key`: Generate new API key.
+- `GET /api/subscribers/api-keys`: List all API keys.
+- `DELETE /api/subscribers/api-keys/{apiKeyId}`: Revoke API key.
+- `POST /api/subscribers/settings/channel-setting`: Set per-channel configuration.
+- `GET /api/subscribers/settings/channel-setting`: Get per-channel configuration.
 
 ### Notifications
-- `POST /api/notifications/send`: Send single notification.
-- `POST /api/notifications/bulk`: Send bulk notifications.
+- `POST /api/notifications/send`: Send a notification to one or more recipients.
+- `POST /api/notifications/workflow/send/{eventTrigger}`: Trigger a workflow notification by event.
+- `POST /api/notifications/workflow/add`: Create a new workflow notification.
+- `PUT /api/notifications/workflow/update`: Update an existing workflow notification.
+- `GET /api/notifications/workflow/list`: List all workflow notifications.
+- `GET /api/notifications/workflow/get/{id}`: Get a specific workflow notification.
+- `DELETE /api/notifications/workflow/delete/{id}`: Delete a workflow notification.
+- `POST /api/notifications/workflow/activate/{id}`: Activate a workflow notification.
+- `POST /api/notifications/workflow/deactivate/{id}`: Deactivate a workflow notification.
+
+### Templates
+- `GET /api/templates`: List available templates.
+- `POST /api/templates/query`: Query templates with filters.
+- `POST /api/templates/create-or-update-custom`: Create or update a custom template.
+
+### Recipients
+- `POST /api/recipients/unsubscribe`: Unsubscribe a recipient.
+- `POST /api/recipients/complaint`: Submit a notification complaint.
+- `GET /api/recipients/complaints`: List complaints.
+- `GET /api/recipients/blacklist`: List blacklisted recipients.
+- `POST /api/recipients/blacklist`: Add a recipient to the blacklist.
+- `DELETE /api/recipients/blacklist/{id}`: Remove a recipient from the blacklist.
+
+### Statistics & Logs
+- `GET /api/statistics`: Get usage statistics and quota tracking.
+- `GET /api/logs/{limit}`: Get recent notification delivery logs.
 
 ## Running Tests
 
@@ -220,9 +251,9 @@ dotnet test
 - **Validation**: FluentValidation
 - **Logging**: Serilog
 - **Auth**: JWT / API Keys / BCrypt
-- **Email**: MJML.NET / MailKit
+- **Email**: MJML.Net / MailKit
 - **Testing**: xUnit / Moq / FluentAssertions
 
 ## License
 
-[MIT License](../LICENSE)
+[GPL-3.0 License](../LICENSE)
