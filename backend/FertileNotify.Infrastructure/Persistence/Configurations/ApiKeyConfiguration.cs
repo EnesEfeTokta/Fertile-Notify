@@ -19,6 +19,9 @@ namespace FertileNotify.Infrastructure.Persistence.Configurations
             builder.Property(a => a.Name)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            builder.Property(a => a.Scopes)
+                .HasMaxLength(500);
         }
     }
 }
