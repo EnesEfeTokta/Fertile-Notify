@@ -29,7 +29,7 @@ builder.Host.ConfigureHostOptions(options =>
 
 // --- SERVICES REGISTRATION ---
 builder.Services
-    .AddWebConfig()             // CORS, Rate Limiting, Controllers, Validation
+    .AddWebConfig(builder.Environment)             // CORS, Rate Limiting, Controllers, Validation
     .AddSwaggerConfig()         // Swagger Documentation & Security
     .AddInfrastructureConfig(builder.Configuration, builder.Environment) // DB, Redis, RabbitMQ, HealthChecks
     .AddAuthConfig(builder.Configuration)           // JWT, ApiKey, Token Services

@@ -3,12 +3,13 @@ using System.Threading.RateLimiting;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Hosting;
 
 namespace FertileNotify.API.Extensions
 {
     public static class WebExtension
     {
-        public static IServiceCollection AddWebConfig(this IServiceCollection services)
+        public static IServiceCollection AddWebConfig(this IServiceCollection services, IHostEnvironment environment)
         {
             services.AddControllers()
                 .AddJsonOptions(options =>
@@ -48,6 +49,11 @@ namespace FertileNotify.API.Extensions
                         "Enterprise" => 1000,
                         _ => 20
                     };
+
+                    if (environment.IsEnvironment("Testing"))
+                    {
+                        permitLimit = int.MaxValue;
+                    }
 
                     return RateLimitPartition.GetFixedWindowLimiter(
                         partitionKey: partitionKey,
