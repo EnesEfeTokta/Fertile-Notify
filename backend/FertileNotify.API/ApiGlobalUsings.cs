@@ -34,12 +34,15 @@ global using FertileNotify.Application.UseCases.NotificationComplaint;
 global using FertileNotify.Application.UseCases.Payments;
 global using FertileNotify.Application.UseCases.Unsubscribe;
 global using FertileNotify.Application.UseCases.CreateApiKey;
+global using FertileNotify.Application.UseCases.DeleteApiKey;
 global using FertileNotify.Application.UseCases.DeleteAccount;
 global using FertileNotify.Application.UseCases.ExportData;
 global using FertileNotify.Application.UseCases.ManageChannels;
 global using FertileNotify.Application.UseCases.RegisterSubscriber;
 global using FertileNotify.Application.UseCases.RevokeApiKey;
 global using FertileNotify.Application.UseCases.SetChannelSetting;
+global using FertileNotify.Application.UseCases.UpdateApiKeyScopes;
+global using FertileNotify.Application.UseCases.UpdateApiKeyStatus;
 global using FertileNotify.Application.UseCases.UpdatePassword;
 global using FertileNotify.Application.UseCases.Templates;
 

@@ -4,6 +4,18 @@ import type { ApiKey, SubscriberProfile } from '../types/subscriber';
 import AppShell from '../components/AppShell';
 import { useToast } from '../components/Toast';
 
+const API_KEY_SCOPES = [
+    { id: 'notifications:send', label: 'Send Notifications', description: 'Allows this API key to trigger multi-channel notifications.' },
+    { id: 'workflow:trigger', label: 'Trigger Workflows', description: 'Allows this API key to start automation and workflow flows.' },
+    { id: 'mcp:usage', label: 'Use MCP', description: 'Allows this API key to use MCP-based integration calls.' },
+];
+
+const normalizeScopes = (scopes?: string | null) =>
+    (scopes ?? '')
+        .split(',')
+        .map(scope => scope.trim())
+        .filter(Boolean);
+
 export default function ApiKeysPage() {
     const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
     const [targetProfile, setTargetProfile] = useState<SubscriberProfile | null>(null);
@@ -11,6 +23,10 @@ export default function ApiKeysPage() {
     const [updating, setUpdating] = useState(false);
     const [apiKeyName, setApiKeyName] = useState("");
     const [newKeyHash, setNewKeyHash] = useState<string | null>(null);
+    const [selectedApiKeyId, setSelectedApiKeyId] = useState<string | null>(null);
+    const [editingScopes, setEditingScopes] = useState<string[]>([]);
+    const [editingIsActive, setEditingIsActive] = useState(true);
+    const [savingKeyId, setSavingKeyId] = useState<string | null>(null);
     const { showToast, ToastContainer } = useToast();
 
     const loadData = useCallback(async () => {
@@ -30,6 +46,26 @@ export default function ApiKeysPage() {
     }, [showToast]);
 
     useEffect(() => { loadData(); }, [loadData]);
+
+    useEffect(() => {
+        if (apiKeys.length === 0) return;
+
+        const selectedExists = selectedApiKeyId
+            ? apiKeys.some(key => key.id === selectedApiKeyId)
+            : false;
+
+        if (!selectedApiKeyId || !selectedExists) {
+            setSelectedApiKeyId(apiKeys[0].id);
+        }
+    }, [apiKeys, selectedApiKeyId]);
+
+    useEffect(() => {
+        const selectedKey = apiKeys.find(key => key.id === selectedApiKeyId);
+        if (!selectedKey) return;
+
+        setEditingScopes(normalizeScopes(selectedKey.scopes));
+        setEditingIsActive(selectedKey.isActive);
+    }, [apiKeys, selectedApiKeyId]);
 
     const handleCreate = async () => {
         if (!apiKeyName.trim()) return;
@@ -51,6 +87,35 @@ export default function ApiKeysPage() {
             loadData();
         } catch { showToast("Error deleting key.", "error"); }
     };
+
+    const handleSaveSelectedKey = async () => {
+        const selectedKey = apiKeys.find(key => key.id === selectedApiKeyId);
+        if (!selectedKey) return;
+
+        setSavingKeyId(selectedKey.id);
+        try {
+            await Promise.all([
+                subscriberService.updateApiKeyScopes(selectedKey.id, { scopes: editingScopes }),
+                subscriberService.updateApiKeyStatus(selectedKey.id, { isActive: editingIsActive }),
+            ]);
+            showToast("API key updated.");
+            await loadData();
+        } catch {
+            showToast("Failed to update API key.", "error");
+        } finally {
+            setSavingKeyId(null);
+        }
+    };
+
+    const toggleScope = (scopeId: string) => {
+        setEditingScopes(current =>
+            current.includes(scopeId)
+                ? current.filter(scope => scope !== scopeId)
+                : [...current, scopeId]
+        );
+    };
+
+    const selectedApiKey = apiKeys.find(key => key.id === selectedApiKeyId) ?? null;
 
     return (
         <AppShell title="API Keys" companyName={targetProfile?.companyName} plan={targetProfile?.subscription?.plan}>
@@ -113,6 +178,129 @@ export default function ApiKeysPage() {
                             </div>
                         </div>
 
+                        <div className="card p-6 space-y-5 border-primary/70 bg-secondary/30">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 className="font-bold text-primary text-sm">Selected Key Controls</h3>
+                                    <p className="text-[11px] text-tertiary mt-1">
+                                        Choose a key below and update its scopes or active state.
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] uppercase tracking-widest text-muted">Current</p>
+                                    <p className="text-xs font-mono text-accent-light">{selectedApiKey ? selectedApiKey.prefix : '—'}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase tracking-widest text-muted ml-1">Select API Key</label>
+                                <select
+                                    className="input-modern w-full"
+                                    value={selectedApiKeyId ?? ''}
+                                    onChange={e => setSelectedApiKeyId(e.target.value)}
+                                    disabled={apiKeys.length === 0}
+                                >
+                                    {apiKeys.map(key => (
+                                        <option key={key.id} value={key.id}>
+                                            {key.name} {key.isActive ? '(Active)' : '(Inactive)'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {selectedApiKey ? (
+                                <div className="space-y-4">
+                                    <div className="rounded-xl border border-primary bg-primary/10 p-4 space-y-3">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-bold text-primary truncate">{selectedApiKey.name}</p>
+                                                <p className="text-[11px] font-mono text-accent-light break-all">{selectedApiKey.prefix}••••••••</p>
+                                            </div>
+                                            <button
+                                                onClick={() => handleDelete(selectedApiKey.id, selectedApiKey.name)}
+                                                className="text-[11px] px-3 py-1.5 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+
+                                        <label className="flex items-center justify-between gap-3 rounded-lg bg-secondary/60 border border-primary px-3 py-2 cursor-pointer">
+                                            <div>
+                                                <p className="text-sm font-semibold text-primary">Active</p>
+                                                <p className="text-[11px] text-tertiary">Inactive keys cannot authenticate requests.</p>
+                                            </div>
+                                            <input
+                                                type="checkbox"
+                                                checked={editingIsActive}
+                                                onChange={e => setEditingIsActive(e.target.checked)}
+                                                className="w-5 h-5 accent-[var(--color-accent-primary)]"
+                                            />
+                                        </label>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div>
+                                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted">Scopes</h4>
+                                            <p className="text-[11px] text-tertiary mt-1">
+                                                Set what this API key is allowed to do.
+                                            </p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            {API_KEY_SCOPES.map(scope => {
+                                                const checked = editingScopes.includes(scope.id);
+                                                return (
+                                                    <label
+                                                        key={scope.id}
+                                                        className={`block rounded-xl border p-3 cursor-pointer transition-colors ${checked ? 'border-accent-primary bg-accent-dim/20' : 'border-primary bg-secondary/20 hover:border-accent-primary/30'}`}
+                                                    >
+                                                        <div className="flex items-start gap-3">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={checked}
+                                                                onChange={() => toggleScope(scope.id)}
+                                                                className="mt-1 w-4 h-4 accent-[var(--color-accent-primary)]"
+                                                            />
+                                                            <div className="min-w-0">
+                                                                <p className="text-sm font-semibold text-primary">{scope.label}</p>
+                                                                <p className="text-[11px] text-tertiary leading-relaxed mt-1">{scope.description}</p>
+                                                                <p className="text-[10px] font-mono text-accent-light mt-2">{scope.id}</p>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <button
+                                            className="btn-primary w-full py-3 shadow-lg shadow-accent-primary/20"
+                                            onClick={handleSaveSelectedKey}
+                                            disabled={savingKeyId === selectedApiKey.id}
+                                        >
+                                            {savingKeyId === selectedApiKey.id ? 'Saving...' : 'Save Scopes & Status'}
+                                        </button>
+
+                                        <div className="rounded-xl bg-black/20 border border-primary p-3">
+                                            <p className="text-[10px] uppercase tracking-widest text-muted mb-2">Current Scopes</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {normalizeScopes(selectedApiKey.scopes).length > 0 ? normalizeScopes(selectedApiKey.scopes).map(scope => (
+                                                    <span key={scope} className="px-2.5 py-1 rounded-full bg-accent-dim/20 text-accent-light text-[10px] font-bold border border-accent-primary/20">
+                                                        {API_KEY_SCOPES.find(item => item.id === scope)?.label ?? scope}
+                                                    </span>
+                                                )) : (
+                                                    <span className="text-[11px] text-tertiary">No scopes configured yet.</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="rounded-xl border border-dashed border-primary p-6 text-center">
+                                    <p className="text-sm text-tertiary">Select a key from the list or dropdown to edit its scopes and status.</p>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-muted flex items-center justify-between px-1">
                                 Your API Keys 
@@ -130,30 +318,40 @@ export default function ApiKeysPage() {
                             ) : (
                                 <div className="space-y-3">
                                     {apiKeys.map(key => (
-                                        <div key={key.id} className={`card p-4 flex items-center justify-between group hover:border-accent-primary/30 transition-all ${key.isActive ? "bg-secondary/20" : "bg-secondary/5 opacity-60 grayscale-[0.5]"}`}>
-                                            <div className="flex items-center gap-3 overflow-hidden">
+                                        <button
+                                            key={key.id}
+                                            onClick={() => setSelectedApiKeyId(key.id)}
+                                            className={`card w-full p-4 flex items-center justify-between group hover:border-accent-primary/30 transition-all text-left ${selectedApiKeyId === key.id ? 'border-accent-primary bg-accent-dim/15' : ''} ${key.isActive ? "bg-secondary/20" : "bg-secondary/5 opacity-60 grayscale-[0.5]"}`}
+                                        >
+                                            <div className="flex items-center gap-3 overflow-hidden min-w-0">
                                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold border shrink-0 ${key.isActive ? "bg-primary text-tertiary border-primary" : "bg-secondary text-muted border-secondary"}`}>
                                                     {key.isActive ? "ACT" : "PAS"}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 flex-wrap">
                                                         <p className="font-bold text-primary text-sm truncate">{key.name}</p>
                                                         {!key.isActive && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-500 font-bold border border-red-500/20">INACTIVE</span>}
                                                         {key.isActive && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-500 font-bold border border-green-500/20 uppercase tracking-tighter">Active</span>}
                                                     </div>
                                                     <p className="text-[11px] font-mono text-accent-light opacity-80">{key.prefix}••••••••</p>
+                                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                                        {normalizeScopes(key.scopes).length > 0 ? normalizeScopes(key.scopes).map(scope => (
+                                                            <span key={scope} className="text-[9px] px-2 py-0.5 rounded-full bg-black/20 text-accent-light border border-primary">
+                                                                {API_KEY_SCOPES.find(item => item.id === scope)?.label ?? scope}
+                                                            </span>
+                                                        )) : (
+                                                            <span className="text-[10px] text-tertiary">No scopes</span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => handleDelete(key.id, key.name)}
-                                                className="p-2 text-red-400/50 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                                                title="Revoke Key"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] text-muted uppercase tracking-widest hidden sm:inline">Manage</span>
+                                                <svg className="w-4 h-4 text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                 </svg>
-                                            </button>
-                                        </div>
+                                            </div>
+                                        </button>
                                     ))}
                                 </div>
                             )}
@@ -165,9 +363,9 @@ export default function ApiKeysPage() {
                         <section className="space-y-6">
                             <div className="max-w-3xl">
                                 <h2 className="text-2xl font-display font-bold text-primary">Integration Guide</h2>
-                                <p className="text-sm text-secondary mt-2 leading-relaxed">
-                                    Our REST API is the fastest way to trigger notifications from your backend. 
-                                    Integrate with a single endpoint and let us handle the multi-channel delivery.
+                                    <p className="text-sm text-secondary mt-2 leading-relaxed">
+                                    Manage notification sending, workflow triggering, and MCP integrations from the REST API.
+                                    Control API key scopes and active state from one panel.
                                 </p>
                             </div>
 
@@ -191,6 +389,16 @@ export default function ApiKeysPage() {
                                         </div>
                                         <p className="text-[11px] text-tertiary">Primary endpoint for sending notifications.</p>
                                     </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {API_KEY_SCOPES.map(scope => (
+                                        <div key={scope.id} className="p-4 rounded-xl bg-secondary/20 border border-primary space-y-2">
+                                            <p className="text-sm font-semibold text-primary">{scope.label}</p>
+                                            <p className="text-[11px] text-tertiary leading-relaxed">{scope.description}</p>
+                                            <p className="text-[10px] font-mono text-accent-light">{scope.id}</p>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 {/* Main Docs Content */}

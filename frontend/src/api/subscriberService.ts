@@ -1,5 +1,5 @@
 import axiosClient from "./axiosClient";
-import type { SubscriberProfile, UpdateSubscriberProfile, UpdateChannel, UpdatePassword, CreateApiKey, ApiKeyResponse, ApiKey, ChannelSetting } from "../types/subscriber";
+import type { SubscriberProfile, UpdateSubscriberProfile, UpdateChannel, UpdatePassword, CreateApiKey, ApiKeyResponse, ApiKey, ChannelSetting, UpdateApiKeyScopes, UpdateApiKeyStatus } from "../types/subscriber";
 
 export const subscriberService = {
     getProfile: async (): Promise<SubscriberProfile> => {
@@ -17,7 +17,7 @@ export const subscriberService = {
         await axiosClient.put("/subscribers/password", data);
     },
     setApikey: async (data: CreateApiKey): Promise<ApiKeyResponse> => {
-        const response = await axiosClient.post<ApiKeyResponse>("/subscribers/create-api-key", data);
+        const response = await axiosClient.post<ApiKeyResponse>("/subscribers/api-keys", data);
         return response.data;
     },
     getApiKeys: async (): Promise<ApiKey[]> => {
@@ -26,6 +26,14 @@ export const subscriberService = {
     },
     deleteApiKey: async (key: string): Promise<void> => {
         await axiosClient.delete(`/subscribers/api-keys/${key}`);
+    },
+    updateApiKeyScopes: async (key: string, data: UpdateApiKeyScopes): Promise<void> => {
+        await axiosClient.patch(`/subscribers/api-keys/${key}/scopes`, {
+            scopes: data.scopes.join(","),
+        });
+    },
+    updateApiKeyStatus: async (key: string, data: UpdateApiKeyStatus): Promise<void> => {
+        await axiosClient.patch(`/subscribers/api-keys/${key}/status`, data);
     },
     setChannelSetting: async (data: ChannelSetting): Promise<void> => {
         await axiosClient.post("/subscribers/settings/channel-setting", data);

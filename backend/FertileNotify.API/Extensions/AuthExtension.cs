@@ -1,4 +1,5 @@
 using FertileNotify.API.Authentication;
+using FertileNotify.API.Authorization;
 using FertileNotify.Infrastructure.Authentication;
 using Microsoft.IdentityModel.Tokens;
 
@@ -41,6 +42,25 @@ namespace FertileNotify.API.Extensions
                         return "ApiKey";
                     return "Bearer";
                 };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(ApiKeyScopePolicies.NotificationsSend,
+                    policy => policy.RequireAssertion(ctx =>
+                        ApiKeyScopePolicies.HasApiKeyScope(ctx.User, "notifications:send")));
+
+                options.AddPolicy(ApiKeyScopePolicies.NotificationsSendOrMcpUsage,
+                    policy => policy.RequireAssertion(ctx =>
+                        ApiKeyScopePolicies.HasAnyApiKeyScope(ctx.User, "notifications:send", "mcp:usage")));
+
+                options.AddPolicy(ApiKeyScopePolicies.WorkflowTrigger,
+                    policy => policy.RequireAssertion(ctx =>
+                        ApiKeyScopePolicies.HasApiKeyScope(ctx.User, "workflow:trigger")));
+
+                options.AddPolicy(ApiKeyScopePolicies.McpUsage,
+                    policy => policy.RequireAssertion(ctx =>
+                        ApiKeyScopePolicies.HasApiKeyScope(ctx.User, "mcp:usage")));
             });
 
             return services;

@@ -57,6 +57,15 @@ export interface ApiKey {
     id: string;
     prefix: string;
     name: string;
+    scopes?: string | null;
     isActive: boolean;
     createdAt: string;
+}
+
+export interface UpdateApiKeyScopes {
+    scopes: string[];
+}
+
+export interface UpdateApiKeyStatus {
+    isActive: boolean;
 }

@@ -1,3 +1,5 @@
+using FertileNotify.API.Authorization;
+
 namespace FertileNotify.API.Controllers
 {
     [Authorize]
@@ -14,6 +16,7 @@ namespace FertileNotify.API.Controllers
             _logger = logger;
         }
 
+        [Authorize(Policy = ApiKeyScopePolicies.NotificationsSendOrMcpUsage)]
         [HttpPost("send")]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request)
         {
@@ -43,6 +46,7 @@ namespace FertileNotify.API.Controllers
             );
         }
 
+        [Authorize(Policy = ApiKeyScopePolicies.WorkflowTrigger)]
         [HttpPost("workflow/send/{eventTrigger}")]
         public async Task<IActionResult> SendWorkflowNotification([FromRoute] string eventTrigger)
         {

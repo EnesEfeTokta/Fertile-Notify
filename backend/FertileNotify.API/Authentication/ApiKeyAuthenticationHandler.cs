@@ -1,13 +1,11 @@
-﻿using FertileNotify.Application.Interfaces;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
 using System.Security.Cryptography;
-using System.Security.Claims;
 
 namespace FertileNotify.API.Authentication
 {
-    public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions {}
+    public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions { }
 
     public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
     {
@@ -19,7 +17,7 @@ namespace FertileNotify.API.Authentication
             ILoggerFactory logger,
             UrlEncoder encoder,
             IApiKeyRepository apiKeyRepository,
-            ISubscriptionRepository subscriptionRepository) 
+            ISubscriptionRepository subscriptionRepository)
             : base(options, logger, encoder)
         {
             _apiKeyRepository = apiKeyRepository;
@@ -36,7 +34,7 @@ namespace FertileNotify.API.Authentication
             if (string.IsNullOrWhiteSpace(providedKey))
                 return AuthenticateResult.NoResult();
 
-            try 
+            try
             {
                 using var sha256 = SHA256.Create();
                 var hashBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(providedKey));
@@ -59,11 +57,17 @@ namespace FertileNotify.API.Authentication
                 var subscription = await _subscriptionRepository.GetBySubscriberIdAsync(apiKey.SubscriberId);
                 var plan = subscription?.Plan.ToString() ?? "Free";
 
-                var claims = new[] {
+                var claims = new List<Claim> {
                     new Claim(ClaimTypes.NameIdentifier, apiKey.SubscriberId.ToString()),
                     new Claim("ApiKeyId", apiKey.Id.ToString()),
                     new Claim("Plan", plan)
                 };
+
+                var scopes = apiKey.Scopes?.Split(',') ?? Array.Empty<string>();
+                foreach (var scope in scopes)
+                {
+                    claims.Add(new Claim("scope", scope.Trim()));
+                }
 
                 var identity = new ClaimsIdentity(claims, Scheme.Name);
                 var principal = new ClaimsPrincipal(identity);
