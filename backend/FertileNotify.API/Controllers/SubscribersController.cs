@@ -138,7 +138,7 @@ namespace FertileNotify.API.Controllers
                 "The subscriber's account has been deleted."));
         }
 
-        [HttpPost("create-api-key")]
+        [HttpPost("api-keys")]
         public async Task<IActionResult> CreateApiKey([FromBody] CreateApiKeyRequest request)
         {
             var rawApiKey = await _mediator.Send(new CreateApiKeyCommand
@@ -160,6 +160,7 @@ namespace FertileNotify.API.Controllers
                 Id = k.Id,
                 Name = k.Name,
                 Prefix = k.Prefix,
+                Scopes = k.Scopes,
                 IsActive = k.IsActive,
                 CreatedAt = k.CreatedAt,
             });
@@ -167,16 +168,44 @@ namespace FertileNotify.API.Controllers
                 "API keys retrieved."));
         }
 
-        [HttpDelete("api-keys/{apiKeyId}")]
-        public async Task<IActionResult> RevokeApiKey(Guid apiKeyId)
+        [HttpPatch("api-keys/{apiKeyId}/scopes")]
+        public async Task<IActionResult> UpdateApiKeyScopes(Guid apiKeyId, [FromBody] UpdateApiKeyScopesRequest request)
         {
-            await _mediator.Send(new RevokeApiKeyCommand
+            await _mediator.Send(new UpdateApiKeyScopesCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                ApiKeyId = apiKeyId,
+                Scopes = request.Scopes
+            });
+
+            return Ok(ApiResponse<object>.SuccessResult(default!,
+                "The API key scopes have been updated."));
+        }
+
+        [HttpPatch("api-keys/{apiKeyId}/status")]
+        public async Task<IActionResult> UpdateApiKeyStatus(Guid apiKeyId, [FromBody] UpdateApiKeyStatusRequest request)
+        {
+            await _mediator.Send(new UpdateApiKeyStatusCommand
+            {
+                SubscriberId = GetSubscriberIdFromClaims(),
+                ApiKeyId = apiKeyId,
+                IsActive = request.IsActive
+            });
+
+            return Ok(ApiResponse<object>.SuccessResult(default!,
+                "The API key status has been updated."));
+        }
+
+        [HttpDelete("api-keys/{apiKeyId}")]
+        public async Task<IActionResult> DeleteApiKey(Guid apiKeyId)
+        {
+            await _mediator.Send(new DeleteApiKeyCommand
             {
                 SubscriberId = GetSubscriberIdFromClaims(),
                 ApiKeyId = apiKeyId
             });
             return Ok(ApiResponse<object>.SuccessResult(default!,
-                "The API Key has been revoked."));
+                "The API key has been deleted."));
         }
 
         [HttpPost("settings/channel-setting")]

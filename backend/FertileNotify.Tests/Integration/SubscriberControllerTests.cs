@@ -166,5 +166,71 @@ namespace FertileNotify.Tests.Integration
             root.TryGetProperty("NotificationComplaints", out var complaints).Should().BeTrue();
             complaints.ValueKind.Should().Be(JsonValueKind.Array);
         }
+
+        [Fact]
+        public async Task ApiKeyLifecycle_ShouldSupportCreateUpdateStatusAndDelete()
+        {
+            // Arrange
+            var token = await GetAccessTokenAsync("subtest@example.com");
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var createResponse = await _client.PostAsJsonAsync("/api/subscribers/api-keys", new CreateApiKeyRequest
+            {
+                Name = "Lifecycle Key"
+            });
+
+            // Assert create
+            createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var createPayload = await createResponse.Content.ReadFromJsonAsync<ApiResponse<JsonElement>>();
+            createPayload.Should().NotBeNull();
+            createPayload!.Success.Should().BeTrue();
+
+            var listAfterCreateResponse = await _client.GetAsync("/api/subscribers/api-keys");
+            listAfterCreateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var listAfterCreatePayload = await listAfterCreateResponse.Content.ReadFromJsonAsync<ApiResponse<List<ApiKeyDto>>>();
+            listAfterCreatePayload.Should().NotBeNull();
+            listAfterCreatePayload!.Success.Should().BeTrue();
+
+            var createdKey = listAfterCreatePayload.Data!
+                .FirstOrDefault(k => k.Name == "Lifecycle Key");
+
+            createdKey.Should().NotBeNull();
+
+            // Update scopes
+            var updateScopesResponse = await _client.PatchAsJsonAsync(
+                $"/api/subscribers/api-keys/{createdKey!.Id}/scopes",
+                new UpdateApiKeyScopesRequest { Scopes = "notifications:read,notifications:write" });
+
+            updateScopesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            // Update status
+            var updateStatusResponse = await _client.PatchAsJsonAsync(
+                $"/api/subscribers/api-keys/{createdKey.Id}/status",
+                new UpdateApiKeyStatusRequest { IsActive = false });
+
+            updateStatusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var listAfterUpdatesResponse = await _client.GetAsync("/api/subscribers/api-keys");
+            listAfterUpdatesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var listAfterUpdatesPayload = await listAfterUpdatesResponse.Content.ReadFromJsonAsync<ApiResponse<List<ApiKeyDto>>>();
+            var updatedKey = listAfterUpdatesPayload!.Data!
+                .FirstOrDefault(k => k.Id == createdKey.Id);
+
+            updatedKey.Should().NotBeNull();
+            updatedKey!.Scopes.Should().Be("notifications:read,notifications:write");
+            updatedKey.IsActive.Should().BeFalse();
+
+            // Delete
+            var deleteResponse = await _client.DeleteAsync($"/api/subscribers/api-keys/{createdKey.Id}");
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var listAfterDeleteResponse = await _client.GetAsync("/api/subscribers/api-keys");
+            listAfterDeleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var listAfterDeletePayload = await listAfterDeleteResponse.Content.ReadFromJsonAsync<ApiResponse<List<ApiKeyDto>>>();
+            listAfterDeletePayload!.Data!
+                .Any(k => k.Id == createdKey.Id)
+                .Should()
+                .BeFalse();
+        }
     }
 }

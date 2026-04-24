@@ -26,7 +26,12 @@
         }
 
         public void Revoke() => IsActive = false;
-        public void SetScopes(string scopes) => Scopes = scopes;
+
+        public void SetActive(bool isActive)
+            => IsActive = isActive;
+
+        public void SetScopes(string? scopes)
+            => Scopes = string.IsNullOrWhiteSpace(scopes) ? null : scopes.Trim();
 
     }
 }
