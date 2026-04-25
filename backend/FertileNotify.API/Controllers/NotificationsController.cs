@@ -8,12 +8,10 @@ namespace FertileNotify.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<NotificationsController> _logger;
 
-        public NotificationsController(IMediator mediator, ILogger<NotificationsController> logger)
+        public NotificationsController(IMediator mediator)
         {
             _mediator = mediator;
-            _logger = logger;
         }
 
         [Authorize(Policy = ApiKeyScopePolicies.NotificationsSendOrMcpUsage)]
