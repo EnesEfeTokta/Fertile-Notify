@@ -1,6 +1,6 @@
 # Fertile Notify - Backend
 
-A robust notification management system built with Clean Architecture principles using .NET 10, designed to handle multi-channel notifications (Email, SMS, Push, Slack, Discord, MS Teams, etc.) with subscription-based access control and rate limiting.
+A robust notification management system built with Clean Architecture principles using .NET 10, designed to handle multi-channel notifications (Email, SMS, Push, Slack, Discord, MS Teams, WhatsApp, Telegram, Webhooks, and more) with subscription-based access control, rate limiting, and Stripe-powered extra-credit top-ups.
 
 ## Overview
 
@@ -80,25 +80,34 @@ Support for a wide range of delivery channels:
 ```
 backend/
 ├── FertileNotify.API/              # Web API controllers and endpoints
-│   ├── Controllers/                # RESTful endpoints (Auth, Notifications, Subscribers, etc.)
-│   ├── Models/                     # Request/Response DTOs
-│   ├── Validators/                 # FluentValidation logic
-│   └── Authentication/             # Auth handlers and JWT/API Key logic
+│   ├── Authentication/             # JWT and API Key authentication handlers
+│   ├── Authorization/              # API key scope policies
+│   ├── Controllers/                # RESTful endpoints (Auth, Notifications, Subscribers,
+│   │                               #   Templates, Recipients, Statistics, Log,
+│   │                               #   Payments, SystemNotifications)
+│   ├── Extensions/                 # Service registration extensions
+│   ├── Middlewares/                # Exception handling, request logging
+│   ├── Models/                     # Request/Response DTOs (by feature)
+│   └── Validators/                 # FluentValidation logic (by feature)
 │
 ├── FertileNotify.Application/      # Business use cases and services
-│   ├── UseCases/                   # Core business workflows (Commands/Handlers)
-│   ├── Services/                   # Domain services (TemplateEngine, Stats, etc.)
-│   └── Interfaces/                 # Repository and external service contracts
+│   ├── Contracts/                  # MassTransit message contracts
+│   ├── DTOs/                       # Data Transfer Objects (by feature)
+│   ├── Interfaces/                 # Repository and service contracts (by feature)
+│   ├── Services/                   # Domain services (TemplateEngine, Statistics, etc.)
+│   └── UseCases/                   # Core business workflows (Commands/Handlers by feature)
 │
 ├── FertileNotify.Domain/           # Core business logic
-│   ├── Entities/                   # Domain models (Subscriber, Subscription, etc.)
-│   ├── ValueObjects/               # Immutable business components
+│   ├── Entities/                   # Domain models (Subscriber, Subscription, PaymentLog, etc.)
+│   ├── ValueObjects/               # Immutable business components (EmailAddress, CustomUrl, etc.)
 │   └── Rules/                      # Domain-specific business rules
 │
 ├── FertileNotify.Infrastructure/   # Technical implementations
-│   ├── Persistence/                # EF Core, PostgreSQL, Repositories
-│   ├── Notifications/              # Concrete sender implementations (Email, SMS, etc.)
-│   └── BackgroundJobs/             # MassTransit consumers and workers
+│   ├── Authentication/             # JWT and OTP services
+│   ├── BackgroundJobs/             # MassTransit consumers and hosted workers
+│   ├── Notifications/              # Concrete sender implementations (Email, SMS, Push, etc.)
+│   ├── Payment/                    # Stripe payment service
+│   └── Persistence/                # EF Core, PostgreSQL, Repositories
 │
 ├── FertileNotify.Tests/            # Unit and integration tests
 │
@@ -113,6 +122,7 @@ backend/
 - PostgreSQL 15+
 - RabbitMQ
 - Redis
+- Stripe account (optional, for payment features)
 - (Optional) Docker
 
 ### Configuration
@@ -144,6 +154,10 @@ The application uses `appsettings.json` and environment variables for configurat
     "Username": "your-email@example.com",
     "Password": "your-smtp-password",
     "From": "notifications@example.com"
+  },
+  "Stripe": {
+    "SecretKey": "sk_test_...",
+    "WebhookSecret": "whsec_..."
   }
 }
 ```
@@ -196,16 +210,19 @@ docker run -p 5080:8080 \
 ### Subscribers
 - `POST /api/subscribers/register`: Register new subscriber.
 - `GET /api/subscribers/me`: Get current subscriber profile and subscription info.
-- `PUT /api/subscribers/contact`: Update contact info (email/phone).
-- `PUT /api/subscribers/company-name`: Update company name.
+- `PUT /api/subscribers/profile`: Update subscriber profile (company name, contact info).
 - `POST /api/subscribers/channels`: Update active notification channels.
 - `PUT /api/subscribers/password`: Update password.
 - `DELETE /api/subscribers/delete-account`: Delete subscriber account.
-- `POST /api/subscribers/create-api-key`: Generate new API key.
+- `POST /api/subscribers/api-keys`: Generate new API key.
 - `GET /api/subscribers/api-keys`: List all API keys.
+- `PATCH /api/subscribers/api-keys/{apiKeyId}/scopes`: Update API key scopes.
+- `PATCH /api/subscribers/api-keys/{apiKeyId}/status`: Enable or disable an API key.
 - `DELETE /api/subscribers/api-keys/{apiKeyId}`: Revoke API key.
 - `POST /api/subscribers/settings/channel-setting`: Set per-channel configuration.
 - `GET /api/subscribers/settings/channel-setting`: Get per-channel configuration.
+- `PATCH /api/subscribers/add-extra-credits`: Manually add extra notification credits (admin).
+- `GET /api/subscribers/export-data`: Export all subscriber data.
 
 ### Notifications
 - `POST /api/notifications/send`: Send a notification to one or more recipients.
@@ -235,6 +252,15 @@ docker run -p 5080:8080 \
 - `GET /api/statistics`: Get usage statistics and quota tracking.
 - `GET /api/logs/{limit}`: Get recent notification delivery logs.
 
+### Payments
+- `POST /api/payments/extra-credits/intent`: Create a Stripe payment intent for extra credits.
+- `GET /api/payments/history`: Get payment history.
+- `POST /api/payments/webhook`: Stripe webhook handler (processes successful payments).
+
+### System Notifications
+- `GET /api/system-notifications`: List in-app system notifications (filterable by status: all/read/unread).
+- `PATCH /api/system-notifications/{notificationId}/read`: Mark a system notification as read.
+
 ## Running Tests
 
 ```bash
@@ -252,6 +278,7 @@ dotnet test
 - **Logging**: Serilog
 - **Auth**: JWT / API Keys / BCrypt
 - **Email**: MJML.Net / MailKit
+- **Payments**: Stripe
 - **Testing**: xUnit / Moq / FluentAssertions
 
 ## License

@@ -16,13 +16,16 @@ Domain entities represent core business objects with unique identities:
 - **Subscription**: Manages subscription tiers (Free, Pro, Enterprise), monthly limits, and usage tracking.
 - **Notification**: Represents a single notification message, including its content and state.
 - **NotificationTemplate**: Reusable templates supporting dynamic content via `{{placeholder}}` syntax.
-- **ApiKey**: Secure API keys for server-to-server authentication, supporting revocation.
+- **ApiKey**: Secure API keys for server-to-server authentication, supporting scope management and revocation.
 - **ForbiddenRecipient**: Management of blacklisted recipients (e.g., opted-out emails or phone numbers).
 - **NotificationComplaint**: Records and processes complaints from notification recipients.
 - **NotificationLog**: Historical records of notification delivery attempts and results.
 - **SubscriberChannelSetting**: Fine-grained control over active notification channels per subscriber.
 - **SubscriberDailyStats**: Usage statistics tracked on a daily basis for performance and billing.
 - **AutomationWorkflow**: Defines scheduled or event-triggered automated notification workflows with cron expressions.
+- **WorkflowRecipientGroup**: Represents a group of recipients for a specific notification channel within a workflow.
+- **SystemNotification**: In-app notifications sent by the platform to a subscriber (e.g., payment confirmations, announcements).
+- **PaymentLog**: Records Stripe payment transactions, including the payment intent ID, amount, and status.
 
 ### Value Objects
 
@@ -32,6 +35,7 @@ Immutable objects describing domain concepts without a unique identity:
 - **Password**: Secure password management using BCrypt hashing.
 - **PhoneNumber**: Validates and represents standardized phone numbers.
 - **CompanyName**: Enforces business requirements for organization names.
+- **CustomUrl**: Validates and represents absolute HTTP/HTTPS URLs (used for webhooks and custom endpoints).
 - **NotificationChannel**: Type-safe representation of delivery channels (Email, SMS, Discord, etc.).
 - **NotificationContent**: Encapsulates the subject and body of a notification message.
 - **RefreshToken**: Secure JWT refresh tokens with expiration tracking.
@@ -41,7 +45,6 @@ Immutable objects describing domain concepts without a unique identity:
 - **SubscriptionPlan**: Defines tiers (Free, Pro, Enterprise) with associated limits and features.
 - **DeliveryStatus**: Tracks the delivery status of a notification (Pending, Sent, Failed).
 - **ComplaintType**: Categorizes the type of a recipient complaint.
-- **EventType**: Defines the supported event types for notification triggers.
 
 ### Rules
 
@@ -69,10 +72,11 @@ All value objects are immutable by design, ensuring thread safety and preventing
    - **Free**: 100 notifications/month, Email only.
    - **Pro**: 1,000 notifications/month, Email, SMS, Push.
    - **Enterprise**: 10,000+ notifications/month, All channels.
-2. **Security**:
+2. **Extra Credits**: Subscribers can purchase additional notification credits via Stripe to exceed their plan limits.
+3. **Security**:
    - Passwords must meet minimum complexity requirements and are hashed with BCrypt.
-   - API keys are hashed and can be revoked instantly.
-3. **Usage Tracking**:
+   - API keys are hashed and can be revoked or scoped instantly.
+4. **Usage Tracking**:
    - Monthly limits are strictly enforced.
    - Daily statistics are tracked for analytics and quota management.
 
