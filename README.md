@@ -5,7 +5,7 @@
 **An event-driven notification platform for centralized multi-channel notification management**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](https://github.com/EnesEfeTokta/Fertile-Notify)
@@ -41,9 +41,9 @@ The system receives events from external applications, processes notification ru
 
 - **Decoupled Architecture**: Clean separation of concerns with layered architecture
 - **Event-Driven**: Process notifications asynchronously for better performance
-- **Multi-Channel Support**: Send notifications via Email, SMS, and In-App channels
+- **Multi-Channel Support**: Send notifications via Email, SMS, Push, Discord, Slack, MS Teams, WhatsApp, Telegram, and more
 - **Reliable Delivery**: Automatic retry mechanisms with failure tracking
-- **Subscription-Based**: Flexible subscription plans with usage limits
+- **Subscription-Based**: Flexible subscription plans (Free, Pro, Enterprise) with usage limits and extra-credit top-ups
 - **Template Engine**: Customizable notification templates with dynamic content
 
 ---
@@ -63,9 +63,12 @@ The system receives events from external applications, processes notification ru
   - Hosted services for continuous background job execution
 
 - **Multi-Channel Notification Delivery**
-  - **Email**: SMTP-based email notifications
+  - **Email**: SMTP-based email notifications with MJML responsive templates
   - **SMS**: SMS gateway integration
-  - **In-App**: Console/database notifications for in-app messaging
+  - **Push**: Firebase push notifications for mobile/web
+  - **Collaboration**: Discord, Slack, MS Teams
+  - **Messaging**: WhatsApp, Telegram
+  - **Custom**: Webhooks and Console (for testing)
 
 - **Retry & Failure Handling**
   - Automatic retry mechanism for failed deliveries
@@ -73,8 +76,9 @@ The system receives events from external applications, processes notification ru
   - Comprehensive failure tracking and logging
 
 - **Subscription Management**
-  - Multiple subscription plans (Free, Basic, Premium)
+  - Multiple subscription plans (Free, Pro, Enterprise)
   - Usage limits based on subscription tier
+  - Extra-credit top-ups via Stripe payment integration
   - Subscription validation before notification delivery
 
 - **Template Engine**
@@ -84,8 +88,9 @@ The system receives events from external applications, processes notification ru
 
 - **Monitoring & Tracking**
   - Notification status tracking
-  - Delivery statistics
-  - Admin dashboard for monitoring (planned)
+  - Delivery statistics and usage analytics
+  - System notifications for in-app subscriber messages
+  - Subscriber data export
 
 ---
 
@@ -143,34 +148,37 @@ For detailed architecture documentation, see [docs/Architecture.md](docs/Archite
 - **HTTP Client**: Axios (with automatic token refresh)
 
 ### Backend
-- **Framework**: ASP.NET Core 9.0
+- **Framework**: ASP.NET Core 10.0
 - **Language**: C# 13
 - **Architecture**: Clean Architecture / Onion Architecture
 - **API**: RESTful API with JSON serialization
 - **Validation**: FluentValidation
+- **Messaging**: MediatR (CQRS pattern)
 
 ### Infrastructure
-- **Database**: PostgreSQL 15 with Entity Framework Core 9.0
+- **Database**: PostgreSQL 15 with Entity Framework Core 10.0
 - **ORM**: Entity Framework Core with Migrations
-- **Background Jobs**: .NET Hosted Services
-- **Messaging Queue**: In-Memory Queue (extensible to RabbitMQ/Azure Service Bus)
+- **Message Broker**: MassTransit with RabbitMQ
+- **Caching**: Redis (distributed caching and workflow scheduling)
+- **Payments**: Stripe integration for extra-credit top-ups
 - **Containerization**: Docker & Docker Compose
 
 ### Notification Channels
-- **Email**: SMTP Integration
+- **Email**: SMTP / MailKit with MJML responsive templates
 - **SMS**: SMS Gateway Integration
-- **In-App**: Console/Database Notifications
+- **Push**: Firebase Cloud Messaging (FCM), Web Push (VAPID)
+- **Collaboration**: Discord, Slack, MS Teams
+- **Messaging**: WhatsApp, Telegram
+- **Custom**: Webhooks, Console
 
 ### Development Tools
 - **IDE**: Visual Studio / Rider / VS Code
 - **Version Control**: Git & GitHub
 - **Build System**: .NET CLI / MSBuild
 - **Testing**: xUnit, FluentAssertions, Moq
-- **Containerization**: Docker & Docker Compose
 
 ### Planned Integrations
-- **Caching**: Redis (planned)
-- **Message Broker**: RabbitMQ or Azure Service Bus (planned)
+- **Advanced Scheduling**: Extended cron-based workflow scheduling
 
 ---
 
@@ -180,16 +188,23 @@ For detailed architecture documentation, see [docs/Architecture.md](docs/Archite
 Fertile-Notify/
 ├── backend/
 │   ├── FertileNotify.API/              # API Layer - Controllers & Endpoints
-│   │   ├── Controllers/                # API Controllers
-│   │   ├── Middlewares/                # Custom middlewares
-│   │   ├── Models/                     # Request/Response DTOs
-│   │   ├── Validators/                 # FluentValidation validators
+│   │   ├── Authentication/             # JWT & API Key authentication handlers
+│   │   ├── Authorization/              # API key scope policies
+│   │   ├── Controllers/                # API Controllers (Auth, Notifications, Subscribers,
+│   │   │                               #   Templates, Recipients, Statistics, Log,
+│   │   │                               #   Payments, SystemNotifications)
+│   │   ├── Extensions/                 # Service registration extension methods
+│   │   ├── Middlewares/                # Exception handling, request logging
+│   │   ├── Models/                     # Request/Response DTOs (by feature)
+│   │   ├── Validators/                 # FluentValidation validators (by feature)
 │   │   └── Program.cs                  # Application entry point
 │   │
 │   ├── FertileNotify.Application/      # Application Layer - Use Cases
-│   │   ├── Interfaces/                 # Service interfaces
-│   │   ├── Services/                   # Application services
-│   │   └── UseCases/                   # Use case handlers
+│   │   ├── Contracts/                  # MassTransit message contracts
+│   │   ├── DTOs/                       # Data Transfer Objects (by feature)
+│   │   ├── Interfaces/                 # Service and repository contracts
+│   │   ├── Services/                   # Application services (TemplateEngine, etc.)
+│   │   └── UseCases/                   # Use case handlers (by feature)
 │   │
 │   ├── FertileNotify.Domain/           # Domain Layer - Core Business
 │   │   ├── Entities/                   # Domain entities
@@ -200,10 +215,11 @@ Fertile-Notify/
 │   │   └── ValueObjects/               # Value objects
 │   │
 │   ├── FertileNotify.Infrastructure/   # Infrastructure Layer
-│   │   ├── Authentication/             # JWT token service
-│   │   ├── BackgroundJobs/             # Background workers
+│   │   ├── Authentication/             # JWT token & OTP services
+│   │   ├── BackgroundJobs/             # MassTransit consumers & hosted workers
 │   │   ├── Migrations/                 # EF Core migrations
-│   │   ├── Notifications/              # Notification senders
+│   │   ├── Notifications/              # Notification senders (Email, SMS, Push, etc.)
+│   │   ├── Payment/                    # Stripe payment service
 │   │   └── Persistence/                # EF Core DbContext & repositories
 │   │
 │   ├── FertileNotify.Tests/            # Unit & Integration Tests
@@ -222,7 +238,7 @@ Fertile-Notify/
 │   └── README.md                       # Frontend documentation
 │
 ├── docs/                               # Documentation
-│   └── architecture.md                 # Architecture documentation
+│   └── Architecture.md                 # Architecture documentation
 │
 ├── docker-compose.yml                  # Docker Compose configuration
 ├── .env.example                        # Environment variables template
@@ -236,9 +252,10 @@ Fertile-Notify/
 
 ### Prerequisites
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) or higher
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or higher
 - [PostgreSQL 15](https://www.postgresql.org/download/) or higher (optional if using Docker)
 - [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) (optional, recommended)
+- [Redis](https://redis.io/) and [RabbitMQ](https://www.rabbitmq.com/) (optional if using Docker)
 - IDE: Visual Studio 2022, Rider, or VS Code
 - Git
 
@@ -330,6 +347,18 @@ DB_PORT=5432
 # API Settings
 API_PORT=5080
 JWT_SECRET=your_min_30_character_jwt_secret_key
+
+# Redis
+REDIS_CONNECTION=localhost:6379
+
+# RabbitMQ
+RABBITMQ_HOST=localhost
+RABBITMQ_USER=guest
+RABBITMQ_PASS=guest
+
+# Stripe (optional)
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 ```
 
 #### Application Configuration (appsettings.json)
@@ -384,90 +413,53 @@ The notification delivery process follows these steps:
 
 Before using other endpoints, you need to authenticate and obtain a JWT token.
 
-**Endpoint**: `POST /api/auth/login`
+**Step 1** — `POST /api/auth/login` (sends OTP to your email)
 
-**Request Body**:
-```json
-{
-  "userId": "user-guid-here"
-}
-```
-
-**Response**:
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
+**Step 2** — `POST /api/auth/verify-code` (returns JWT + refresh token)
 
 Use the token in subsequent requests:
 ```
 Authorization: Bearer {token}
 ```
 
-### Register a User
+### Register a Subscriber
 
-**Endpoint**: `POST /api/users/register`
+**Endpoint**: `POST /api/subscribers/register`
 
 **Request Body**:
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "subscriptionPlan": "Premium"
-}
-```
-
-**Response**:
-```json
-{
-  "userId": "user-123",
-  "message": "User registered successfully"
+  "companyName": "Acme Corp",
+  "email": "admin@acme.com",
+  "password": "S3cur3P@ss!",
+  "subscriptionPlan": "Pro"
 }
 ```
 
 ### Send a Notification
 
-**Endpoint**: `POST /api/notifications`
+**Endpoint**: `POST /api/notifications/send`
 
 **Request Body**:
 ```json
 {
-  "userId": "user-123",
-  "eventType": "user_registered",
-  "payload": {
-    "userName": "John Doe",
-    "email": "john@example.com",
-    "registrationDate": "2024-01-15"
-  }
-}
-```
-
-**Response**:
-```json
-{
-  "message": "Event received and queued for processing",
-  "eventId": "evt-456"
-}
-```
-
-### Notification Templates
-
-Templates are defined per event type and can include placeholders:
-
-```csharp
-{
-  "EventType": "user_registered",
-  "Subject": "Welcome {{userName}}!",
-  "Body": "Hello {{userName}}, welcome to our platform!"
+  "channels": ["Email"],
+  "recipients": ["user@example.com"],
+  "subject": "Welcome!",
+  "body": "Hello {{name}}, thanks for signing up!"
 }
 ```
 
 ### Subscription Plans
 
-- **Free**: Limited to 100 notifications/month
-- **Basic**: Up to 1,000 notifications/month
-- **Premium**: Unlimited notifications
+| Feature | Free | Pro | Enterprise |
+|---------|------|-----|------------|
+| Monthly Notification Limit | 100 | 1,000 | 10,000 |
+| Rate Limit (req/min) | 50 | 100 | 1,000 |
+| Available Channels | Email | Email, SMS, Push | All |
+| Allowed Event Types | Basic | Extended | All |
+
+Extra credits can be purchased at any time via the Stripe-powered payment endpoint (`POST /api/payments/extra-credits/intent`).
 
 ---
 
@@ -490,6 +482,10 @@ Current development priorities:
 - JWT authentication implementation ✅ (Completed)
 - PostgreSQL database integration with EF Core ✅ (Completed)
 - React-based subscriber frontend ✅ (Completed)
+- RabbitMQ + MassTransit message broker integration ✅ (Completed)
+- Redis caching and workflow scheduling ✅ (Completed)
+- Multi-channel notification senders ✅ (Completed)
+- Stripe payment integration for extra credits ✅ (Completed)
 - Unit and integration tests ✅ (In Progress)
 - Analytics and reporting features (Planned)
 - Advanced notification scheduling (Planned)
