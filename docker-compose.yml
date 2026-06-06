@@ -19,6 +19,7 @@ services:
       - api
     networks:
       - fertile-network
+      - general-tunnel
     restart: unless-stopped
     deploy:
       resources:
@@ -81,6 +82,7 @@ services:
         condition: service_healthy
     networks:
       - fertile-network
+      - general-tunnel
     restart: always
     deploy:
       resources:
@@ -166,27 +168,11 @@ services:
     security_opt:
       - no-new-privileges:true
 
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    profiles: [ "prod" ]
-    container_name: tunnel
-    command: tunnel --no-autoupdate run
-    volumes:
-      - ./cloudflared:/etc/cloudflared
-    networks:
-      - fertile-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 64M
-    logging:
-      <<: *default-logging
-    <<: *security-strict
-
 networks:
   fertile-network:
     driver: bridge
+  general-tunnel:
+    external: true
 
 volumes:
   postgres_data:
