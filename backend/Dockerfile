@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
 COPY ["FertileNotify.API/FertileNotify.API.csproj", "FertileNotify.API/"]
@@ -13,11 +13,9 @@ COPY . .
 WORKDIR "/src/FertileNotify.API"
 RUN dotnet publish "FertileNotify.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends libgssapi-krb5-2 \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache krb5-libs
 COPY --from=build /app/publish .
 
 # GC: memory-conserving workstation mode, hard heap cap ~143MB, tiered PGO for hot paths
